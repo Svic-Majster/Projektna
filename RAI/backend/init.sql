@@ -8,6 +8,9 @@ DROP TABLE IF EXISTS skupine;
 DROP TABLE IF EXISTS uporabniki;
 DROP TYPE IF EXISTS workout_type;
 
+-- workout types
+CREATE TYPE workout_type AS ENUM ('hoja', 'tek', 'kolesarjenje');
+
 -- Uporabniki
 CREATE TABLE uporabniki (
     id SERIAL PRIMARY KEY,
