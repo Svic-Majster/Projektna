@@ -15,3 +15,48 @@ Podatke pridobimo s "strganjem" spleta -> vreme in promet. Te uporabimo za izra�
 ### Primer Podatkovnega modela 
 
 ![PodatkovniModel](podatkovniModel.webp)
+
+
+### Backend setup
+
+Inštaliraj pakete
+
+```
+npm install
+```
+
+Ustvari .env datoteko (Spremeni geslo)
+
+```
+DB_USER=SvicMajsterAdmin
+DB_PASSWORD=tvoje_geslo
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=svicmajster
+PORT=3000
+```
+
+Po zagonu Docker Desktop zaženemo docker-compose.yml file
+
+```
+docker-compose up -d
+```
+
+Vnos testnih podatkov
+
+```
+node seed.js
+```
+
+Zagon strežnika
+
+```
+npm run dev
+```
+
+Preveri delovanje na:
+
+```
+http://localhost:3000
+http://localhost:3000/api/health
+```
