@@ -12,19 +12,19 @@ const seed = async () => {
         const saltRounds = 10;
         const hash = await bcrypt.hash('testni123', saltRounds);
 
-        // vstavljanje testnih uporabnikov
+        // vstavljanje testnih uporabnikov: [ime, priimek, username, email, geslo]
         const uporabniki = [
-            ['Testni Uporabnik', 'uporabnik@test.si', hash],
-            ['Drugi Uporabnik', 'user@test.si', hash],
-            ['Švic Mojster', 'admin@test.si', hash]
+            ['Testni', 'Uporabnik', 'testni_user', 'uporabnik@test.si', hash],
+            ['Drugi', 'Uporabnik', 'drugi_user', 'user@test.si', hash],
+            ['Švic', 'Mojster', 'svic_mojster', 'admin@test.si', hash]
         ];
 
         for (const u of uporabniki) {
             await db.query(
-                'INSERT INTO uporabniki (ime, email, geslo) VALUES ($1, $2, $3)',
+                'INSERT INTO uporabniki (ime, priimek, username, email, geslo) VALUES ($1, $2, $3, $4, $5)',
                 u
             );
-            console.log(`Uporabnik ${u[0]} dodan.`);
+            console.log(`Uporabnik ${u[2]} (@${u[2]}) dodan.`);
         }
 
         console.log('\n Baza uspešno napolnjena.');
