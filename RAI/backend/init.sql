@@ -15,6 +15,8 @@ CREATE TYPE workout_type AS ENUM ('hoja', 'tek', 'kolesarjenje');
 CREATE TABLE uporabniki (
     id SERIAL PRIMARY KEY,
     ime VARCHAR(50) NOT NULL,
+    priimek VARCHAR(50) NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     geslo VARCHAR(255) NOT NULL,
     skupni_xp INT DEFAULT 0,
