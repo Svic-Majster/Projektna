@@ -19,13 +19,13 @@ Podatke pridobimo s "strganjem" spleta -> vreme in promet. Te uporabimo za izra�
 
 ### Backend setup
 
-Inštaliraj pakete
+Inštaliraj pakete v mapi backend.
 
 ```
 npm install
 ```
 
-Ustvari .env datoteko (Spremeni geslo)
+Ustvari .env datoteko (Spremeni geslo).
 
 ```
 DB_USER=SvicMajsterAdmin
@@ -36,19 +36,19 @@ DB_DATABASE=svicmajster
 PORT=3000
 ```
 
-Po zagonu Docker Desktop zaženemo docker-compose.yml file
+Zaženi aplikacijo Docker Desktop. Zaženi docker-compose.yml file:
 
 ```
 docker-compose up -d
 ```
 
-Vnos testnih podatkov
+Vnos testnih podatkov:
 
 ```
 node seed.js
 ```
 
-Zagon strežnika
+Zagon strežnika:
 
 ```
 npm run dev
