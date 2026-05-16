@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15
+    container_name: svicmajster_db
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: svicmajster_mqtt
+    restart: always
+    ports:
+    - "1883:1883"
+    - "9001:9001"
+    volumes:
+    - ./mosquitto/config:/mosquitto/config
+    - ./mosquitto/data:/mosquitto/data
+    - ./mosquitto/log:/mosquitto/log
+
+volumes:
+  postgres_data:
+# Zagon: 
+# docker-compose up -d
+# docker exec -i svicmajster_db psql -U SvicMajsterAdmin -d svicmajster < init.sql
