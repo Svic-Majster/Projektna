@@ -4,39 +4,42 @@ exports.saveExternalData = async (req, res) => {
     try {
         const { viri_ime, tip_vira, podatki_json, lat, lng, kraj } = req.body;
 
-        if (!viri_ime || !tip_vira || !podatki_json) {
-            return res.status(400).json({ 
-                error: 'Manjkajo obvezni podatki (viri_ime, tip_vira ali podatki_json).' 
-            });
+        if (!viri_ime || !tip_vira || !kraj) {
+            return res.status(400).json({ error: 'Manjkajo podatki (viri_ime, tip_vira, kraj).' });
         }
 
-        const queryText = `
+        const deleteQuery = `
+            DELETE FROM zunanji_viri 
+            WHERE viri_ime = $1 AND tip_vira = $2 AND kraj = $3;
+        `;
+        await db.query(deleteQuery, [viri_ime, tip_vira, kraj]);
+
+        const insertQuery = `
             INSERT INTO zunanji_viri (viri_ime, tip_vira, podatki_json, lat, lng, kraj)
             VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING id, datum_zajema;
+            RETURNING id;
         `;
 
         const values = [
-            viri_ime, 
-            tip_vira, 
-            typeof podatki_json === 'object' ? JSON.stringify(podatki_json) : podatki_json, 
-            lat || null, 
-            lng || null, 
-            kraj || null
+            viri_ime,
+            tip_vira,
+            typeof podatki_json === 'object' ? JSON.stringify(podatki_json) : podatki_json,
+            lat || null,
+            lng || null,
+            kraj
         ];
 
-        const result = await db.query(queryText, values);
+        const result = await db.query(insertQuery, values);
 
-        console.log(`Shranjeno: ${viri_ime} (${tip_vira})`);
+        console.log(`[Vreme] Shranjeno: ${kraj}`);
 
         return res.status(201).json({
-            message: 'Podatki uspešno shranjeni.',
-            inserted_id: result.rows[0].id,
-            datum_zajema: result.rows[0].datum_zajema
+            message: 'Uspešno shranjeno.',
+            id: result.rows[0].id
         });
 
     } catch (err) {
-        console.error('Napaka v externalController:', err.message);
-        return res.status(500).json({ error: 'Interna napaka na strežniku.' });
+        console.error('Napaka v kontrolerju:', err.message);
+        return res.status(500).json({ error: 'Interna napaka na strežniku.', details: err.message });
     }
 };
