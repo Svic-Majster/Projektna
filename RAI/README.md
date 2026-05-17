@@ -20,42 +20,58 @@ Podatke pridobimo s "strganjem" spleta -> vreme in promet. Te uporabimo za izra�
 ### Backend setup
 
 Inštaliraj pakete v mapi backend.
-
 ```
 npm install
 ```
 
-Ustvari .env datoteko (Spremeni geslo).
-
+Ustvari /.env/ datoteko v root projekta (Spremeni geslo).
 ```
 DB_USER=SvicMajsterAdmin
 DB_PASSWORD=tvoje_geslo
-DB_HOST=localhost
 DB_PORT=5432
 DB_DATABASE=svicmajster
+```
+
+Ustvari /backend/.env/ datoteko (Spremeni geslo).
+```
 PORT=3000
+
+DB_USER=SvicMajsterAdmin
+DB_PASSWORD=tvoje_geslo
+DB_DATABASE=svicmajster
+DB_HOST=localhost
+DB_PORT=5432
+
+MQTT_URL=mqtt://localhost:1883
+MQTT_USER=SvicMajsterAdmin
+MQTT_PASSWORD=tvoje_geslo
+```
+
+Ustvari `passwordfile` za MQTT prijavo:
+```bash
+docker run --rm -it \
+  -v $(pwd)/mosquitto/config:/mosquitto/config \
+  eclipse-mosquitto:2 \
+  mosquitto_passwd -b -c /mosquitto/config/passwordfile SvicMajsterAdmin tvoje_geslo
 ```
 
 Zaženi aplikacijo Docker Desktop. Zaženi docker-compose.yml file:
-
 ```
+docker compose down -v
 docker-compose up -d
 ```
 
 Vnos testnih podatkov:
-
 ```
-node seed.js
+node db/seed.js
 ```
 
 Zagon strežnika:
-
 ```
 npm run dev
 ```
 
 Preveri delovanje na:
-
 ```
 http://localhost:3000
 http://localhost:3000/api/health
