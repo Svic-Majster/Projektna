@@ -47,12 +47,11 @@ MQTT_USER=SvicMajsterAdmin
 MQTT_PASSWORD=tvoje_geslo
 ```
 
-Ustvari `passwordfile` za MQTT prijavo:
-```bash
-docker run --rm -it \
-  -v $(pwd)/mosquitto/config:/mosquitto/config \
-  eclipse-mosquitto:2 \
-  mosquitto_passwd -b -c /mosquitto/config/passwordfile SvicMajsterAdmin tvoje_geslo
+Ustvari `/mosquitto/config/passwordfile` za MQTT prijavo
+
+Napolni passwordfile z podatki:
+```
+mosquitto_passwd -b /mosquitto/config/passwordfile SvicMajsterAdmin tvoje_geslo
 ```
 
 Zaženi aplikacijo Docker Desktop. Zaženi docker-compose.yml file:
