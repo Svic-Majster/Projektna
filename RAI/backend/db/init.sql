@@ -1,15 +1,18 @@
 -- Brisanje za testiranje
 DROP TABLE IF EXISTS tedenska_lestvica;
 DROP TABLE IF EXISTS zunanji_viri;
+DROP TABLE IF EXISTS obdelani_podatki_ai;
 DROP TABLE IF EXISTS senzorski_podatki;
 DROP TABLE IF EXISTS treningi;
 DROP TABLE IF EXISTS clani_skupine;
 DROP TABLE IF EXISTS skupine;
 DROP TABLE IF EXISTS uporabniki;
 DROP TYPE IF EXISTS workout_type;
+DROP TYPE IF EXISTS ai_validation_status;
 
 -- workout types
 CREATE TYPE workout_type AS ENUM ('hoja', 'tek', 'kolesarjenje');
+CREATE TYPE ai_validation_status AS ENUM ('v_obdelavi', 'potrjeno', 'zavrnjeno');
 
 -- Uporabniki
 CREATE TABLE uporabniki (
@@ -51,10 +54,21 @@ CREATE TABLE treningi (
     vremenski_bonus FLOAT DEFAULT 1.0,
     prometni_bonus FLOAT DEFAULT 1.0,
     slika_potrditve VARCHAR(255),
-    ai_status VARCHAR(20) DEFAULT 'v_obdelavi',
+    ai_status ai_validation_status DEFAULT 'v_obdelavi',
     zacetek_vadbe TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     konec_vadbe TIMESTAMP NULL,
     CONSTRAINT fk_trening_uporabnik FOREIGN KEY (uporabnik_id) REFERENCES uporabniki(id) ON DELETE CASCADE
+);
+
+-- obdelani podatki
+CREATE TABLE obdelani_podatki_ai (
+    id SERIAL PRIMARY KEY,
+    trening_id INT NOT NULL,
+    prepoznan_objekt VARCHAR(50) DEFAULT 'majica',
+    stanje_objekta VARCHAR(50),
+    ai_confidence FLOAT DEFAULT 0.0,
+    casovni_zig TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_ai_trening FOREIGN KEY (trening_id) REFERENCES treningi(id) ON DELETE CASCADE
 );
 
 -- Senzorski podatki 
@@ -83,14 +97,15 @@ CREATE TABLE tedenska_lestvica (
 );
 
 -- Zunanji viri
--- ni direktno povezano z fk 
--- primerjava preko lat in lng
 CREATE TABLE zunanji_viri (
     id SERIAL PRIMARY KEY,
-    viri_ime VARCHAR(50), 
-    podatki_json JSONB,
+    viri_ime VARCHAR(50) NOT NULL,
+    tip_vira VARCHAR(20) NOT NULL,
+    podatki_json JSONB NOT NULL,
     lat DECIMAL(10, 8),
     lng DECIMAL(11, 8),
     kraj VARCHAR(100),
     datum_zajema TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_zunanji_viri_lokacija_tip ON zunanji_viri(tip_vira, lat, lng);

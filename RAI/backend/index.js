@@ -12,11 +12,13 @@ app.use(express.json());
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const externalRoutes = require('./routes/externalRoutes');
 const workoutRoutes = require('./routes/workoutRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
+app.use('/api/external', externalRoutes);
 
 // osnovna pot | http://localhost:3000
 app.get('/', (req, res) => {
