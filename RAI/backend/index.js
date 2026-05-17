@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+const { startMqttClient } = require('./mqtt/client');
 
 require('dotenv').config();
 
@@ -26,16 +27,18 @@ app.get('/', (req, res) => {
 app.get('/api/health', async (req, res) => {
     try {
         const result = await db.query('SELECT NOW()');
-        res.json({ 
-            status: 'vse ok', 
+        res.json({
+            status: 'vse ok',
             db_time: result.rows[0].now,
-            sporocilo: 'Povezava z Docker bazo deluje!' 
+            sporocilo: 'Povezava z Docker bazo deluje!'
         });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Baza ne odgovarja', details: err.message });
     }
 });
+
+startMqttClient();
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
