@@ -1,0 +1,7 @@
+backend/node_modules/
+
+mosquitto/config/passwordfile
+mosquitto/data/
+mosquitto/log/
+
+*.env
