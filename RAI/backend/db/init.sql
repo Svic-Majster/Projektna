@@ -99,10 +99,13 @@ CREATE TABLE tedenska_lestvica (
 -- Zunanji viri
 CREATE TABLE zunanji_viri (
     id SERIAL PRIMARY KEY,
-    viri_ime VARCHAR(50), 
-    podatki_json JSONB,
+    viri_ime VARCHAR(50) NOT NULL,
+    tip_vira VARCHAR(20) NOT NULL,
+    podatki_json JSONB NOT NULL,
     lat DECIMAL(10, 8),
     lng DECIMAL(11, 8),
     kraj VARCHAR(100),
     datum_zajema TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_zunanji_viri_lokacija_tip ON zunanji_viri(tip_vira, lat, lng);
