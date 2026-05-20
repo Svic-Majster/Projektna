@@ -2,6 +2,7 @@ import cv2
 import os
 import glob
 import random
+import numpy as np
 
 # pridobi pot originalnih slik in preveri ce obstaja pot za procesirane. (ce ne jo nardi) (train za treniranje modela test za testiranje)
 def pridobi_poti_map(uporabnik_id, surova_baza="data/raw", predelana_baza="data/processed"):
@@ -39,6 +40,10 @@ def izboljsaj_kontrast_obraza(barvna_slika):
     obdelana_slika = clahe.apply(siva_slika)
     
     return obdelana_slika
+
+# funkcija za umetno spreminjanje svetlosti slike (faktor > 1 posvetli, faktor < 1 potemni)
+def augmentiraj_svetlost(slika, faktor):
+    return np.clip(slika.astype(np.float32) * faktor, 0, 255).astype(np.uint8)
 
 # razdeli v mape test in train za treniranje modela + obdela
 def razdeli_in_procesiraj_slike(uporabnik_id, razmerje_train=0.8):
