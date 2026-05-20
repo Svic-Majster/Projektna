@@ -15,3 +15,12 @@ def pridobi_poti_map(uporabnik_id, surova_baza="data/raw", predelana_baza="data/
         os.makedirs(pot_test, exist_ok=True)
         
     return izvorna_pot, pot_train, pot_test
+
+# iz izvorne poti nalozi vse .jpg in .png datoteke  v sprem slike
+def nalozi_seznam_slik(izvorna_pot):
+    if not os.path.exists(izvorna_pot):
+        print(f"Napaka: izvorna mapa {izvorna_pot} ne obstaja")
+        return []
+        
+    slike = glob.glob(os.path.join(izvorna_pot, "*.jpg")) + glob.glob(os.path.join(izvorna_pot, "*.png"))
+    return slike
