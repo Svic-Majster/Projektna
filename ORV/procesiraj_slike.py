@@ -24,3 +24,17 @@ def nalozi_seznam_slik(izvorna_pot):
         
     slike = glob.glob(os.path.join(izvorna_pot, "*.jpg")) + glob.glob(os.path.join(izvorna_pot, "*.png"))
     return slike
+
+# pretvorba v sivinsko sliko in CLAHE algoritem za izboljsanje kontrasta
+def izboljsaj_kontrast_obraza(barvna_slika):
+    # 3x3 gaussian blur
+    zglajena_slika = cv2.GaussianBlur(barvna_slika, (3, 3), 0)
+    
+    # pretvorba v sivo 
+    siva_slika = cv2.cvtColor(zglajena_slika, cv2.COLOR_BGR2GRAY)
+    
+    # CLAHE za lepo osvetlitev
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    obdelana_slika = clahe.apply(siva_slika)
+    
+    return obdelana_slika
