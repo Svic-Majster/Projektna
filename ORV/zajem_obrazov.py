@@ -137,8 +137,10 @@ def zajemi_obraze(uporabnik_id):
                             # standardna velikost ki jo bomo meli
                             obraz_resized = cv2.resize(obraz_izrez, (200, 200))
                             
-                            #ime datoteke
-                            ime_datoteke = f"{trenutna_pozicija.replace(' ', '_')}_{stevec_slik}.jpg"
+                            # logika za poimenovanje slik 
+                            smer_cista = trenutna_pozicija.replace("Obrni glavo ", "").replace("Glej ", "").lower()
+                            ime_datoteke = f"{smer_cista}_{stevec_slik}.jpg"
+                            
                             polna_pot = os.path.join(pot_za_shranjevanje, ime_datoteke)
                             
                             cv2.imwrite(polna_pot, obraz_resized)
