@@ -8,11 +8,11 @@ DROP TABLE IF EXISTS clani_skupine;
 DROP TABLE IF EXISTS skupine;
 DROP TABLE IF EXISTS uporabniki;
 DROP TYPE IF EXISTS workout_type;
-DROP TYPE IF EXISTS ai_validation_status;
-
+DROP TYPE IF EXISTS login_status;
 -- workout types
 CREATE TYPE workout_type AS ENUM ('hoja', 'tek', 'kolesarjenje');
-CREATE TYPE ai_validation_status AS ENUM ('v_obdelavi', 'potrjeno', 'zavrnjeno');
+-- status face login
+CREATE TYPE login_status AS ENUM ('uspesno', 'zavrnjeno_nizek_ujemanje', 'obraz_ni_zaznan');
 
 -- Uporabniki
 CREATE TABLE uporabniki (
@@ -24,7 +24,9 @@ CREATE TABLE uporabniki (
     geslo VARCHAR(255) NOT NULL,
     skupni_xp INT DEFAULT 0,
     trenutni_nivo INT DEFAULT 1,
-    datum_registracije TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    datum_registracije TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    referencna_slika VARCHAR(255) NULL,
+    vektor_obraza JSONB NULL
 );
 
 -- Skupine
@@ -53,22 +55,19 @@ CREATE TABLE treningi (
     razdalja_km FLOAT DEFAULT 0,
     vremenski_bonus FLOAT DEFAULT 1.0,
     prometni_bonus FLOAT DEFAULT 1.0,
-    slika_potrditve VARCHAR(255),
-    ai_status ai_validation_status DEFAULT 'v_obdelavi',
     zacetek_vadbe TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     konec_vadbe TIMESTAMP NULL,
     CONSTRAINT fk_trening_uporabnik FOREIGN KEY (uporabnik_id) REFERENCES uporabniki(id) ON DELETE CASCADE
 );
 
--- obdelani podatki
 CREATE TABLE obdelani_podatki_ai (
     id SERIAL PRIMARY KEY,
-    trening_id INT NOT NULL,
-    prepoznan_objekt VARCHAR(50) DEFAULT 'majica',
-    stanje_objekta VARCHAR(50),
+    uporabnik_id INT NOT NULL,
+    slika_prijave VARCHAR(255) NOT NULL,
+    status_prijave login_status NOT NULL,
     ai_confidence FLOAT DEFAULT 0.0,
     casovni_zig TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_ai_trening FOREIGN KEY (trening_id) REFERENCES treningi(id) ON DELETE CASCADE
+    CONSTRAINT fk_ai_uporabnik FOREIGN KEY (uporabnik_id) REFERENCES uporabniki(id) ON DELETE CASCADE
 );
 
 -- Senzorski podatki 
