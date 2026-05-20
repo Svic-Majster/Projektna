@@ -81,24 +81,57 @@ def razdeli_in_procesiraj_slike(uporabnik_id, razmerje_train=0.8):
         učna_množica = poti_slik[:meja_razdelitve]
         testna_množica = poti_slik[meja_razdelitve:]
         
-        # dejansko obdelovanje in shranjevanje
-        def obdelaj_in_shrani_skupino(seznam_slik, ciljna_mapa):
-            stevec = 0
-            for pot_slike in seznam_slik:
-                img = cv2.imread(pot_slike)
-                if img is None:
-                    continue
+        # shranjevanje testne mnozice
+        for pot_slike in testna_množica:
+            img = cv2.imread(pot_slike)
+            if img is None:
+                continue
+            obdelana = izboljsaj_kontrast_obraza(img)
+            
+            # Ohranimo pravilno poimenovanje (ki je zdaj že popravljeno iz zajema)
+            st_slike = os.path.basename(pot_slike).split("_")[-1]
+            ime_datoteke = f"{pozicija}_{st_slike}"
+            
+            cv2.imwrite(os.path.join(pot_test, ime_datoteke), obdelana)
+            stevec_test += 1
+            
+        # obdelava in augmentacija testne mnozice
+        for idx, pot_slike in enumerate(učna_množica):
+            img = cv2.imread(pot_slike)
+            if img is None:
+                continue
+            
+            # osnovna obdelana slika
+            osnovna_obdelana = izboljsaj_kontrast_obraza(img)
+            
+            # shranimo obdelano (pozicija je že pravilna iz zajema)
+            ime_orig = f"{pozicija}_{idx}.jpg"
+            cv2.imwrite(os.path.join(pot_train, ime_orig), osnovna_obdelana)
+            stevec_train += 1
+            
+            # augmentiramo svetlost
+            # potemnjeno
+            slika_temna = augmentiraj_svetlost(osnovna_obdelana, 0.7)
+            cv2.imwrite(os.path.join(pot_train, f"{pozicija}_{idx}_temno.jpg"), slika_temna)
+            
+            # posvetljeno
+            slika_svetla = augmentiraj_svetlost(osnovna_obdelana, 1.3)
+            cv2.imwrite(os.path.join(pot_train, f"{pozicija}_{idx}_svetlo.jpg"), slika_svetla)
+            stevec_train += 2
+            
+            # vodoravno zrcaljenje
+            slika_zrcaljena = cv2.flip(osnovna_obdelana, 1)
+            
+            # obrne da bo prav poimenovano
+            if pozicija == "naravnost":
+                nova_pozicija = "naravnost"
+            elif pozicija == "levo":
+                nova_pozicija = "desno"
+            else:
+                nova_pozicija = "levo"
                 
-                # funkcija za obdelavo
-                obdelana = izboljsaj_kontrast_obraza(img)
-                
-                ime_datoteke = os.path.basename(pot_slike)
-                cv2.imwrite(os.path.join(ciljna_mapa, ime_datoteke), obdelana)
-                stevec += 1
-            return stevec
-
-        stevec_train += obdelaj_in_shrani_skupino(učna_množica, pot_train)
-        stevec_test += obdelaj_in_shrani_skupino(testna_množica, pot_test)
+            cv2.imwrite(os.path.join(pot_train, f"{nova_pozicija}_{idx}_zrcaljeno.jpg"), slika_zrcaljena)
+            stevec_train += 1
 
     print(f"razdelitev zakljucena")
     print(f"shranjeno v train: {stevec_train} slik ({pot_train})")

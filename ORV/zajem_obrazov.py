@@ -103,6 +103,7 @@ def zajemi_obraze(uporabnik_id):
 
                 if len(vse_oci_x) > 0:
                     # povp x kordinata
+                    # povprecni_x_oci = sum(vse_oci_x) / len(vse_oci_x)
                     povprecni_x_oci = sum(vse_oci_x) / len(vse_oci_x)
                     relativni_center = povprecni_x_oci / w
                     
@@ -137,8 +138,15 @@ def zajemi_obraze(uporabnik_id):
                             # standardna velikost ki jo bomo meli
                             obraz_resized = cv2.resize(obraz_izrez, (200, 200))
                             
-                            # logika za poimenovanje slik 
+                            # Logika za poimenovanje slik (popravljena zaradi zrcaljenja kamere)
                             smer_cista = trenutna_pozicija.replace("Obrni glavo ", "").replace("Glej ", "").lower()
+                            
+                            # menjanja txt oznaka da bo pravilno poimenovano
+                            if smer_cista == "levo":
+                                smer_cista = "desno"
+                            elif smer_cista == "desno":
+                                smer_cista = "levo"
+                                
                             ime_datoteke = f"{smer_cista}_{stevec_slik}.jpg"
                             
                             polna_pot = os.path.join(pot_za_shranjevanje, ime_datoteke)
