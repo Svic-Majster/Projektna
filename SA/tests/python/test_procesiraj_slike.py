@@ -1,10 +1,12 @@
 import os
 import shutil
 import sys
+import numpy as np
+import cv2 as cv
 
 # nastavimo path isto ko prej 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../ORV')))
-from procesiraj_slike import pridobi_poti_map, nalozi_seznam_slik  # type: ignore
+from procesiraj_slike import pridobi_poti_map, nalozi_seznam_slik, izboljsaj_kontrast_obraza  # type: ignore
 
 # test ko mapa obstaja
 def test_pridobi_poti_map_ko_izvor_obstaja():
@@ -97,3 +99,22 @@ def test_nalozi_seznam_slik_neobstojeca_mapa():
     
     # preveri da je prazno namesto da faila
     assert rezultat == []
+
+# preverjanje dimenzij in ce je sivinsko
+def test_izboljsaj_kontrast_obraza():
+
+    # naredimo fake barvno sliko
+    visina, sirina = 100, 100
+    lazna_barvna_slika = np.random.randint(0, 256, (visina, sirina, 3), dtype=np.uint8)
+    
+    # funckija za izbolsanje kontrasta
+    obdelana_slika = izboljsaj_kontrast_obraza(lazna_barvna_slika)
+    
+    # preverimo da ni prazno
+    assert obdelana_slika is not None
+    
+    # preverimo dimenzije da so iste pa da ma .shape samo dva kanala
+    assert obdelana_slika.shape == (visina, sirina)
+    
+    # preverimo tip podatkov
+    assert obdelana_slika.dtype == np.uint8
