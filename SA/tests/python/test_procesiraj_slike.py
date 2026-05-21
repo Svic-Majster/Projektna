@@ -3,10 +3,11 @@ import shutil
 import sys
 import numpy as np
 import cv2 as cv
+from unittest.mock import patch
 
 # nastavimo path isto ko prej 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../ORV')))
-from procesiraj_slike import pridobi_poti_map, nalozi_seznam_slik, izboljsaj_kontrast_obraza, augmentiraj_svetlost  # type: ignore
+from procesiraj_slike import pridobi_poti_map, nalozi_seznam_slik, izboljsaj_kontrast_obraza, augmentiraj_svetlost, razdeli_in_procesiraj_slike  # type: ignore
 
 # test ko mapa obstaja
 def test_pridobi_poti_map_ko_izvor_obstaja():
@@ -23,7 +24,7 @@ def test_pridobi_poti_map_ko_izvor_obstaja():
     # pridobimo poti z funkcijo
     izv, train, test = pridobi_poti_map(uporabnik_id, surova_baza=test_raw, predelana_baza=test_processed)
     
-    # 3. assert preverjanje
+    # assert preverjanje
     assert izv == izvorna_pot
     assert train == os.path.join(test_processed, str(uporabnik_id), "train")
     assert test == os.path.join(test_processed, str(uporabnik_id), "test")
@@ -139,3 +140,49 @@ def test_augmentiraj_svetlost():
     
     # preveri ce je prav omejilo
     assert np.all(slika_prezgana == 255)
+
+# preveri razdelitev in augmentacijo
+@patch('procesiraj_slike.pridobi_poti_map')
+def test_razdeli_in_procesiraj_slike(mock_pridobi_poti):
+    # zacasne testne poti
+    test_raw = "data/test_raw_split"
+    test_processed = "data/test_processed_split"
+    uporabnik_id = 1
+    
+    izvorna_pot = os.path.join(test_raw, str(uporabnik_id))
+    pot_train = os.path.join(test_processed, str(uporabnik_id), "train")
+    pot_test = os.path.join(test_processed, str(uporabnik_id), "test")
+    
+    # funkcija uporabi testne poti
+    mock_pridobi_poti.return_value = (izvorna_pot, pot_train, pot_test)
+    
+    # ustvarimo testne mape na disku
+    os.makedirs(izvorna_pot, exist_ok=True)
+    os.makedirs(pot_train, exist_ok=True)
+    os.makedirs(pot_test, exist_ok=True)
+    
+    # ustvarimo 10 fake slik
+    za_zapis = np.zeros((200, 200, 3), dtype=np.uint8)
+    for i in range(10):
+        cv.imwrite(os.path.join(izvorna_pot, f"naravnost_{i}.jpg"), za_zapis)
+        
+    try:
+        # zazenemo glavno funkcijo
+        razdeli_in_procesiraj_slike(uporabnik_id)
+        
+        # testna mnozica (20% od 10)
+        slike_test = os.listdir(pot_test)
+        assert len(slike_test) == 2
+        
+        # ucna mnozica (8*4=32)
+        slike_train = os.listdir(pot_train)
+        assert len(slike_train) == 32
+        
+        # da vidimo ce obstajajo augmentirane
+        assert "naravnost_0_temno.jpg" in slike_train
+        assert "naravnost_0_zrcaljeno.jpg" in slike_train
+        
+    finally:
+        # zbrisemo vse
+        shutil.rmtree(test_raw, ignore_errors=True)
+        shutil.rmtree(test_processed, ignore_errors=True)
