@@ -6,7 +6,7 @@ import cv2 as cv
 
 # nastavimo path isto ko prej 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../ORV')))
-from procesiraj_slike import pridobi_poti_map, nalozi_seznam_slik, izboljsaj_kontrast_obraza  # type: ignore
+from procesiraj_slike import pridobi_poti_map, nalozi_seznam_slik, izboljsaj_kontrast_obraza, augmentiraj_svetlost  # type: ignore
 
 # test ko mapa obstaja
 def test_pridobi_poti_map_ko_izvor_obstaja():
@@ -118,3 +118,24 @@ def test_izboljsaj_kontrast_obraza():
     
     # preverimo tip podatkov
     assert obdelana_slika.dtype == np.uint8
+
+# preveri spreminjanje svetlosti
+def test_augmentiraj_svetlost():
+    # vsi piksli majo vrednost 100
+    slika_osnova = np.array([[100, 100], [100, 100]], dtype=np.uint8)
+    
+    # damo x1.5 na vsakega
+    slika_svetla = augmentiraj_svetlost(slika_osnova, 1.5)
+    
+    # preverimo ce so vsi enaki 150
+    assert np.all(slika_svetla == 150)
+    assert slika_svetla.dtype == np.uint8
+
+    # vsi piksli majo vrednost 200
+    slika_visoka = np.array([[200, 200], [200, 200]], dtype=np.uint8)
+    
+    # vsak piksel x2 ampak omeji na 255 ker je to max
+    slika_prezgana = augmentiraj_svetlost(slika_visoka, 2.0)
+    
+    # preveri ce je prav omejilo
+    assert np.all(slika_prezgana == 255)
