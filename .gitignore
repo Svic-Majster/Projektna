@@ -5,6 +5,7 @@
 **/__pycache__/
 *.py[cod]
 .pytest_cache/
+*pyc
 
 # skrije pakete za node.js
 **/node_modules/
@@ -18,3 +19,4 @@
 # skrije slike test data pri ORV
 data/
 **/data/raw/
+lbph_model.yml

@@ -83,3 +83,17 @@ def test_nalozi_seznam_slik_uspesno():
     
     # zbrisemo po testu
     shutil.rmtree(testna_mapa, ignore_errors=True)
+
+# ko mapa ne obstaja vrne prazno
+def test_nalozi_seznam_slik_neobstojeca_mapa():
+    neobstojeca_mapa = "data/mapa_ne_obstaja"
+    
+    # da res ne obstaja
+    if os.path.exists(neobstojeca_mapa):
+        shutil.rmtree(neobstojeca_mapa)
+        
+    # moja fun
+    rezultat = nalozi_seznam_slik(neobstojeca_mapa)
+    
+    # preveri da je prazno namesto da faila
+    assert rezultat == []
