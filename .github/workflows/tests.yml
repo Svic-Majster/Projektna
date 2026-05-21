@@ -32,3 +32,20 @@ jobs:
       - name: Zagon Python testov z pytest
         run: |
           pytest SA/tests/python/
+
+# ... (tukaj so tvoji obstoječi koraki za checkout, Python, flake8 itd.)
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: |
+          cd RAI/backend
+          npm ci
+
+      - name: Run JavaScript tests
+        run: |
+          cd RAI/backend
+          npm test
