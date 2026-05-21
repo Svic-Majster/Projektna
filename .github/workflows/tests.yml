@@ -33,8 +33,6 @@ jobs:
         run: |
           pytest SA/tests/python/
 
-# ... (tukaj so tvoji obstoječi koraki za checkout, Python, flake8 itd.)
-
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
