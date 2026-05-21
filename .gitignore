@@ -1,0 +1,20 @@
+# skrije vse env files
+*.env
+
+# skrije vse pycache in pytest mape
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# skrije pakete za node.js
+**/node_modules/
+**/package-lock.json
+
+# skrije podatke mosquitto brokerja
+**/mosquitto/config/passwordfile
+**/mosquitto/data/
+**/mosquitto/log/
+
+# skrije slike test data pri ORV
+data/
+**/data/raw/
