@@ -1,0 +1,34 @@
+name: Testni cevovod (Sistemska Administracija)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kode
+        uses: actions/checkout@v4
+
+      - name: Python okolje setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Namestitev sys knjiznic za OpenCV
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+
+      - name: Namestitev Python odvisnosti
+        run: |
+          python -m pip install --upgrade pip
+          pip install opencv-python pytest
+
+      - name: Zagon Python testov z pytest
+        run: |
+          pytest SA/tests/python/
