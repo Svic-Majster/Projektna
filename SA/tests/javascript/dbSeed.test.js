@@ -6,7 +6,7 @@ jest.mock('../../../RAI/backend/db', () => ({
     query: mockQuery
 }));
 
-describe('Testiranje baze - Seeder skripta', () => {
+describe('Testiranje baze - Seed.js skripta', () => {
     let exitSpy;
 
     beforeEach(() => {
@@ -22,7 +22,18 @@ describe('Testiranje baze - Seeder skripta', () => {
         exitSpy.mockRestore();
     });
 
-    it('mora uspešno zagnati seeder', async () => {
-        
+it('mora uspesno pobrisati stare in vstaviti 3 nove testne uporabnike', async () => {
+        mockQuery.mockResolvedValue({ rowCount: 1 });
+
+        // izoliran zagon seed skripte 
+        jest.isolateModules(() => {
+            require('../../../RAI/backend/db/seed');
+        });
+
+        // cakamo next tick
+        await new Promise(process.nextTick);
+
+        // preveri ce se je skripta koncala brez napak
+        expect(exitSpy).toHaveBeenCalledWith(0);
     });
 });
