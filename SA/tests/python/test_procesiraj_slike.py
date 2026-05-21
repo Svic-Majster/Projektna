@@ -4,8 +4,7 @@ import sys
 
 # nastavimo path isto ko prej 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../ORV')))
-from procesiraj_slike import pridobi_poti_map  # type: ignore
-
+from procesiraj_slike import pridobi_poti_map, nalozi_seznam_slik  # type: ignore
 
 # test ko mapa obstaja
 def test_pridobi_poti_map_ko_izvor_obstaja():
@@ -55,3 +54,32 @@ def test_pridobi_poti_map_ko_izvor_ne_obstaja():
     # mapi nesmeta bit ker ni ivora
     assert not os.path.exists(train)
     assert not os.path.exists(test)
+
+# iskanje slik in ignoriranje drugih datotek
+def test_nalozi_seznam_slik_uspesno():
+    testna_mapa = "data/test_iskanja_slik"
+    os.makedirs(testna_mapa, exist_ok=True)
+    
+    # ustvarimo fake files (en txt ko ga more ignorirat)
+    testne_datoteke = ["slika1.jpg", "slika2.jpg", "slika3.png", "porocilo.txt"]
+    
+    for ime in testne_datoteke:
+        polna_pot = os.path.join(testna_mapa, ime)
+        with open(polna_pot, "w") as f:
+            f.write("lazni podatki") # samo nardimo file da obstaja na disku
+            
+    # iscemo slike z naso fun
+    najdene_slike = nalozi_seznam_slik(testna_mapa)
+    
+    # fun more najt 3 slike (brez .txt)
+    assert len(najdene_slike) == 3
+
+    # preverimo ce je naslo prave 3    
+    imena_najdenih = [os.path.basename(pot) for pot in najdene_slike]
+    assert "slika1.jpg" in imena_najdenih
+    assert "slika2.jpg" in imena_najdenih
+    assert "slika3.png" in imena_najdenih
+    assert "porocilo.txt" not in imena_najdenih
+    
+    # zbrisemo po testu
+    shutil.rmtree(testna_mapa, ignore_errors=True)
