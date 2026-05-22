@@ -1,11 +1,12 @@
-# skrije vse env files
+# skrije vse env files razen .env.example
 *.env
+.env.*
+!.env.example
 
 # skrije vse pycache in pytest mape
 **/__pycache__/
 *.py[cod]
 .pytest_cache/
-*pyc
 
 # skrije pakete za node.js
 **/node_modules/
@@ -20,3 +21,30 @@
 data/
 **/data/raw/
 lbph_model.yml
+
+# expo
+**/.expo/
+**/dist/
+**/web-build/
+
+# metro / logs
+**/.metro-health-check*
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# typesript
+**/*.tsbuildinfo
+
+
+# macOS / editors
+**/.vscode/
+**/.idea/
+
+# native folders za mobilno app
+**/android/
+**/ios/
+
+# test / coverage
+**/coverage/
