@@ -37,3 +37,64 @@ Namestitev knjižnice OpenCV:
 
 ```bash
 pip install opencv-python
+```
+
+---
+
+# LBPH model za verifikacijo obraza
+
+Ta del projekta vsebuje implementacijo modela računalniškega vida za preverjanje identitete uporabnika na podlagi slike obraza.
+
+Uporabljen je OpenCV LBPH Face Recognizer pristop. Sistem preveri, ali je nova slika dovolj podobna naučenemu uporabniku in vrne rezultat `POTRJEN` ali `ZAVRNJEN`.
+
+## Glavne datoteke
+
+- `train_lbph.py`  
+  Učenje LBPH modela in shranjevanje modela v `lbph_model.yml`.
+
+- `face_verification.py`  
+  Runtime verifikacija nove slike z uporabo naučenega modela.
+
+## Testiranje in evaluacija
+
+V mapi `testing/` se nahajajo skripte za:
+- evaluacijo modela,
+- threshold tuning,
+- hyperparameter tuning,
+- osnovno testiranje modela.
+
+Uporabljene metrike:
+- Accuracy
+- FAR (False Acceptance Rate)
+- FRR (False Rejection Rate)
+
+## Končne nastavitve
+
+LBPH parametri:
+
+```python
+radius = 1
+neighbors = 8
+grid_x = 8
+grid_y = 8
+```
+
+Threshold:
+
+```python
+THRESHOLD = 50
+```
+
+## Zagon
+
+Učenje modela:
+
+```bash
+python train_lbph.py
+```
+
+Verifikacija slike:
+
+```bash
+python face_verification.py
+```
