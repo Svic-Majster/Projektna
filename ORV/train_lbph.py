@@ -3,9 +3,17 @@ import os
 import numpy as np
 
 TRAIN_PATH = "data/processed/1/train"
+TARGET_LABEL = 1
+
+LBPH_PARAMS = {
+    "radius": 1,
+    "neighbors": 8,
+    "grid_x": 8,
+    "grid_y": 8
+}
 
 # LBPH model
-model = cv2.face.LBPHFaceRecognizer_create()
+model = cv2.face.LBPHFaceRecognizer_create(**LBPH_PARAMS)
 
 face_images = []
 labels = []
@@ -23,7 +31,7 @@ for filename in os.listdir(TRAIN_PATH):
     face_images.append(image)
 
     # za zdaj samo uporabnik 1
-    labels.append(1)
+    labels.append(TARGET_LABEL)
 
 # pretvori labele v numpy array
 labels = np.array(labels)
