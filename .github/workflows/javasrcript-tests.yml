@@ -1,0 +1,34 @@
+name: JavaScript Testi (RAI)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - 'RAI/**'
+  pull_request:
+    branches: [ "main", "master" ]
+    paths:
+      - 'RAI/**'
+
+jobs:
+  js-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kode
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: |
+          cd RAI/backend
+          npm ci
+
+      - name: Run JavaScript tests
+        run: |
+          cd RAI/backend
+          npm test

@@ -1,10 +1,14 @@
-name: Testni cevovod (Sistemska Administracija)
+name: Python Testi (ORV)
 
 on:
   push:
     branches: [ "main", "master" ]
+    paths:
+      - 'ORV/**'
   pull_request:
     branches: [ "main", "master" ]
+    paths:
+      - 'ORV/**'
 
 jobs:
   python-tests:
@@ -29,21 +33,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install opencv-python pytest
 
-      - name: Zagon Python testov z pytest
+      - name: Zagon Python testov samo za ORV
         run: |
           pytest SA/tests/python/
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Node.js dependencies
-        run: |
-          cd RAI/backend
-          npm ci
-
-      - name: Run JavaScript tests
-        run: |
-          cd RAI/backend
-          npm test
