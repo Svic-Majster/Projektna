@@ -41,7 +41,35 @@ async function stopWorkout({ trening_id }) {
     return result.rows[0];
 }
 
+async function getUserWorkouts(uporabnikId) {
+    if (!uporabnikId) {
+        const error = new Error('Manjka uporabnikId');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const result = await db.query(
+        `SELECT
+        id,
+        uporabnik_id,
+        vrsta_workouta,
+        skupne_tocke,
+        razdalja_km,
+        vremenski_bonus,
+        prometni_bonus,
+        zacetek_vadbe,
+        konec_vadbe
+        FROM treningi
+        WHERE uporabnik_id = $1
+        ORDER BY zacetek_vadbe DESC`,
+        [uporabnikId]
+    );
+
+    return result.rows;
+}
+
 module.exports = {
     startWorkout,
     stopWorkout,
+    getUserWorkouts,
 };
