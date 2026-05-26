@@ -5,10 +5,13 @@ on:
     branches: [ "main", "master" ]
     paths:
       - 'ORV/**'
+      - 'SA/tests/python/**'
+
   pull_request:
     branches: [ "main", "master" ]
     paths:
       - 'ORV/**'
+      - 'SA/tests/python/**'
 
 jobs:
   python-tests:
@@ -31,7 +34,7 @@ jobs:
       - name: Namestitev Python odvisnosti
         run: |
           python -m pip install --upgrade pip
-          pip install opencv-python pytest
+          pip install opencv-contrib-python numpy pytest
 
       - name: Zagon Python testov samo za ORV
         run: |
