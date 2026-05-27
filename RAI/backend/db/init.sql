@@ -54,7 +54,6 @@ CREATE TABLE treningi (
     vrsta_workouta workout_type NOT NULL,
     skupne_tocke INT DEFAULT 0,
     razdalja_km FLOAT DEFAULT 0,
-    vremenski_bonus FLOAT DEFAULT 1.0,
     prometni_bonus FLOAT DEFAULT 1.0,
     zacetek_vadbe TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     konec_vadbe TIMESTAMP NULL,
