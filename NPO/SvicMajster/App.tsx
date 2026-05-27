@@ -44,7 +44,12 @@ export default function App() {
     return <ProfileScreen />;
   }
 
-  return <HomeScreen onGoToProfile={() => setScreen('profile')} />;
+  return (
+  <HomeScreen
+    user={auth.user}
+    onGoToProfile={() => setScreen('profile')}
+  />
+);
 }
 
 const styles = StyleSheet.create({

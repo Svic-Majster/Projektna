@@ -1,31 +1,59 @@
-import { Button, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+    Button,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
 
 type HomeScreenProps = {
+    user: {
+        ime: string;
+        priimek: string;
+        email: string;
+        username: string;
+    };
     onGoToProfile: () => void;
 };
 
 export default function HomeScreen({
-  onGoToProfile,
+    user,
+    onGoToProfile,
 }: HomeScreenProps) {
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.logo}>SvicMajster</Text>
+    return (
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Text style={styles.logo}>SvicMajster</Text>
 
-        <Pressable onPress={onGoToProfile}>
-          <Text style={styles.profile}>👤</Text>
-        </Pressable>
-      </View>
+                <Pressable onPress={onGoToProfile}>
+                    <Text style={styles.profile}>👤</Text>
+                </Pressable>
+            </View>
 
-      <View style={styles.content}>
-        <Text style={styles.title}>Začetni zaslon</Text>
+            <View style={styles.content}>
+                <Text style={styles.welcome}>Pozdravljen, {user.ime}!</Text>
+                <Text style={styles.subtitle}>Pripravljen na nov trening?</Text>
 
-        <View style={styles.startButton}>
-          <Button title="Začni trening" onPress={() => {}} />
+                <View style={styles.card}>
+                    <Text style={styles.cardTitle}>Današnji cilj</Text>
+                    <Text style={styles.cardText}>
+                        Začni trening in spremljaj svojo aktivnost.
+                    </Text>
+                </View>
+
+                <View style={styles.card}>
+                    <Text style={styles.cardTitle}>Leaderboard</Text>
+                    <Text style={styles.cardText}>
+                        Tvoja lestvica bo prikazana tukaj.
+                    </Text>
+                </View>
+
+                <View style={styles.startButton}>
+                    <Button title="Začni trening" onPress={() => { }} />
+                </View>
+            </View>
         </View>
-      </View>
-    </View>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
@@ -53,14 +81,41 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    title: {
+    welcome: {
         color: 'white',
-        fontSize: 22,
-        fontWeight: '600',
+        fontSize: 28,
+        fontWeight: '700',
+    },
+    subtitle: {
+        color: '#9CA3AF',
+        fontSize: 16,
+        marginTop: 8,
+        marginBottom: 24,
     },
 
     startButton: {
-        marginTop: 24,
+        marginTop: 12,
+        marginBottom: 16,
         width: '80%',
+    },
+
+    card: {
+        backgroundColor: '#1F2937',
+        padding: 18,
+        borderRadius: 16,
+        marginBottom: 16,
+        width: '100%',
+    },
+
+    cardTitle: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: 6,
+    },
+
+    cardText: {
+        color: '#D1D5DB',
+        fontSize: 14,
     },
 });
