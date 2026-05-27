@@ -1,5 +1,4 @@
 import {
-    Button,
     Pressable,
     StyleSheet,
     Text,
@@ -48,9 +47,11 @@ export default function HomeScreen({
                     </Text>
                 </View>
 
-                <View style={styles.startButton}>
-                    <Button title="Začni trening" onPress={() => { }} />
-                </View>
+                <Pressable style={styles.startButton}>
+                    <Text style={styles.startButtonText}>
+                        Začni trening
+                    </Text>
+                </Pressable>
             </View>
         </View>
     );
@@ -97,6 +98,16 @@ const styles = StyleSheet.create({
         marginTop: 12,
         marginBottom: 16,
         width: '80%',
+        backgroundColor: '#2563EB',
+        paddingVertical: 16,
+        borderRadius: 16,
+        alignItems: 'center',
+    },
+
+    startButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: '700',
     },
 
     card: {
