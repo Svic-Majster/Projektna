@@ -10,8 +10,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../frontend/public')));
 app.use('/src', express.static(path.join(__dirname, '../frontend/src')));
+app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -22,11 +22,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/external', externalRoutes);
-
-// osnovna pot | http://localhost:3000
-app.get('/', (req, res) => {
-    res.send('API deluje.');
-});
 
 // pot za bazo | http://localhost:3000/api/health
 app.get('/api/health', async (req, res) => {

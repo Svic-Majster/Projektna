@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Moji treningi</title>
-  <link rel="stylesheet" href="../src/css/style.css" />
-  <script type="module" src="../src/app.js" defer></script>
+  <link rel="stylesheet" href="/src/css/style.css" />
+  <script type="module" src="/src/app.js" defer></script>
 </head>
 <body>
   <main class="shell">
@@ -15,7 +15,7 @@
         <p class="muted">Po prijavi se nalozijo treningi</p>
       </div>
 
-      <form id="login-form" class="form">
+      <form id="login-form" class="form" method="POST" action="#">
         <label>
           <span>Email ali username</span>
           <input id="identifier" name="identifier" type="text" required placeholder="vnesi email ali username" />

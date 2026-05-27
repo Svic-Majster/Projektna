@@ -1,6 +1,7 @@
 import { login, getUserWorkouts } from './components/api.js';
 import { renderUser } from './components/userProfile.js';
 import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
+import { initNavbar, resetNavbar } from './components/navbar.js';
 
 const authView = document.getElementById('auth-view');
 const appView = document.getElementById('app-view');
@@ -46,7 +47,7 @@ function logout() {
     loginForm.reset();
     clearWorkouts();
     resetNavbar();
-
+    
     authError.hidden = true;
     workoutError.hidden = true;
     appView.hidden = true;
@@ -64,7 +65,7 @@ loginForm.addEventListener('submit', async (event) => {
 
     try {
         const user = await login(identifier, geslo);
-        showApplication(user); // Pokličemo posodobljeno funkcijo
+        showApplication(user);
     } catch (error) {
         authError.textContent = error.message;
         authError.hidden = false;
