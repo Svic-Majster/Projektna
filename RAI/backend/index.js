@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+const path = require('path');
 const { startMqttClient } = require('./mqtt/client');
 
 require('dotenv').config();
@@ -9,6 +10,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.use('/src', express.static(path.join(__dirname, '../frontend/src')));
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
