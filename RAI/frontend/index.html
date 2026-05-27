@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moji treningi</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script type="module" src="./app.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <section class="card auth-card" id="auth-view">
+      <div>
+        <h1>Prijava</h1>
+        <p class="muted">Po prijavi se nalozijo treningi</p>
+      </div>
+
+      <form id="login-form" class="form">
+        <label>
+          <span>Email ali username</span>
+          <input id="identifier" name="identifier" type="text" required placeholder="vnesi email ali username" />
+        </label>
+
+        <label>
+          <span>Geslo</span>
+          <input id="geslo" name="geslo" type="password" required placeholder="vnesi geslo" />
+        </label>
+
+        <button type="submit" class="btn btn-primary">Prijava</button>
+        <p id="auth-error" class="error" hidden></p>
+      </form>
+    </section>
+
+    <section class="dashboard" id="dashboard-view" hidden>
+      <header class="topbar card">
+        <div>
+          <p class="eyebrow">Prijavljen uporabnik</p>
+          <h2 id="user-name">-</h2>
+          <p id="user-meta" class="muted">-</p>
+        </div>
+        <button id="logout-btn" class="btn btn-secondary" type="button">Odjava</button>
+      </header>
+
+      <section class="card workouts-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Zgodovina</p>
+            <h3>Moji treningi</h3>
+          </div>
+          <button id="refresh-btn" class="btn btn-secondary" type="button">Osveži</button>
+        </div>
+
+        <p id="workout-error" class="error" hidden></p>
+        <div id="loading" class="muted" hidden>Nalaganje treningov ...</div>
+        <div id="empty-state" class="empty" hidden>Uporabnik še nima treningov.</div>
+        <div id="workouts-list" class="workouts-list"></div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
