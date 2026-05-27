@@ -3,23 +3,16 @@ const router = express.Router();
 const zunanjiViriService = require('../services/zunanjiViriService');
 
 router.get('/', async (req, res) => {
+    const lokacije = await zunanjiViriService.getZunanjiViri();
+    res.json(lokacije);
+});
+
+router.post('/bulk', async (req, res) => {
     try {
-        console.log('Zagon scraperja pred nalaganjem zemljevida...');
-        
-        // scraper posodobi tabelo
-        try {
-            await zunanjiViriService.pokliciScraper();
-        } catch (scraperErr) {
-            // ce ne gren da stare podatke
-            console.error('Scraper se ni uspešno izvedel, berem obstoječe podatke.');
-        }
-        
-        const lokacije = await zunanjiViriService.getZunanjiViri();
-        
-        res.json(lokacije);
+        await zunanjiViriService.posodobiVseVire(req.body);
+        res.status(200).json({ status: 'uspeh' });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Napaka na strežniku pri obdelavi lokacij' });
+        res.status(500).json({ error: err.message });
     }
 });
 
