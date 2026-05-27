@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Moji treningi</title>
+  <title>Švic Majster</title>
   <link rel="stylesheet" href="/src/css/style.css" />
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <script type="module" src="/src/app.js" defer></script>
 </head>
 <body>
@@ -69,6 +73,13 @@
           <div id="empty-state" class="empty" hidden>Uporabnik še nima treningov.</div>
           <div id="workouts-list" class="workouts-list"></div>
         </section>
+      </div>
+
+      <div id="map-view" class="app-page card" style="padding: 24px;" hidden>
+        <h3>Vremenski množilci na zemljevidu</h3>
+        <p class="muted">Prikazana so območja z aktivnimi vremenskimi bonusi (OpenStreetMap).</p>
+        
+        <div id="map" style="height: 500px; width: 100%; border-radius: 12px; margin-top: 16px; border: 1px solid var(--border); background: #f5f7fb;"></div>
       </div>
 
       <div id="placeholder-view" class="app-page card" style="padding: 24px;" hidden>
