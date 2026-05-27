@@ -1,9 +1,48 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
   return (
-    <View>
-      <Text>Home Screen</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.logo}>SvicMajster</Text>
+        <Text style={styles.profile}>👤</Text>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.title}>Začetni zaslon</Text>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#111827',
+    padding: 24,
+  },
+  header: {
+    marginTop: 32,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  logo: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  profile: {
+    fontSize: 28,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    color: 'white',
+    fontSize: 22,
+    fontWeight: '600',
+  },
+});
