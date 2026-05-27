@@ -1,22 +1,31 @@
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, Pressable, StyleSheet, Text, View } from 'react-native';
 
-export default function HomeScreen() {
-    return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.logo}>SvicMajster</Text>
-                <Text style={styles.profile}>👤</Text>
-            </View>
+type HomeScreenProps = {
+    onGoToProfile: () => void;
+};
 
-            <View style={styles.content}>
-                <Text style={styles.title}>Začetni zaslon</Text>
+export default function HomeScreen({
+  onGoToProfile,
+}: HomeScreenProps) {
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.logo}>SvicMajster</Text>
 
-                <View style={styles.startButton}>
-                    <Button title="Začni trening" onPress={() => { }} />
-                </View>
-            </View>
+        <Pressable onPress={onGoToProfile}>
+          <Text style={styles.profile}>👤</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.title}>Začetni zaslon</Text>
+
+        <View style={styles.startButton}>
+          <Button title="Začni trening" onPress={() => {}} />
         </View>
-    );
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

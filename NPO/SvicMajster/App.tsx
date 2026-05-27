@@ -10,16 +10,18 @@ import { useAuth } from './src/hooks/useAuth';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 
 export default function App() {
   const auth = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [screen, setScreen] = useState<'home' | 'profile'>('home');
 
   if (auth.loading) {
     return (
       <View style={styles.center}>
-      <ActivityIndicator size="large" />
-      <Text style={styles.loadingText}>Nalagam uporabnika...</Text>
+        <ActivityIndicator size="large" />
+        <Text style={styles.loadingText}>Nalagam uporabnika...</Text>
       </View>
     );
   }
@@ -27,18 +29,22 @@ export default function App() {
   if (!auth.user) {
     return mode === 'login' ? (
       <LoginScreen
-      onSubmit={auth.login}
-      onGoToRegister={() => setMode('register')}
+        onSubmit={auth.login}
+        onGoToRegister={() => setMode('register')}
       />
     ) : (
       <RegisterScreen
-      onSubmit={auth.register}
-      onGoToLogin={() => setMode('login')}
+        onSubmit={auth.register}
+        onGoToLogin={() => setMode('login')}
       />
     );
   }
 
-  return <HomeScreen />;
+  if (screen === 'profile') {
+    return <ProfileScreen />;
+  }
+
+  return <HomeScreen onGoToProfile={() => setScreen('profile')} />;
 }
 
 const styles = StyleSheet.create({
