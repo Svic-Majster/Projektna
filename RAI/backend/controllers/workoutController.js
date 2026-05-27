@@ -31,3 +31,16 @@ exports.stopWorkout = async (req, res) => {
         });
     }
 };
+
+exports.getUserWorkouts = async (req, res) => {
+    try {
+        const { uporabnikId } = req.params;
+        const workouts = await workoutService.getUserWorkouts(uporabnikId);
+        res.json(workouts);
+    } catch (err) {
+        console.error(err);
+        res.status(err.statusCode || 500).json({
+            error: err.message || 'Napaka na strežniku',
+        });
+    }
+};
