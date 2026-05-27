@@ -25,7 +25,7 @@ export default function HomeScreen({
                 <Text style={styles.logo}>SvicMajster</Text>
 
                 <Pressable onPress={onGoToProfile}>
-                    <Text style={styles.profile}>👤</Text>
+                    <Text style={styles.profile}>Profil</Text>
                 </Pressable>
             </View>
 
@@ -75,7 +75,9 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     profile: {
-        fontSize: 28,
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
     },
     content: {
         flex: 1,

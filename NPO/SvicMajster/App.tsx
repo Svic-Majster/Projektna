@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -16,6 +16,12 @@ export default function App() {
   const auth = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [screen, setScreen] = useState<'home' | 'profile'>('home');
+  
+  useEffect(() => {
+  if (auth.user) {
+    setScreen('home');
+  }
+}, [auth.user]);
 
   if (auth.loading) {
     return (
@@ -41,7 +47,13 @@ export default function App() {
   }
 
   if (screen === 'profile') {
-    return <ProfileScreen />;
+    return (
+      <ProfileScreen
+        user={auth.user}
+        onGoBack={() => setScreen('home')}
+        onLogout={auth.logout}
+      />
+    );
   }
 
   return (
