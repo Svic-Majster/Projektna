@@ -79,9 +79,9 @@
         <h3>Vremenski podatki</h3>
         <p class="muted">Vse lokacije kjer sledimo vremenu.</p>
         
-        <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+        <div style="display: flex; gap: 15px; margin-bottom: 10px; align-items: center;">
           <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" id="toggle-active-zones"> Prikazi aktivne cone
+            <input type="checkbox" id="toggle-active-zones" autocomplete="off"> Prikazi aktivne cone
           </label>
           
           <div id="map-legend" style="display: none; gap: 10px; align-items: center; font-size: 0.9em;">
@@ -92,6 +92,10 @@
               <span style="width: 12px; height: 12px; background: blue; border-radius: 50%;"></span> Mraz (< 5°C)
             </span>
           </div>
+        </div>
+
+        <div id="no-zones-alert" style="color: red; margin-bottom: 10px; display: none; font-weight: bold;">
+          Trenutno ni aktivnih vremenskih con.
         </div>
 
         <div id="map" style="height: 500px; width: 100%; border-radius: 12px; border: 1px solid var(--border);"></div>
