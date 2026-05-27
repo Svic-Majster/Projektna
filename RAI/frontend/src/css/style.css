@@ -26,7 +26,7 @@
 #empty-state[hidden],
 #auth-error[hidden],
 #workout-error[hidden] {
-display: none !important;
+    display: none !important;
 }
 
 body {
@@ -61,6 +61,42 @@ body {
     margin: 72px auto 0;
 }
 
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    margin-bottom: 18px;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    gap: 8px;
+}
+
+.navbar .nav-link {
+    background: transparent;
+    border: 0;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.navbar .nav-link:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.navbar .nav-link.active {
+    background: var(--surface-2);
+    color: var(--primary);
+}
+
 .eyebrow {
     margin: 0 0 8px;
     font-size: 12px;
@@ -70,10 +106,7 @@ body {
     font-weight: 700;
 }
 
-h1,
-h2,
-h3,
-p {
+h1, h2, h3, p {
     margin-top: 0;
 }
 
@@ -140,7 +173,6 @@ input:focus {
     justify-content: space-between;
     gap: 16px;
     align-items: center;
-    margin-top: 24px;
 }
 
 .section-head {
@@ -194,6 +226,24 @@ input:focus {
 @media (max-width: 640px) {
     .shell {
         width: min(100% - 20px, 960px);
+    }
+
+    .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .nav-left, .nav-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .navbar .nav-link {
+        flex: 1;
+        text-align: center;
+        padding: 8px 10px;
+        font-size: 13px;
     }
 
     .topbar,

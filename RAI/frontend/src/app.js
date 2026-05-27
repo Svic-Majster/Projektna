@@ -1,9 +1,10 @@
 import { login, getUserWorkouts } from './components/api.js';
 import { renderUser } from './components/userProfile.js';
 import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
+import { initNavbar, resetNavbar } from './components/navbar.js';
 
 const authView = document.getElementById('auth-view');
-const dashboardView = document.getElementById('dashboard-view');
+const appView = document.getElementById('app-view');
 const loginForm = document.getElementById('login-form');
 const authError = document.getElementById('auth-error');
 const workoutError = document.getElementById('workout-error');
@@ -32,11 +33,12 @@ async function loadWorkouts() {
     }
 }
 
-function showDashboard(user) {
+function showApplication(user) {
     currentUser = user;
     renderUser(user);
     authView.hidden = true;
-    dashboardView.hidden = false;
+    appView.hidden = false;
+    initNavbar(loadWorkouts);
     loadWorkouts();
 }
 
@@ -44,9 +46,11 @@ function logout() {
     currentUser = null;
     loginForm.reset();
     clearWorkouts();
+    resetNavbar();
+    
     authError.hidden = true;
     workoutError.hidden = true;
-    dashboardView.hidden = true;
+    appView.hidden = true;
     authView.hidden = false;
 }
 
@@ -61,7 +65,7 @@ loginForm.addEventListener('submit', async (event) => {
 
     try {
         const user = await login(identifier, geslo);
-        showDashboard(user);
+        showApplication(user);
     } catch (error) {
         authError.textContent = error.message;
         authError.hidden = false;

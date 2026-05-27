@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Moji treningi</title>
-  <link rel="stylesheet" href="../src/css/style.css" />
-  <script type="module" src="../src/app.js" defer></script>
+  <link rel="stylesheet" href="/src/css/style.css" />
+  <script type="module" src="/src/app.js" defer></script>
 </head>
 <body>
   <main class="shell">
@@ -15,7 +15,7 @@
         <p class="muted">Po prijavi se nalozijo treningi</p>
       </div>
 
-      <form id="login-form" class="form">
+      <form id="login-form" class="form" method="POST" action="#">
         <label>
           <span>Email ali username</span>
           <input id="identifier" name="identifier" type="text" required placeholder="vnesi email ali username" />
@@ -31,31 +31,52 @@
       </form>
     </section>
 
-    <section class="dashboard" id="dashboard-view" hidden>
-      <header class="topbar card">
-        <div>
-          <p class="eyebrow">Prijavljen uporabnik</p>
-          <h2 id="user-name">-</h2>
-          <p id="user-meta" class="muted">-</p>
+    <div id="app-view" hidden>
+      
+      <nav class="navbar card">
+        <div class="nav-left">
+          <button class="nav-link active" data-target="home-view">Domov</button>
+          <button class="nav-link" data-target="group-view">Skupine</button>
+          <button class="nav-link" data-target="dashboard-stats-view">Nadzorna plošča</button>
+          <button class="nav-link" data-target="map-view">Zemljevid</button>
         </div>
-        <button id="logout-btn" class="btn btn-secondary" type="button">Odjava</button>
-      </header>
+        <div class="nav-right">
+          <button class="nav-link" data-target="profile-view">Profil</button>
+        </div>
+      </nav>
 
-      <section class="card workouts-card">
-        <div class="section-head">
+      <div id="home-view" class="app-page">
+        <header class="topbar card">
           <div>
-            <p class="eyebrow">Zgodovina</p>
-            <h3>Moji treningi</h3>
+            <p class="eyebrow">Prijavljen uporabnik</p>
+            <h2 id="user-name">-</h2>
+            <p id="user-meta" class="muted">-</p>
           </div>
-          <button id="refresh-btn" class="btn btn-secondary" type="button">Osveži</button>
-        </div>
+          <button id="logout-btn" class="btn btn-secondary" type="button">Odjava</button>
+        </header>
 
-        <p id="workout-error" class="error" hidden></p>
-        <div id="loading" class="muted" hidden>Nalaganje treningov ...</div>
-        <div id="empty-state" class="empty" hidden>Uporabnik še nima treningov.</div>
-        <div id="workouts-list" class="workouts-list"></div>
-      </section>
-    </section>
+        <section class="card workouts-card" style="margin-top: 18px;">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Zgodovina</p>
+              <h3>Moji treningi</h3>
+            </div>
+            <button id="refresh-btn" class="btn btn-secondary" type="button">Osveži</button>
+          </div>
+
+          <p id="workout-error" class="error" hidden></p>
+          <div id="loading" class="muted" hidden>Nalaganje treningov ...</div>
+          <div id="empty-state" class="empty" hidden>Uporabnik še nima treningov.</div>
+          <div id="workouts-list" class="workouts-list"></div>
+        </section>
+      </div>
+
+      <div id="placeholder-view" class="app-page card" style="padding: 24px;" hidden>
+        <h3 id="placeholder-title">Stran</h3>
+        <p class="muted">Ta funkcionalnost je trenutno še v fazi razvoja.</p>
+      </div>
+
+    </div>
   </main>
 </body>
 </html>
