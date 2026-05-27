@@ -9,6 +9,7 @@ import {
 import { useAuth } from './src/hooks/useAuth';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import HomeScreen from './src/screens/HomeScreen';
 
 export default function App() {
   const auth = useAuth();
@@ -37,20 +38,7 @@ export default function App() {
     );
   }
 
-  return (
-    <View style={styles.center}>
-    <Text style={styles.title}>Prijavljen si</Text>
-    <Text style={styles.subtitle}>
-    {auth.user.ime} {auth.user.priimek}
-    </Text>
-    <Text style={styles.subtitle}>{auth.user.email}</Text>
-    <Text style={styles.subtitle}>@{auth.user.username}</Text>
-
-    <View style={styles.spacer} />
-
-    <Button title="Odjava" onPress={auth.logout} />
-    </View>
-  );
+  return <HomeScreen />;
 }
 
 const styles = StyleSheet.create({
