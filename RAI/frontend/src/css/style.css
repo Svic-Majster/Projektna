@@ -256,3 +256,8 @@ input:focus {
         grid-template-columns: 1fr;
     }
 }
+
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: none;
+}
