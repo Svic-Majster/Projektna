@@ -36,8 +36,8 @@ export async function pripraviZemljevid() {
 
             if (!isNaN(lat) && !isNaN(lng)) {
                 const temp = lokacija.podatki_json?.temperatura ?? null;
-                const multiplier = lokacija.podatki_json?.weather_multiplier || lokacija.podatki_json?.multiplier || '1.0';
-
+                const jeEkstremno = (temp !== null) && (temp > 25 || temp < 5);
+                const multiplier = jeEkstremno ? '1.5' : (lokacija.podatki_json?.weather_multiplier || lokacija.podatki_json?.multiplier || '1.0');
                 const marker = L.marker([lat, lng]).addTo(map);
                 
                 marker.bindPopup(`
@@ -58,15 +58,23 @@ export async function pripraviZemljevid() {
 function izrisiCone(prikazi) {
     activeCircles.forEach(c => map.removeLayer(c));
     activeCircles = [];
-
     const legenda = document.getElementById('map-legend');
-    legenda.style.display = prikazi ? 'flex' : 'none';
+    const alertBox = document.getElementById('no-zones-alert');
+    const aktivneLokacije = allData.filter(l => {
+        const t = l.podatki_json?.temperatura;
+        return (t !== null && (t > 25 || t < 5));
+    });
 
     if (prikazi) {
-        allData.forEach(lokacija => {
-            const temp = lokacija.podatki_json?.temperatura;
+        if (aktivneLokacije.length === 0) {
+            alertBox.style.display = 'block';
+            legenda.style.display = 'none';
+        } else {
+            alertBox.style.display = 'none';
+            legenda.style.display = 'flex';
             
-            if (temp !== undefined && temp !== null && (temp > 25 || temp < 5)) {
+            aktivneLokacije.forEach(lokacija => {
+                const temp = lokacija.podatki_json.temperatura;
                 const circle = L.circle([lokacija.lat, lokacija.lng], {
                     radius: 10000,
                     color: temp > 25 ? 'red' : 'blue',
@@ -76,7 +84,10 @@ function izrisiCone(prikazi) {
                 
                 circle.bindPopup(`Aktivna cona: ${lokacija.kraj} (${temp}°C)`);
                 activeCircles.push(circle);
-            }
-        });
+            });
+        }
+    } else {
+        alertBox.style.display = 'none';
+        legenda.style.display = 'none';
     }
 }
