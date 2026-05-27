@@ -52,11 +52,15 @@ CREATE TABLE treningi (
     id SERIAL PRIMARY KEY,
     uporabnik_id INT NOT NULL,
     vrsta_workouta workout_type NOT NULL,
+    status VARCHAR(20) DEFAULT 'v_teku',    
     skupne_tocke INT DEFAULT 0,
     razdalja_km FLOAT DEFAULT 0,
-    prometni_bonus FLOAT DEFAULT 1.0,
+    vremenski_bonus FLOAT DEFAULT 1.0,
+    lat_vadbe FLOAT,
+    lng_vadbe FLOAT,
     zacetek_vadbe TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     konec_vadbe TIMESTAMP NULL,
+    
     CONSTRAINT fk_trening_uporabnik FOREIGN KEY (uporabnik_id) REFERENCES uporabniki(id) ON DELETE CASCADE
 );
 

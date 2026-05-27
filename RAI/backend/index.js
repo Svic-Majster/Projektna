@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db');
 const path = require('path');
+const cron = require('node-cron');
 const { startMqttClient } = require('./mqtt/client');
+const zunanjiViriService = require('./services/zunanjiViriService');
 
 require('dotenv').config();
 
@@ -17,13 +19,25 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const externalRoutes = require('./routes/externalRoutes');
 const workoutRoutes = require('./routes/workoutRoutes');
+const zunanjiViriRoutes = require('./routes/zunanjiViriRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/external', externalRoutes);
+app.use('/api/zunanji-viri', zunanjiViriRoutes);
 
-// pot za bazo | http://localhost:3000/api/health
+// zagon scrapera vsakih 10 min
+cron.schedule('*/10 * * * *', async () => {
+    console.log('--- Avtomatski zagon scraperja (vsakih 10 min) ---');
+    try {
+        await zunanjiViriService.pokliciScraper();
+        console.log('Avtomatski scraper uspešno zaključen.');
+    } catch (err) {
+        console.error('Napaka pri avtomatskem zagonu scraperja:', err);
+    }
+});
+
 app.get('/api/health', async (req, res) => {
     try {
         const result = await db.query('SELECT NOW()');
