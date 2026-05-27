@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -9,16 +9,25 @@ import {
 import { useAuth } from './src/hooks/useAuth';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 
 export default function App() {
   const auth = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [screen, setScreen] = useState<'home' | 'profile'>('home');
+  
+  useEffect(() => {
+  if (auth.user) {
+    setScreen('home');
+  }
+}, [auth.user]);
 
   if (auth.loading) {
     return (
       <View style={styles.center}>
-      <ActivityIndicator size="large" />
-      <Text style={styles.loadingText}>Nalagam uporabnika...</Text>
+        <ActivityIndicator size="large" />
+        <Text style={styles.loadingText}>Nalagam uporabnika...</Text>
       </View>
     );
   }
@@ -26,31 +35,33 @@ export default function App() {
   if (!auth.user) {
     return mode === 'login' ? (
       <LoginScreen
-      onSubmit={auth.login}
-      onGoToRegister={() => setMode('register')}
+        onSubmit={auth.login}
+        onGoToRegister={() => setMode('register')}
       />
     ) : (
       <RegisterScreen
-      onSubmit={auth.register}
-      onGoToLogin={() => setMode('login')}
+        onSubmit={auth.register}
+        onGoToLogin={() => setMode('login')}
+      />
+    );
+  }
+
+  if (screen === 'profile') {
+    return (
+      <ProfileScreen
+        user={auth.user}
+        onGoBack={() => setScreen('home')}
+        onLogout={auth.logout}
       />
     );
   }
 
   return (
-    <View style={styles.center}>
-    <Text style={styles.title}>Prijavljen si</Text>
-    <Text style={styles.subtitle}>
-    {auth.user.ime} {auth.user.priimek}
-    </Text>
-    <Text style={styles.subtitle}>{auth.user.email}</Text>
-    <Text style={styles.subtitle}>@{auth.user.username}</Text>
-
-    <View style={styles.spacer} />
-
-    <Button title="Odjava" onPress={auth.logout} />
-    </View>
-  );
+  <HomeScreen
+    user={auth.user}
+    onGoToProfile={() => setScreen('profile')}
+  />
+);
 }
 
 const styles = StyleSheet.create({
