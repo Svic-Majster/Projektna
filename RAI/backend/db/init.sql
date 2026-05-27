@@ -25,6 +25,7 @@ CREATE TABLE uporabniki (
     skupni_xp INT DEFAULT 0,
     trenutni_nivo INT DEFAULT 1,
     datum_registracije TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    profilna_slika VARCHAR(255) NULL,
     referencna_slika VARCHAR(255) NULL,
     vektor_obraza JSONB NULL
 );
