@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import {
     Pressable,
     StyleSheet,
+    ScrollView,
     Text,
+    TextInput,
     View,
 } from 'react-native';
 
@@ -21,6 +24,15 @@ export default function ProfileScreen({
     onGoBack,
     onLogout,
 }: ProfileScreenProps) {
+    const [ime, setIme] = useState(user.ime);
+    const [priimek, setPriimek] = useState(user.priimek);
+    const [username, setUsername] = useState(user.username);
+    const [message, setMessage] = useState('');
+
+    const handleSave = () => {
+        setMessage('Shranjevanje profila bo dodano v naslednji fazi.');
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -33,44 +45,84 @@ export default function ProfileScreen({
                 <View style={styles.placeholder} />
             </View>
 
-            <View style={styles.content}>
+            <ScrollView
+                style={styles.content}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+            >
                 <View style={styles.avatar}>
                     <Text style={styles.avatarText}>
-                        {user.ime.charAt(0)}
+                        {ime.charAt(0).toUpperCase()}
                     </Text>
                 </View>
 
                 <Text style={styles.name}>
-                    {user.ime} {user.priimek}
+                    {ime} {priimek}
                 </Text>
 
-                <Text style={styles.username}>
-                    @{user.username}
-                </Text>
+                <Text style={styles.username}>@{username}</Text>
 
-                <View style={styles.infoCard}>
-                    <Text style={styles.label}>Email</Text>
-                    <Text style={styles.value}>{user.email}</Text>
+                <View style={styles.sectionCard}>
+                    <Text style={styles.sectionTitle}>Podatki profila</Text>
+                    <Text style={styles.sectionSubtitle}>Uredi svoje podatke</Text>
+
+                    <View style={styles.fieldGroup}>
+                        <Text style={styles.label}>Ime</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={ime}
+                            onChangeText={setIme}
+                            placeholder="Ime"
+                            placeholderTextColor="#6B7280"
+                        />
+                    </View>
+
+                    <View style={styles.fieldGroup}>
+                        <Text style={styles.label}>Priimek</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={priimek}
+                            onChangeText={setPriimek}
+                            placeholder="Priimek"
+                            placeholderTextColor="#6B7280"
+                        />
+                    </View>
+
+                    <View style={styles.fieldGroup}>
+                        <Text style={styles.label}>Uporabniško ime</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={username}
+                            onChangeText={setUsername}
+                            placeholder="Uporabniško ime"
+                            placeholderTextColor="#6B7280"
+                            autoCapitalize="none"
+                        />
+                    </View>
                 </View>
 
-                <View style={styles.infoCard}>
-                    <Text style={styles.label}>Uporabniško ime</Text>
-                    <Text style={styles.value}>{user.username}</Text>
+                <View style={styles.emailCard}>
+                    <Text style={styles.label}>E-pošta</Text>
+                    <Text style={styles.emailValue}>{user.email}</Text>
+                    <Text style={styles.emailHint}>
+                        E-pošte trenutno ni mogoče spremeniti.
+                    </Text>
                 </View>
-                <Pressable
-                    style={styles.faceButton}
-                    onPress={() => { }}
-                >
-                    <Text style={styles.faceButtonText}>Dodaj Face ID</Text>
+
+                <Pressable style={styles.saveButton} onPress={handleSave}>
+                    <Text style={styles.primaryButtonText}>Shrani spremembe</Text>
                 </Pressable>
 
-                <Pressable
-                    style={styles.logoutButton}
-                    onPress={onLogout}
-                >
-                    <Text style={styles.logoutText}>Odjava</Text>
+                <Pressable style={styles.faceButton} onPress={() => { }}>
+                    <Text style={styles.secondaryButtonText}>Dodaj Face ID</Text>
                 </Pressable>
-            </View>
+
+                <Pressable style={styles.logoutButton} onPress={onLogout}>
+                    <Text style={styles.primaryButtonText}>Odjava</Text>
+                </Pressable>
+
+                {message ? <Text style={styles.message}>{message}</Text> : null}
+            </ScrollView>
         </View>
     );
 }
@@ -89,89 +141,143 @@ const styles = StyleSheet.create({
     },
     backButton: {
         color: 'white',
-        fontSize: 28,
+        fontSize: 36,
         fontWeight: '700',
     },
     headerTitle: {
         color: 'white',
-        fontSize: 22,
+        fontSize: 28,
         fontWeight: '700',
     },
     placeholder: {
-        width: 28,
+        width: 36,
     },
     content: {
         flex: 1,
+        marginTop: 36,
+    },
+    contentContainer: {
         alignItems: 'center',
-        marginTop: 40,
+        paddingBottom: 32,
     },
     avatar: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+        width: 112,
+        height: 112,
+        borderRadius: 56,
         backgroundColor: '#2563EB',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
     },
     avatarText: {
         color: 'white',
-        fontSize: 40,
+        fontSize: 48,
         fontWeight: '700',
     },
     name: {
         color: 'white',
-        fontSize: 28,
+        fontSize: 30,
         fontWeight: '700',
+        marginTop: 18,
     },
     username: {
         color: '#9CA3AF',
-        fontSize: 16,
+        fontSize: 18,
         marginTop: 6,
-        marginBottom: 32,
+        marginBottom: 28,
     },
-    infoCard: {
+    sectionCard: {
         width: '100%',
         backgroundColor: '#1F2937',
+        borderRadius: 18,
         padding: 18,
-        borderRadius: 16,
+        marginBottom: 16,
+    },
+    sectionTitle: {
+        color: 'white',
+        fontSize: 22,
+        fontWeight: '700',
+    },
+    sectionSubtitle: {
+        color: '#9CA3AF',
+        fontSize: 16,
+        marginTop: 6,
+        marginBottom: 18,
+    },
+    fieldGroup: {
         marginBottom: 16,
     },
     label: {
         color: '#9CA3AF',
-        fontSize: 14,
-        marginBottom: 6,
+        fontSize: 15,
+        marginBottom: 8,
     },
-    value: {
+    input: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: '600',
+        backgroundColor: '#111827',
+        borderWidth: 1,
+        borderColor: '#374151',
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+    },
+    emailCard: {
+        width: '100%',
+        backgroundColor: '#1F2937',
+        borderRadius: 18,
+        padding: 18,
+        marginBottom: 18,
+    },
+    emailValue: {
         color: 'white',
         fontSize: 18,
         fontWeight: '600',
     },
+    emailHint: {
+        color: '#9CA3AF',
+        fontSize: 14,
+        marginTop: 8,
+    },
+    saveButton: {
+        width: '100%',
+        backgroundColor: '#2563EB',
+        paddingVertical: 16,
+        borderRadius: 16,
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    faceButton: {
+        width: '100%',
+        backgroundColor: '#1F2937',
+        paddingVertical: 16,
+        borderRadius: 16,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#374151',
+        marginBottom: 12,
+    },
     logoutButton: {
-        marginTop: 24,
         width: '100%',
         backgroundColor: '#DC2626',
         paddingVertical: 16,
         borderRadius: 16,
         alignItems: 'center',
     },
-    logoutText: {
+    primaryButtonText: {
         color: 'white',
         fontSize: 18,
         fontWeight: '700',
     },
-
-    faceButton: {
-        marginTop: 24,
-        width: '100%',
-        backgroundColor: '#2563EB',
-        paddingVertical: 16,
-        borderRadius: 16,
-        alignItems: 'center',
-    },
-    faceButtonText: {
+    secondaryButtonText: {
         color: 'white',
         fontSize: 18,
         fontWeight: '700',
+    },
+    message: {
+        color: '#9CA3AF',
+        fontSize: 14,
+        marginTop: 12,
+        textAlign: 'center',
     },
 });
