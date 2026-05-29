@@ -299,3 +299,16 @@ input[type="checkbox"]:focus {
 .profile-section h3 {
     margin-bottom: 12px;
 }
+
+#profile-info {
+    display: grid;
+    gap: 12px;
+}
+
+#profile-info p {
+    margin: 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: #fbfdff;
+    border: 1px solid var(--border);
+}
