@@ -17,24 +17,24 @@ const seed = async () => {
         const hash = await bcrypt.hash('testni123', saltRounds);
 
         const uporabnikiPodatki = [
-            { ime: 'Testni', priimek: 'Uporabnik', username: 'testni_user', email: 'uporabnik@test.si', geslo: hash },
-            { ime: 'Drugi', priimek: 'Uporabnik', username: 'drugi_user', email: 'user@test.si', geslo: hash },
-            { ime: 'Švic', priimek: 'Mojster', username: 'svic_mojster', email: 'admin@test.si', geslo: hash }
+            { ime: 'Testni', priimek: 'Uporabnik', username: 'testni_user', email: 'uporabnik@test.si', geslo: hash, xp: 450 },
+            { ime: 'Drugi', priimek: 'Uporabnik', username: 'drugi_user', email: 'user@test.si', geslo: hash, xp: 820 },
+            { ime: 'Švic', priimek: 'Mojster', username: 'svic_mojster', email: 'admin@test.si', geslo: hash, xp: 0 }
         ];
 
         const uporabnikiIdji = {};
 
         for (const u of uporabnikiPodatki) {
             const res = await db.query(
-                `INSERT INTO uporabniki (ime, priimek, username, email, geslo) 
-                 VALUES ($1, $2, $3, $4, $5) 
+                `INSERT INTO uporabniki (ime, priimek, username, email, geslo, skupni_xp) 
+                 VALUES ($1, $2, $3, $4, $5, $6) 
                  RETURNING id`,
-                [u.ime, u.priimek, u.username, u.email, u.geslo]
+                [u.ime, u.priimek, u.username, u.email, u.geslo, u.xp]
             );
             
             const novId = res.rows[0].id;
             uporabnikiIdji[u.username] = novId;
-            console.log(`Uporabnik ${u.username} (ID: ${novId}) dodan.`);
+            console.log(`Uporabnik ${u.username} (ID: ${novId}, XP: ${u.xp}) dodan.`);
         }
 
         const svicMojsterId = uporabnikiIdji['svic_mojster'];
