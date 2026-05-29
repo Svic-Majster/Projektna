@@ -66,3 +66,35 @@ exports.getLeaderboard = async (req, res) => {
         });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { ime, priimek, username } = req.body;
+
+        const result = await db.query(
+            `UPDATE uporabniki
+             SET ime = $1,
+                 priimek = $2,
+                 username = $3
+             WHERE id = $4
+             RETURNING id, ime, priimek, username, email, skupni_xp`,
+            [ime, priimek, username, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: 'Uporabnik ne obstaja'
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (err) {
+        console.error(err);
+
+        res.status(500).json({
+            error: 'Napaka na strežniku'
+        });
+    }
+};
