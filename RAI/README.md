@@ -65,6 +65,11 @@ Vnos testnih podatkov:
 node db/seed.js
 ```
 
+Inštalacija python knjižnic
+```
+py -m pip install -r requirements.txt
+```
+
 Zagon strežnika:
 ```
 npm run dev
