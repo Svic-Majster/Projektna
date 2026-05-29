@@ -22,10 +22,18 @@ describe('Testiranje baze - Seed.js skripta', () => {
         exitSpy.mockRestore();
     });
 
-it('mora uspesno pobrisati stare in vstaviti 3 nove testne uporabnike', async () => {
-        mockQuery.mockResolvedValue({ rowCount: 1 });
+    it('mora uspesno izvesti celotno seed skripto (uporabniki, skupine, treningi)', async () => {
+        // Pomembno: simulirati moramo vračanje ID-jev, saj seed.js uporablja res.rows[0].id
+        mockQuery.mockImplementation((sql) => {
+            if (sql.includes('INSERT INTO uporabniki')) {
+                return Promise.resolve({ rows: [{ id: 1 }] });
+            }
+            if (sql.includes('INSERT INTO skupine')) {
+                return Promise.resolve({ rows: [{ id: 10 }] });
+            }
+            return Promise.resolve({ rows: [], rowCount: 1 });
+        });
 
-        // promise ki caka da se izvede process.exit
         const waitForExit = new Promise((resolve) => {
             exitSpy.mockImplementation((code) => {
                 resolve(code);
@@ -42,19 +50,22 @@ it('mora uspesno pobrisati stare in vstaviti 3 nove testne uporabnike', async ()
         // check ce se je uspesno zaklj z 0
         expect(exitCode).toBe(0);
 
-        // preveri ce se je izvedel DELETE
+        // Preverimo, če se na začetku počistijo treningi
         expect(mockQuery).toHaveBeenNthCalledWith(1, 
-            'DELETE FROM uporabniki WHERE email LIKE $1', 
+            expect.stringContaining('DELETE FROM treningi'), 
             ['%@test.si']
         );
 
-        // preverimo ce so se izvedli vsi klici
-        expect(mockQuery).toHaveBeenCalledTimes(4);
+        // Preverimo, če se počisti skupina
+        expect(mockQuery).toHaveBeenNthCalledWith(2, 
+            expect.stringContaining('DELETE FROM skupine'), 
+            ['TESTKODA1']
+        );
 
-        // preverimo ce je bil dodan admin
+        // Preverimo, če se na koncu posodobi skupni_xp za admina
         expect(mockQuery).toHaveBeenLastCalledWith(
-            'INSERT INTO uporabniki (ime, priimek, username, email, geslo) VALUES ($1, $2, $3, $4, $5)',
-            expect.arrayContaining(['Švic', 'Mojster', 'svic_mojster', 'admin@test.si'])
+            'UPDATE uporabniki SET skupni_xp = $1 WHERE id = $2',
+            [730, 1] // 730 je vsota točk (150 + 320 + 50 + 210)
         );
 
         // preveri ce se je skripta koncala brez napak
