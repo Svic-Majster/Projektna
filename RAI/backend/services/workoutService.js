@@ -56,7 +56,6 @@ async function getUserWorkouts(uporabnikId) {
         skupne_tocke,
         razdalja_km,
         vremenski_bonus,
-        prometni_bonus,
         zacetek_vadbe,
         konec_vadbe
         FROM treningi
