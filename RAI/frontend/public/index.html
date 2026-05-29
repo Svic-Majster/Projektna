@@ -16,7 +16,7 @@
     <section class="card auth-card" id="auth-view">
       <div>
         <h1>Prijava</h1>
-        <p class="muted">Po prijavi se nalozijo treningi</p>
+        <p class="muted">Po prijavi se naložijo treningi</p>
       </div>
 
       <form id="login-form" class="form" method="POST" action="#">
@@ -45,7 +45,7 @@
           <button class="nav-link" data-target="map-view">Zemljevid</button>
         </div>
         <div class="nav-right">
-          <button class="nav-link" data-target="profile-view">Profil</button>
+          <button class="nav-link" data-target="settings-view">Nastavitve</button>
         </div>
       </nav>
 
@@ -73,6 +73,11 @@
           <div id="empty-state" class="empty" hidden>Uporabnik še nima treningov.</div>
           <div id="workouts-list" class="workouts-list"></div>
         </section>
+      </div>
+
+      <div id="group-view" class="app-page" hidden>
+        <div id="leaderboard-container">
+          </div>
       </div>
 
       <div id="map-view" class="app-page card" style="padding: 24px;" hidden>

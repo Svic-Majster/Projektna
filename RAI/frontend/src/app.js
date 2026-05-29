@@ -2,6 +2,7 @@ import { login, getUserWorkouts } from './components/api.js';
 import { renderUser } from './components/userProfile.js';
 import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
+import { prikaziLeaderboard } from './components/groupLeaderboard.js';
 
 const authView = document.getElementById('auth-view');
 const appView = document.getElementById('app-view');
@@ -38,7 +39,20 @@ function showApplication(user) {
     renderUser(user);
     authView.hidden = true;
     appView.hidden = false;
-    initNavbar(loadWorkouts);
+
+    initNavbar(async (target) => {
+        if (target === 'home-view') {
+            loadWorkouts();
+        } else if (target === 'group-view') {
+            if (currentUser.skupina_id) {
+                await prikaziLeaderboard(currentUser.skupina_id);
+            } else {
+                document.getElementById('leaderboard-container').innerHTML = 
+                    '<p style="padding: 20px;">Niste člani nobene skupine.</p>';
+            }
+        }
+    });
+
     loadWorkouts();
 }
 

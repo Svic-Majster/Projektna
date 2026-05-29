@@ -19,7 +19,7 @@ const seed = async () => {
 
         const uporabnikiPodatki = [
             { ime: 'Testni', priimek: 'Uporabnik', username: 'testni_user', email: 'uporabnik@test.si', geslo: hash, xp: 450 },
-            { ime: 'Drugi', priimek: 'Uporabnik', username: 'drugi_user', email: 'user@test.si', geslo: hash, xp: 820 },
+            { ime: 'Drugi', priimek: 'Uporabnik', username: 'drugi_user', email: 'user@test.si', geslo: hash, xp: 660 },
             { ime: 'Švic', priimek: 'Mojster', username: 'svic_mojster', email: 'admin@test.si', geslo: hash, xp: 0 }
         ];
 

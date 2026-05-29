@@ -5,6 +5,7 @@ const path = require('path');
 const cron = require('node-cron');
 const { startMqttClient } = require('./mqtt/client');
 const zunanjiViriService = require('./services/zunanjiViriService');
+const groupLeaderboardService = require('./services/groupLeaderboardService');
 
 require('dotenv').config();
 
@@ -24,8 +25,28 @@ const zunanjiViriRoutes = require('./routes/zunanjiViriRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
-app.use('/api/external', externalRoutes);
 app.use('/api/zunanji-viri', zunanjiViriRoutes);
+
+// 2. Dodaj API rutno za leaderboard
+app.get('/api/skupina/:id/leaderboard', async (req, res) => {
+    try {
+        const skupinaId = req.params.id;
+        
+        // Poberemo podatke iz novega servisa
+        const [clani, imeSkupine] = await Promise.all([
+            groupLeaderboardService.getLeaderboard(skupinaId),
+            groupLeaderboardService.getGroupName(skupinaId)
+        ]);
+
+        res.json({
+            ime_skupine: imeSkupine,
+            clani: clani
+        });
+    } catch (err) {
+        console.error("Napaka pri pridobivanju leaderboarda:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // zagon scrapera vsakih 10 min
 cron.schedule('*/10 * * * *', async () => {

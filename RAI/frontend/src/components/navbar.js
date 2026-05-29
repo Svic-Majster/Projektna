@@ -1,9 +1,8 @@
 import { pripraviZemljevid } from './map.js';
 
-export function initNavbar(onHomeActive) {
+export function initNavbar(onNavigate) {
     const navLinks = document.querySelectorAll('.nav-link');
-    const homeView = document.getElementById('home-view');
-    const mapView = document.getElementById('map-view');
+    const allViews = document.querySelectorAll('.app-page');
     const placeholderView = document.getElementById('placeholder-view');
     const placeholderTitle = document.getElementById('placeholder-title');
 
@@ -14,20 +13,26 @@ export function initNavbar(onHomeActive) {
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
 
-            if (homeView) homeView.hidden = true;
-            if (mapView) mapView.hidden = true;
-            if (placeholderView) placeholderView.hidden = true;
+            allViews.forEach(view => view.hidden = true);
+
+            const targetView = document.getElementById(targetPageId);
 
             if (targetPageId === 'home-view') {
-                if (homeView) homeView.hidden = false;
-                if (typeof onHomeActive === 'function') onHomeActive();
+                if (targetView) targetView.hidden = false;
+                if (typeof onNavigate === 'function') onNavigate('home-view');
             } 
             else if (targetPageId === 'map-view') {
-                if (mapView) {
-                    mapView.hidden = false;
+                if (targetView) {
+                    targetView.hidden = false;
                     pripraviZemljevid();
                 }
             } 
+            else if (targetPageId === 'group-view') {
+                if (targetView) {
+                    targetView.hidden = false;
+                    if (typeof onNavigate === 'function') onNavigate('group-view');
+                }
+            }
             else {
                 if (placeholderView) {
                     placeholderView.hidden = false;
@@ -40,16 +45,14 @@ export function initNavbar(onHomeActive) {
 
 export function resetNavbar() {
     const navLinks = document.querySelectorAll('.nav-link');
+    const allViews = document.querySelectorAll('.app-page');
+    
     navLinks.forEach(l => l.classList.remove('active'));
     
     const homeBtn = document.querySelector('[data-target="home-view"]');
     if (homeBtn) homeBtn.classList.add('active');
 
+    allViews.forEach(view => view.hidden = true);
     const homeView = document.getElementById('home-view');
-    const mapView = document.getElementById('map-view');
-    const placeholderView = document.getElementById('placeholder-view');
-    
     if (homeView) homeView.hidden = false;
-    if (mapView) mapView.hidden = true;
-    if (placeholderView) placeholderView.hidden = true;
 }
