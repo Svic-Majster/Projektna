@@ -11,6 +11,7 @@ const seed = async () => {
             ['%@test.si']
         );
 
+        await db.query('DELETE FROM skupine WHERE koda_za_pridruzitev = $1', ['TESTKODA1']);
         await db.query('DELETE FROM uporabniki WHERE email LIKE $1', ['%@test.si']);
 
         const saltRounds = 10;
@@ -35,6 +36,25 @@ const seed = async () => {
             const novId = res.rows[0].id;
             uporabnikiIdji[u.username] = novId;
             console.log(`Uporabnik ${u.username} (ID: ${novId}, XP: ${u.xp}) dodan.`);
+        }
+
+        const resSkupina = await db.query(
+            `INSERT INTO skupine (ime_skupine, koda_za_pridruzitev) 
+             VALUES ($1, $2) 
+             RETURNING id`,
+            ['testna ekipa', 'TESTKODA1']
+        );
+        const skupinaId = resSkupina.rows[0].id;
+        console.log(`Skupina 'Švic Ekipa' (ID: ${skupinaId}) ustvarjena.`);
+
+        for (const username in uporabnikiIdji) {
+            const uId = uporabnikiIdji[username];
+            await db.query(
+                `INSERT INTO clani_skupine (skupina_id, uporabnik_id) 
+                 VALUES ($1, $2)`,
+                [skupinaId, uId]
+            );
+            console.log(`Uporabnik ${username} dodan v skupino.`);
         }
 
         const svicMojsterId = uporabnikiIdji['svic_mojster'];
