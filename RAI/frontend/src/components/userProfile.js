@@ -17,10 +17,41 @@ export function renderUser(user) {
         user.ime?.charAt(0)?.toUpperCase() ?? 'U';
 
     profileInfo.innerHTML = `
-        <p><strong>Ime:</strong> ${user.ime}</p>
-        <p><strong>Priimek:</strong> ${user.priimek}</p>
-        <p><strong>Uporabniško ime:</strong> ${user.username}</p>
-        <p><strong>E-pošta:</strong> ${user.email}</p>
-        <p><strong>XP:</strong> ${user.skupni_xp ?? 0}</p>
-    `;
+    <label class="profile-field">
+        <span>Ime</span>
+        <input id="profile-ime" type="text" value="${user.ime}" />
+    </label>
+
+    <label class="profile-field">
+        <span>Priimek</span>
+        <input id="profile-priimek" type="text" value="${user.priimek}" />
+    </label>
+
+    <label class="profile-field">
+        <span>Uporabniško ime</span>
+        <input id="profile-username-input" type="text" value="${user.username}" />
+    </label>
+
+    <label class="profile-field">
+    <span>E-pošta</span>
+    <input type="text" value="${user.email}" disabled />
+</label>
+
+<label class="profile-field">
+    <span>XP</span>
+    <input type="text" value="${user.skupni_xp ?? 0}" disabled />
+</label>
+
+    <div class="profile-actions">
+    <button id="save-profile-btn" class="btn btn-primary">
+        Shrani spremembe
+    </button>
+</div>
+`;
+
+    const saveButton = document.getElementById('save-profile-btn');
+
+    saveButton?.addEventListener('click', () => {
+        alert('Shranjevanje profila bo dodano v naslednji fazi.');
+    });
 }
