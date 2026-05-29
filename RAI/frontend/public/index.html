@@ -102,9 +102,27 @@
 
         <div id="map" style="height: 500px; width: 100%; border-radius: 12px; border: 1px solid var(--border);"></div>
       </div>
-      <div id="profile-view" class="app-page card" style="padding: 24px;" hidden>
-        <h3>Profil</h3>
-        <p class="muted">Profil uporabnika bo prikazan tukaj.</p>
+      <div id="profile-view" class="app-page" hidden>
+        <section class="card profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <span id="profile-avatar-letter">U</span>
+            </div>
+
+            <h2 id="profile-name">Uporabnik</h2>
+            <p id="profile-username" class="muted">@uporabnik</p>
+          </div>
+
+          <div class="profile-section">
+            <h3>Podatki profila</h3>
+
+            <div id="profile-info">
+              <p class="muted">
+                Podatki uporabnika bodo prikazani tukaj.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div id="placeholder-view" class="app-page card" style="padding: 24px;" hidden>

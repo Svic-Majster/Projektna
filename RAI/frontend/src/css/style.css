@@ -261,3 +261,41 @@ input[type="checkbox"]:focus {
     outline: none;
     box-shadow: none;
 }
+
+.profile-card {
+    padding: 32px;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.profile-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.profile-header h2 {
+    margin-bottom: 8px;
+}
+
+.profile-section {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+}
+
+.profile-section h3 {
+    margin-bottom: 12px;
+}
