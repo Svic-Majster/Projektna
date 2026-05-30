@@ -38,14 +38,16 @@ const seed = async () => {
             console.log(`Uporabnik ${u.username} (ID: ${novId}, XP: ${u.xp}) dodan.`);
         }
 
+        const svicMojsterId = uporabnikiIdji['svic_mojster'];
+
         const resSkupina = await db.query(
-            `INSERT INTO skupine (ime_skupine, koda_za_pridruzitev) 
-             VALUES ($1, $2) 
+            `INSERT INTO skupine (ime_skupine, koda_za_pridruzitev, owner_id) 
+             VALUES ($1, $2, $3) 
              RETURNING id`,
-            ['testna ekipa', 'TESTKODA1']
+            ['testna ekipa', 'TESTKODA1', svicMojsterId]
         );
         const skupinaId = resSkupina.rows[0].id;
-        console.log(`Skupina 'Švic Ekipa' (ID: ${skupinaId}) ustvarjena.`);
+        console.log(`Skupina 'testna ekipa' (ID: ${skupinaId}, Owner ID: ${svicMojsterId}) ustvarjena.`);
 
         for (const username in uporabnikiIdji) {
             const uId = uporabnikiIdji[username];
@@ -57,7 +59,6 @@ const seed = async () => {
             console.log(`Uporabnik ${username} dodan v skupino.`);
         }
 
-        const svicMojsterId = uporabnikiIdji['svic_mojster'];
         console.log(`\nDodamo 4 workoute za uporabnika svic_mojster (ID: ${svicMojsterId})...`);
 
         const treningi = [

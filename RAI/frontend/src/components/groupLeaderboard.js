@@ -1,14 +1,22 @@
 export async function prikaziLeaderboard(skupinaId, userParam) {
     const container = document.getElementById('leaderboard-container');
-    const currentUserId = (userParam && typeof userParam === 'object') ? userParam.id : userParam;
+    
+    let currentUserId = null;
+    if (userParam) {
+        currentUserId = (typeof userParam === 'object') ? Number(userParam.id || userParam.uporabnik_id) : Number(userParam);
+    }
     
     try {
         let leaderboardHtml = '';
         
-        // ce je v skupini naredimo html za skupino
         if (skupinaId) {
             const response = await fetch(`/api/skupina/${skupinaId}/leaderboard`);
             const data = await response.json();
+
+            const kodaSkupine = data.koda_za_pridruzitev || 'KODA';
+            
+            const groupOwnerId = data.owner_id ? Number(data.owner_id) : null;
+            const isOwner = groupOwnerId === currentUserId;
 
             const getMedalClass = (index) => {
                 if (index === 0) return 'gold';
@@ -18,124 +26,222 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
             };
 
             leaderboardHtml = `
-                <div class="card leaderboard-card" style="margin-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                        <h3 style="margin: 0;">Lestvica: ${data.ime_skupine}</h3>
-                        <button id="leave-group-btn" class="btn btn-danger" style="padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-                            Zapusti skupino
-                        </button>
+                <div class="card leaderboard-card">
+                    <div class="leaderboard-header-row">
+                        <div>
+                            <h3 style="margin: 0;">Lestvica: ${data.ime_skupine}</h3>
+                            <p class="muted" style="margin: 4px 0 0; font-size: 13px;">
+                                Klikni za kopiranje kode: <span class="group-code-badge" id="copy-code-badge" title="Klikni za kopiranje">${kodaSkupine}</span>
+                            </p>
+                        </div>
+                        
+                        ${isOwner ? `
+                            <button id="delete-group-btn" class="btn-group-action delete">
+                                Izbriši skupino
+                            </button>
+                        ` : `
+                            <button id="leave-group-btn" class="btn-group-action leave">
+                                Zapusti skupino
+                            </button>
+                        `}
                     </div>
+                    
                     <table class="leaderboard-table">
                         <tbody>
-                            ${data.clani.map((user, index) => `
-                                <tr class="${getMedalClass(index)}">
-                                    <td class="rank">${index + 1}.</td>
-                                    <td>
-                                        <div class="user-info">
-                                            <div class="full-name">${user.ime} ${user.priimek}</div>
-                                            <div class="username">@${user.username}</div>
-                                        </div>
-                                    </td>
-                                    <td class="xp-cell">${user.skupni_xp} XP</td>
-                                </tr>
-                            `).join('')}
+                            ${data.clani.map((user, index) => {
+                                const memberId = Number(user.id || user.uporabnik_id || user._id);
+                                const memberIsOwner = groupOwnerId !== null && groupOwnerId === memberId;
+                                
+                                return `
+                                    <tr class="${getMedalClass(index)}">
+                                        <td class="rank">${index + 1}.</td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="full-name">
+                                                    ${user.ime && user.priimek ? `${user.ime} ${user.priimek}` : user.username} 
+                                                    ${memberIsOwner ? '<span class="owner-tag">Owner</span>' : ''}
+                                                </div>
+                                                <div class="username">@${user.username}</div>
+                                            </div>
+                                        </td>
+                                        <td class="xp-cell">${user.skupni_xp} XP</td>
+                                    </tr>
+                                `;
+                            }).join('')}
                         </tbody>
                     </table>
                 </div>
             `;
         } else {
             leaderboardHtml = `
-                <div class="card" style="margin-top: 20px; padding: 20px; text-align: center; color: #666;">
-                    Trenutno niste član nobene skupine. Vnesite kodo zgoraj, da se pridružite!
+                <div class="card empty" style="text-align: center; border-style: solid; margin-top: 20px;">
+                    Trenutno niste član nobene skupine. Pridružite se ali ustvarite novo zgoraj!
                 </div>
             `;
         }
 
-        // Izris vmesnika s pridružitvenim blokom
         container.innerHTML = `
-            <div class="card groups-management-card" style="padding: 20px;">
-                <h3 style="margin-top: 0; margin-bottom: 12px; color: #333; font-weight: 600;">Pridruži se skupini</h3>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="group-code-input" placeholder="Vnesi kodo skupine (npr. KODA123)" style="padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; flex: 1; font-size: 0.95em; text-transform: uppercase;">
-                    <button id="join-group-btn" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Pridruži se</button>
+            <div class="card groups-management-card">
+                <div class="groups-nav-tabs">
+                    <span id="tab-join-btn" class="groups-tab-btn active">Pridruži se skupini</span>
+                    <span id="tab-create-btn" class="groups-tab-btn">Ustvari novo skupino</span>
+                </div>
+
+                <div id="section-join-group">
+                    <div class="group-action-row">
+                        <input type="text" id="group-code-input" placeholder="Vnesi 6-mestno kodo (npr. ABC123)" style="text-transform: uppercase;">
+                        <button id="join-group-btn" class="btn-group-action join">Pridruži se</button>
+                    </div>
+                </div>
+
+                <div id="section-create-group" style="display: none;">
+                    <div class="group-action-row">
+                        <input type="text" id="group-name-input" placeholder="Vnesi ime nove skupine">
+                        <button id="create-group-btn" class="btn-group-action create">Ustvari</button>
+                    </div>
                 </div>
             </div>
 
             <div id="dynamic-leaderboard-area">${leaderboardHtml}</div>
         `;
 
-        // Gumb: Pridruži se
-        document.getElementById('join-group-btn').addEventListener('click', async () => {
-            const kodaInput = document.getElementById('group-code-input');
-            const koda = kodaInput.value.trim();
+        const copyBadge = document.getElementById('copy-code-badge');
+        if (copyBadge) {
+            copyBadge.addEventListener('click', () => {
+                navigator.clipboard.writeText(copyBadge.innerText).then(() => {
+                    const originalText = copyBadge.innerText;
+                    copyBadge.innerText = 'Kopirano';
+                    copyBadge.style.color = '#10b981';
+                    setTimeout(() => {
+                        copyBadge.innerText = originalText;
+                        copyBadge.style.color = '';
+                    }, 1300);
+                }).catch(err => console.error('Napaka pri kopiranju:', err));
+            });
+        }
 
-            if (!koda) {
-                alert('Prosimo, vnesite kodo skupine.');
-                return;
-            }
+        const tabJoin = document.getElementById('tab-join-btn');
+        const tabCreate = document.getElementById('tab-create-btn');
+        const secJoin = document.getElementById('section-join-group');
+        const secCreate = document.getElementById('section-create-group');
+
+        tabJoin.addEventListener('click', () => {
+            tabJoin.classList.add('active');
+            tabCreate.classList.remove('active');
+            secJoin.style.display = 'block';
+            secCreate.style.display = 'none';
+        });
+
+        tabCreate.addEventListener('click', () => {
+            tabCreate.classList.add('active');
+            tabJoin.classList.remove('active');
+            secCreate.style.display = 'block';
+            secJoin.style.display = 'none';
+        });
+
+        document.getElementById('join-group-btn').addEventListener('click', async () => {
+            const koda = document.getElementById('group-code-input').value.trim();
+            if (!koda) return alert('Prosimo, vnesite kodo skupine.');
 
             try {
                 const res = await fetch('/api/users/skupina/pridruzi-se', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ uporabnikId: currentUserId, koda: koda }) // Uporabi varni ID
+                    body: JSON.stringify({ uporabnikId: currentUserId, koda: koda })
                 });
-
                 const data = await res.json();
 
                 if (res.ok) {
                     alert(data.message);
-                    
-                    // Posodobitev stanja v pomnilniku, če je bil poslan celoten objekt
                     if (userParam && typeof userParam === 'object') {
                         userParam.skupina_id = data.skupinaId;
-                        userParam.skupine_ids = [data.skupinaId];
                     }
-                    
                     prikaziLeaderboard(data.skupinaId, userParam);
                 } else {
                     alert('Napaka: ' + data.error);
                 }
-            } catch (err) {
-                console.error(err);
-                alert('Napaka pri komunikaciji s strežnikom.');
-            }
+            } catch (err) { console.error(err); }
         });
 
-        // Gumb: Zapusti skupino
-        if (skupinaId) {
-            document.getElementById('leave-group-btn').addEventListener('click', async () => {
-                if (confirm('Ali ste prepričani, da želite zapustiti to skupino?')) {
-                    try {
-                        const res = await fetch(`/api/users/skupina/${skupinaId}/zapusti`, { 
-                            method: 'DELETE',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ uporabnikId: currentUserId }) // Uporabi varni ID
-                        });
-                        
-                        if (res.ok) {
-                            alert('Uspešno ste zapustili skupino.');
-                            
-                            // Ponastavitev stanja v pomnilniku, če je bil poslan celoten objekt
-                            if (userParam && typeof userParam === 'object') {
-                                userParam.skupina_id = null;
-                                userParam.skupine_ids = [];
-                            }
-                            
-                            prikaziLeaderboard(null, userParam);
-                        } else {
-                            const errData = await res.json();
-                            alert('Napaka: ' + errData.error);
-                        }
-                    } catch (err) {
-                        console.error(err);
+        document.getElementById('create-group-btn').addEventListener('click', async () => {
+            const imeSkupine = document.getElementById('group-name-input').value.trim();
+            if (!imeSkupine) return alert('Prosimo, vnesite ime skupine.');
+
+            try {
+                const res = await fetch('/api/users/skupina/ustvari', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uporabnikId: currentUserId, imeSkupine: imeSkupine })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(`${data.message}\nKoda skupine je: ${data.koda}`);
+                    if (userParam && typeof userParam === 'object') {
+                        userParam.skupina_id = data.skupinaId;
                     }
+                    prikaziLeaderboard(data.skupinaId, userParam);
+                } else {
+                    alert('Napaka: ' + data.error);
                 }
-            });
+            } catch (err) { console.error(err); }
+        });
+
+        if (skupinaId) {
+            const deleteBtn = document.getElementById('delete-group-btn');
+            const leaveBtn = document.getElementById('leave-group-btn');
+
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', async () => {
+                    if (confirm('Ali ste prepričani, da želite popolnoma IZBRISATI to skupino? Vsi člani bodo odstranjeni!')) {
+                        try {
+                            const res = await fetch(`/api/users/skupina/${skupinaId}/izbrisi`, { 
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ uporabnikId: currentUserId })
+                            });
+                            
+                            if (res.ok) {
+                                alert('Skupina je bila uspešno izbrisana.');
+                                if (userParam && typeof userParam === 'object') {
+                                    userParam.skupina_id = null;
+                                }
+                                prikaziLeaderboard(null, userParam);
+                            } else {
+                                alert('Napaka: ' + (await res.json()).error);
+                            }
+                        } catch (err) { console.error(err); }
+                    }
+                });
+            }
+
+            if (leaveBtn) {
+                leaveBtn.addEventListener('click', async () => {
+                    if (confirm('Ali ste prepričani, da želite zapustiti to skupino?')) {
+                        try {
+                            const res = await fetch(`/api/users/skupina/${skupinaId}/zapusti`, { 
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ uporabnikId: currentUserId })
+                            });
+                            
+                            if (res.ok) {
+                                alert('Uspešno ste zapustili skupino.');
+                                if (userParam && typeof userParam === 'object') {
+                                    userParam.skupina_id = null;
+                                }
+                                prikaziLeaderboard(null, userParam);
+                            } else {
+                                alert('Napaka: ' + (await res.json()).error);
+                            }
+                        } catch (err) { console.error(err); }
+                    }
+                });
+            }
         }
 
     } catch (err) {
         console.error("Napaka:", err);
-        container.innerHTML = '<p style="padding: 20px; color: red;">Napaka pri nalaganju komponente.</p>';
+        container.innerHTML = '<p class="error" style="padding: 20px;">Napaka pri nalaganju komponente.</p>';
     }
 }

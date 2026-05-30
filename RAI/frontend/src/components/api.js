@@ -40,3 +40,24 @@ export async function leaveGroup(skupinaId, uporabnikId) {
         body: JSON.stringify({ uporabnikId }),
     });
 }
+
+export async function joinGroup(uporabnikId, koda) {
+    return apiRequest('/users/skupina/pridruzi-se', {
+        method: 'POST',
+        body: JSON.stringify({ uporabnikId, koda }),
+    });
+}
+
+export async function createGroup(uporabnikId, imeSkupine) {
+    return apiRequest('/users/skupina/ustvari', {
+        method: 'POST',
+        body: JSON.stringify({ uporabnikId, imeSkupine }),
+    });
+}
+
+export async function deleteGroup(skupinaId, uporabnikId) {
+    return apiRequest(`/users/skupina/${skupinaId}/izbrisi`, {
+        method: 'DELETE',
+        body: JSON.stringify({ uporabnikId }),
+    });
+}

@@ -2,7 +2,7 @@ const db = require('../db');
 
 async function getLeaderboard(skupinaId) {
     const query = `
-        SELECT u.ime, u.priimek, u.username, u.skupni_xp 
+        SELECT u.id, u.ime, u.priimek, u.username, u.skupni_xp 
         FROM uporabniki u
         JOIN clani_skupine cs ON u.id = cs.uporabnik_id
         WHERE cs.skupina_id = $1

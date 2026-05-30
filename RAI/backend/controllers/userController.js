@@ -30,22 +30,40 @@ exports.getProfile = async (req, res) => {
     }
 };
 
-// Lestvica uporabnikov
-exports.getLeaderboard = async (req, res) => {
+// Lestvica uporabnikov za vsako skupino
+exports.getGroupLeaderboard = async (req, res) => {
     try {
-        const result = await db.query(
-            `SELECT
-                id,
-                username,
-                skupni_xp
-             FROM uporabniki
-             ORDER BY skupni_xp DESC`
+        const { skupinaId } = req.params;
+
+        const skupinaRes = await db.query(
+            'SELECT ime_skupine, koda_za_pridruzitev, owner_id FROM skupine WHERE id = $1',
+            [skupinaId]
         );
 
-        res.json(result.rows);
+        if (skupinaRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Skupina ne obstaja.' });
+        }
+
+        const skupina = skupinaRes.rows[0];
+
+        const claniRes = await db.query(
+            `SELECT u.id, u.ime, u.priimek, u.username, u.skupni_xp 
+             FROM clani_skupine cs
+             JOIN uporabniki u ON cs.uporabnik_id = u.id
+             WHERE cs.skupina_id = $1
+             ORDER BY u.skupni_xp DESC`
+        );
+
+        res.json({
+            ime_skupine: skupina.ime_skupine,
+            koda_za_pridruzitev: skupina.koda_za_pridruzitev,
+            owner_id: skupina.owner_id,
+            clani: claniRes.rows
+        });
+
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Napaka na strežniku' });
+        console.error("Napaka pri pridobivanju skupinske lestvice:", err);
+        res.status(500).json({ error: 'Napaka na strežniku pri nalaganju lestvice.' });
     }
 };
 
@@ -143,5 +161,53 @@ exports.joinGroup = async (req, res) => {
     } catch (err) {
         console.error("Napaka pri pridruževanju skupini:", err);
         res.status(500).json({ error: 'Napaka na strežniku.' });
+    }
+};
+
+exports.createGroup = async (req, res) => {
+    try {
+        const { uporabnikId, imeSkupine } = req.body;
+
+        if (!uporabnikId || !imeSkupine || !imeSkupine.trim()) {
+            return res.status(400).json({ error: 'Ime skupine in ID uporabnika sta obvezna.' });
+        }
+
+        let koda = '';
+        let isUnique = false;
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+        while (!isUnique) {
+            koda = '';
+            for (let i = 0; i < 6; i++) {
+                koda += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+
+            const checkCode = await db.query('SELECT id FROM skupine WHERE koda_za_pridruzitev = $1', [koda]);
+            if (checkCode.rows.length === 0) {
+                isUnique = true;
+            }
+        }
+
+        const novaSkupina = await db.query(
+            'INSERT INTO skupine (ime_skupine, koda_za_pridruzitev, owner_id) VALUES ($1, $2, $3) RETURNING *',
+            [imeSkupine.trim(), koda, uporabnikId]
+        );
+
+        const skupinaId = novaSkupina.rows[0].id;
+
+        await db.query(
+            'INSERT INTO clani_skupine (skupina_id, uporabnik_id) VALUES ($1, $2)',
+            [skupinaId, uporabnikId]
+        );
+
+        res.status(201).json({
+            message: `Skupina "${imeSkupine}" je bila uspešno ustvarjena! Vi ste lastnik skupine.`,
+            skupinaId: skupinaId,
+            koda: koda
+        });
+
+    } catch (err) {
+        console.error("Napaka pri ustvarjanju skupine:", err);
+        res.status(500).json({ error: 'Napaka na strežniku pri ustvarjanju skupine.' });
     }
 };

@@ -30,7 +30,15 @@ app.use('/api/zunanji-viri', zunanjiViriRoutes);
 app.get('/api/skupina/:id/leaderboard', async (req, res) => {
     try {
         const skupinaId = req.params.id;
-        
+                const skupinaMeta = await db.query(
+            'SELECT koda_za_pridruzitev, owner_id FROM skupine WHERE id = $1',
+            [skupinaId]
+        );
+
+        if (skupinaMeta.rows.length === 0) {
+            return res.status(404).json({ error: 'Skupina ne obstaja.' });
+        }
+
         const [clani, imeSkupine] = await Promise.all([
             groupLeaderboardService.getLeaderboard(skupinaId),
             groupLeaderboardService.getGroupName(skupinaId)
@@ -38,6 +46,8 @@ app.get('/api/skupina/:id/leaderboard', async (req, res) => {
 
         res.json({
             ime_skupine: imeSkupine,
+            koda_za_pridruzitev: skupinaMeta.rows[0].koda_za_pridruzitev,
+            owner_id: skupinaMeta.rows[0].owner_id,
             clani: clani
         });
     } catch (err) {
@@ -46,7 +56,7 @@ app.get('/api/skupina/:id/leaderboard', async (req, res) => {
     }
 });
 
-app.delete('/api/skupina/:skupinaId/zapusti', async (req, res) => {
+app.delete('/api/users/skupina/:skupinaId/zapusti', async (req, res) => {
     try {
         const { skupinaId } = req.params;
         const { uporabnikId } = req.body; 
@@ -64,6 +74,31 @@ app.delete('/api/skupina/:skupinaId/zapusti', async (req, res) => {
     } catch (err) {
         console.error("Napaka pri zapuščanju skupine:", err);
         res.status(500).json({ error: 'Napaka na strežniku' });
+    }
+});
+
+app.delete('/api/users/skupina/:skupinaId/izbrisi', async (req, res) => {
+    try {
+        const { skupinaId } = req.params;
+        const { uporabnikId } = req.body;
+
+        const provera = await db.query('SELECT owner_id FROM skupine WHERE id = $1', [skupinaId]);
+        if (provera.rows.length === 0) {
+            return res.status(404).json({ error: 'Skupina ne obstaja.' });
+        }
+
+        if (provera.rows[0].owner_id !== uporabnikId) {
+            return res.status(403).json({ error: 'Niste lastnik te skupine, zato je ne morete izbrisati.' });
+        }
+
+        await db.query('DELETE FROM clani_skupine WHERE skupina_id = $1', [skupinaId]);
+        
+        await db.query('DELETE FROM skupine WHERE id = $1', [skupinaId]);
+
+        res.json({ message: 'Skupina je bila uspešno izbrisana.' });
+    } catch (err) {
+        console.error("Napaka pri brisanju skupine:", err);
+        res.status(500).json({ error: 'Napaka na strežniku pri brisanju skupine.' });
     }
 });
 
