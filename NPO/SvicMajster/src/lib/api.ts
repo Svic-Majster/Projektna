@@ -40,3 +40,11 @@ export async function apiRequest<T>({ path, headers, ...options }: RequestOption
     throw error;
   }
 }
+
+export async function updateUserProfile(userId: number, data: { ime: string; priimek: string; username: string }) {
+    return apiRequest<{ id: number; ime: string; priimek: string; username: string; email: string; skupni_xp: number }>({
+        path: `/users/profile/${userId}`,
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+}
