@@ -7,30 +7,73 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import { updateUserProfile } from '../lib/api';
 
 type ProfileScreenProps = {
     user: {
+        id: number;
         ime: string;
         priimek: string;
         email: string;
         username: string;
+        skupni_xp?: number;
+
     };
     onGoBack: () => void;
     onLogout: () => void;
+    onUpdateUser: (updated: any) => Promise<void>;
 };
 
 export default function ProfileScreen({
     user,
     onGoBack,
     onLogout,
+    onUpdateUser
 }: ProfileScreenProps) {
     const [ime, setIme] = useState(user.ime);
     const [priimek, setPriimek] = useState(user.priimek);
     const [username, setUsername] = useState(user.username);
+    const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
+    const [original] = useState({ ime: user.ime, priimek: user.priimek, username: user.username });
 
-    const handleSave = () => {
-        setMessage('Shranjevanje profila bo dodano v naslednji fazi.');
+    const handleSave = async () => {
+        if (isSaving) return;
+
+        if (!ime.trim() || !priimek.trim() || !username.trim()) {
+            setMessage('Vsa polja morajo biti izpolnjena.');
+            setMessageType('error');
+            return;
+        }
+
+        if (ime === original.ime && priimek === original.priimek && username === original.username) {
+            setMessage('Ni sprememb za shraniti.');
+            setMessageType('info');
+            return;
+        }
+
+        setIsSaving(true);
+        setMessage('');
+
+        try {
+            const updated = await updateUserProfile(user.id, {
+                ime: ime.trim(),
+                priimek: priimek.trim(),
+                username: username.trim(),
+            });
+
+            await onUpdateUser({ ...user, ...updated });
+
+            setMessage('Profil uspešno posodobljen!');
+            setMessageType('success');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (err: any) {
+            setMessage(err.message || 'Napaka pri shranjevanju.');
+            setMessageType('error');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -109,8 +152,22 @@ export default function ProfileScreen({
                     </Text>
                 </View>
 
-                <Pressable style={styles.saveButton} onPress={handleSave}>
-                    <Text style={styles.primaryButtonText}>Shrani spremembe</Text>
+                <View style={styles.emailCard}>
+                    <Text style={styles.label}>XP točke</Text>
+                    <Text style={styles.emailValue}>{user.skupni_xp ?? 0}</Text>
+                    <Text style={styles.emailHint}>
+                        XP točk ni mogoče spremeniti ročno.
+                    </Text>
+                </View>
+
+                <Pressable
+                    style={[styles.saveButton, isSaving && { opacity: 0.6 }]}
+                    onPress={handleSave}
+                    disabled={isSaving}
+                >
+                    <Text style={styles.primaryButtonText}>
+                        {isSaving ? 'Shranjujem...' : 'Shrani spremembe'}
+                    </Text>
                 </Pressable>
 
                 <Pressable style={styles.faceButton} onPress={() => { }}>
@@ -121,7 +178,15 @@ export default function ProfileScreen({
                     <Text style={styles.primaryButtonText}>Odjava</Text>
                 </Pressable>
 
-                {message ? <Text style={styles.message}>{message}</Text> : null}
+                {message ? (
+                    <Text style={[
+                        styles.message,
+                        messageType === 'success' && { color: '#2563EB' },
+                        messageType === 'error' && { color: '#DC2626' },
+                    ]}>
+                        {message}
+                    </Text>
+                ) : null}
             </ScrollView>
         </View>
     );
@@ -208,7 +273,7 @@ const styles = StyleSheet.create({
     },
     label: {
         color: '#9CA3AF',
-        fontSize: 15,
+        fontSize: 16,
         marginBottom: 8,
     },
     input: {
@@ -236,7 +301,7 @@ const styles = StyleSheet.create({
     },
     emailHint: {
         color: '#9CA3AF',
-        fontSize: 14,
+        fontSize: 12,
         marginTop: 8,
     },
     saveButton: {

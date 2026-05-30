@@ -16,6 +16,7 @@ type UseAuthReturn = {
     login: (payload: LoginPayload) => Promise<AuthResult>;
     register: (payload: RegisterPayload) => Promise<AuthResult>;
     logout: () => Promise<void>;
+    updateUser: (updated: User) => Promise<void>;
 };
 
 export function useAuth(): UseAuthReturn {
@@ -55,7 +56,7 @@ export function useAuth(): UseAuthReturn {
             return {
                 success: false,
                 message:
-                error instanceof Error ? error.message : 'Prijava ni uspela.',
+                    error instanceof Error ? error.message : 'Prijava ni uspela.',
             };
         }
     };
@@ -72,7 +73,7 @@ export function useAuth(): UseAuthReturn {
             return {
                 success: false,
                 message:
-                error instanceof Error ? error.message : 'Registracija ni uspela.',
+                    error instanceof Error ? error.message : 'Registracija ni uspela.',
             };
         }
     };
@@ -82,11 +83,17 @@ export function useAuth(): UseAuthReturn {
         await AsyncStorage.removeItem(STORAGE_KEY);
     };
 
+    const updateUser = async (updated: User) => {
+        setUser(updated);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    };
+
     return {
         user,
         loading,
         login,
         register,
         logout,
+        updateUser,
     };
 }
