@@ -52,35 +52,29 @@ exports.login = async (req, res) => {
     try {
         const { identifier, geslo } = req.body;
 
-        // Preveri obvezna polja
         if (!identifier || !geslo) {
-            return res.status(400).json({
-                error: 'Manjkajo podatki'
-            });
+            return res.status(400).json({ error: 'Manjkajo podatki' });
         }
 
-        // Poišči uporabnika po emailu ali username
+        // Popravek: Dodan LEFT JOIN za pridobitev skupina_id
         const result = await db.query(
-            `SELECT * FROM uporabniki 
-             WHERE email = $1 OR username = $1`,
+            `SELECT u.*, cs.skupina_id 
+             FROM uporabniki u 
+             LEFT JOIN clani_skupine cs ON u.id = cs.uporabnik_id
+             WHERE u.email = $1 OR u.username = $1`,
             [identifier]
         );
 
         if (result.rows.length === 0) {
-            return res.status(401).json({
-                error: 'Napačni prijavni podatki'
-            });
+            return res.status(401).json({ error: 'Napačni prijavni podatki' });
         }
 
         const user = result.rows[0];
 
-        // Preveri geslo
         const passwordMatch = await bcrypt.compare(geslo, user.geslo);
 
         if (!passwordMatch) {
-            return res.status(401).json({
-                error: 'Napačni prijavni podatki'
-            });
+            return res.status(401).json({ error: 'Napačni prijavni podatki' });
         }
 
         res.json({
@@ -92,16 +86,13 @@ exports.login = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 skupni_xp: user.skupni_xp,
-                trenutni_nivo: user.trenutni_nivo,
+                skupina_id: user.skupina_id,
                 datum_registracije: user.datum_registracije
             }
         });
 
     } catch (err) {
         console.error(err);
-
-        res.status(500).json({
-            error: 'Napaka na strežniku'
-        });
+        res.status(500).json({ error: 'Napaka na strežniku' });
     }
 };

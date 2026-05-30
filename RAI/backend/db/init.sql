@@ -33,7 +33,8 @@ CREATE TABLE uporabniki (
 CREATE TABLE skupine (
     id SERIAL PRIMARY KEY,
     ime_skupine VARCHAR(50) NOT NULL,
-    koda_za_pridruzitev VARCHAR(10) UNIQUE NOT NULL
+    koda_za_pridruzitev VARCHAR(10) UNIQUE NOT NULL,
+    owner_id INT REFERENCES uporabniki(id) ON DELETE SET NULL
 );
 
 -- Clani skupine

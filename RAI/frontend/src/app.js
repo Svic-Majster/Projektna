@@ -2,6 +2,7 @@ import { login, getUserWorkouts } from './components/api.js';
 import { renderUser } from './components/userProfile.js';
 import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
+import { prikaziLeaderboard } from './components/groupLeaderboard.js';
 
 const authView = document.getElementById('auth-view');
 const appView = document.getElementById('app-view');
@@ -38,7 +39,19 @@ function showApplication(user) {
     renderUser(user);
     authView.hidden = true;
     appView.hidden = false;
-    initNavbar(loadWorkouts);
+
+    initNavbar(async (target) => {
+        if (target === 'home-view') {
+            loadWorkouts();
+        } else if (target === 'group-view') {
+            const aktivnaSkupinaId = (currentUser.skupine_ids && currentUser.skupine_ids.length > 0) 
+                ? currentUser.skupine_ids[0] 
+                : (currentUser.skupina_id || null);
+
+            await prikaziLeaderboard(aktivnaSkupinaId, currentUser.id);
+        }
+    });
+
     loadWorkouts();
 }
 
