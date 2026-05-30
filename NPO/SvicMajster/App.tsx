@@ -48,10 +48,11 @@ export default function App() {
 
   if (screen === 'profile') {
     return (
-      <ProfileScreen
+      <ProfileScreen 
         user={auth.user}
         onGoBack={() => setScreen('home')}
         onLogout={auth.logout}
+        //onUpdateUser={auth.updateUser}
       />
     );
   }
