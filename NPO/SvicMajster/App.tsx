@@ -52,7 +52,7 @@ export default function App() {
         user={auth.user}
         onGoBack={() => setScreen('home')}
         onLogout={auth.logout}
-        //onUpdateUser={auth.updateUser}
+        onUpdateUser={auth.updateUser}
       />
     );
   }

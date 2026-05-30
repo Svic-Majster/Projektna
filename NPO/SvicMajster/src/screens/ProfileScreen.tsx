@@ -7,9 +7,11 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import { updateUserProfile } from '../lib/api';
 
 type ProfileScreenProps = {
     user: {
+        id: number;
         ime: string;
         priimek: string;
         email: string;
@@ -19,20 +21,59 @@ type ProfileScreenProps = {
     };
     onGoBack: () => void;
     onLogout: () => void;
+    onUpdateUser: (updated: any) => Promise<void>;
 };
 
 export default function ProfileScreen({
     user,
     onGoBack,
     onLogout,
+    onUpdateUser
 }: ProfileScreenProps) {
     const [ime, setIme] = useState(user.ime);
     const [priimek, setPriimek] = useState(user.priimek);
     const [username, setUsername] = useState(user.username);
+    const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
+    const [original] = useState({ ime: user.ime, priimek: user.priimek, username: user.username });
 
-    const handleSave = () => {
-        setMessage('Shranjevanje profila bo dodano v naslednji fazi.');
+    const handleSave = async () => {
+        if (isSaving) return;
+
+        if (!ime.trim() || !priimek.trim() || !username.trim()) {
+            setMessage('Vsa polja morajo biti izpolnjena.');
+            setMessageType('error');
+            return;
+        }
+
+        if (ime === original.ime && priimek === original.priimek && username === original.username) {
+            setMessage('Ni sprememb za shraniti.');
+            setMessageType('info');
+            return;
+        }
+
+        setIsSaving(true);
+        setMessage('');
+
+        try {
+            const updated = await updateUserProfile(user.id, {
+                ime: ime.trim(),
+                priimek: priimek.trim(),
+                username: username.trim(),
+            });
+
+            await onUpdateUser({ ...user, ...updated });
+
+            setMessage('Profil uspešno posodobljen!');
+            setMessageType('success');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (err: any) {
+            setMessage(err.message || 'Napaka pri shranjevanju.');
+            setMessageType('error');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -119,8 +160,14 @@ export default function ProfileScreen({
                     </Text>
                 </View>
 
-                <Pressable style={styles.saveButton} onPress={handleSave}>
-                    <Text style={styles.primaryButtonText}>Shrani spremembe</Text>
+                <Pressable
+                    style={[styles.saveButton, isSaving && { opacity: 0.6 }]}
+                    onPress={handleSave}
+                    disabled={isSaving}
+                >
+                    <Text style={styles.primaryButtonText}>
+                        {isSaving ? 'Shranjujem...' : 'Shrani spremembe'}
+                    </Text>
                 </Pressable>
 
                 <Pressable style={styles.faceButton} onPress={() => { }}>
@@ -131,7 +178,15 @@ export default function ProfileScreen({
                     <Text style={styles.primaryButtonText}>Odjava</Text>
                 </Pressable>
 
-                {message ? <Text style={styles.message}>{message}</Text> : null}
+                {message ? (
+                    <Text style={[
+                        styles.message,
+                        messageType === 'success' && { color: '#2563EB' },
+                        messageType === 'error' && { color: '#DC2626' },
+                    ]}>
+                        {message}
+                    </Text>
+                ) : null}
             </ScrollView>
         </View>
     );
