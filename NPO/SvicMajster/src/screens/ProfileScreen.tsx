@@ -14,6 +14,8 @@ type ProfileScreenProps = {
         priimek: string;
         email: string;
         username: string;
+        skupni_xp?: number;
+
     };
     onGoBack: () => void;
     onLogout: () => void;
@@ -106,6 +108,14 @@ export default function ProfileScreen({
                     <Text style={styles.emailValue}>{user.email}</Text>
                     <Text style={styles.emailHint}>
                         E-pošte trenutno ni mogoče spremeniti.
+                    </Text>
+                </View>
+
+                <View style={styles.emailCard}>
+                    <Text style={styles.label}>XP točke</Text>
+                    <Text style={styles.emailValue}>{user.skupni_xp ?? 0}</Text>
+                    <Text style={styles.emailHint}>
+                        XP točk ni mogoče spremeniti ročno.
                     </Text>
                 </View>
 
@@ -208,7 +218,7 @@ const styles = StyleSheet.create({
     },
     label: {
         color: '#9CA3AF',
-        fontSize: 15,
+        fontSize: 16,
         marginBottom: 8,
     },
     input: {
@@ -236,7 +246,7 @@ const styles = StyleSheet.create({
     },
     emailHint: {
         color: '#9CA3AF',
-        fontSize: 14,
+        fontSize: 12,
         marginTop: 8,
     },
     saveButton: {
