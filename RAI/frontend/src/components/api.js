@@ -26,3 +26,10 @@ export async function login(identifier, geslo) {
 export async function getUserWorkouts(userId) {
     return apiRequest(`/workouts/user/${userId}`);
 }
+
+export async function updateUserProfile(userId, data) {
+    return apiRequest(`/users/profile/${userId}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+}
