@@ -5,7 +5,6 @@ export function initNavbar(onNavigate) {
     const allViews = document.querySelectorAll('.app-page');
     const placeholderView = document.getElementById('placeholder-view');
     const placeholderTitle = document.getElementById('placeholder-title');
-    const profileView = document.getElementById('profile-view');
 
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
@@ -32,21 +31,20 @@ export function initNavbar(onNavigate) {
                 if (targetView) {
                     targetView.hidden = false;
                     if (typeof onNavigate === 'function') onNavigate('group-view');
+                }
             }
-            else if (targetPageId === 'profile-view') {
-                if (profileView) {
-                    profileView.hidden = false;
+            else if (targetPageId === 'settings-view') {
+                if (targetView) {
+                    targetView.hidden = false;
                 }
             }
             else {
                 if (placeholderView) {
                     placeholderView.hidden = false;
-                    if (placeholderTitle) {
-                        placeholderTitle.textContent = link.textContent;
-                    }
+                    if (placeholderTitle) placeholderTitle.textContent = link.textContent;
                 }
             }
-        }});
+        });
     });
 }
 
@@ -55,7 +53,7 @@ export function resetNavbar() {
     const allViews = document.querySelectorAll('.app-page');
     
     navLinks.forEach(l => l.classList.remove('active'));
-
+    
     const homeBtn = document.querySelector('[data-target="home-view"]');
     if (homeBtn) homeBtn.classList.add('active');
 

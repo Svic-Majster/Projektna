@@ -27,12 +27,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/zunanji-viri', zunanjiViriRoutes);
 
-// 2. Dodaj API rutno za leaderboard
 app.get('/api/skupina/:id/leaderboard', async (req, res) => {
     try {
         const skupinaId = req.params.id;
         
-        // Poberemo podatke iz novega servisa
         const [clani, imeSkupine] = await Promise.all([
             groupLeaderboardService.getLeaderboard(skupinaId),
             groupLeaderboardService.getGroupName(skupinaId)
@@ -48,7 +46,27 @@ app.get('/api/skupina/:id/leaderboard', async (req, res) => {
     }
 });
 
-// zagon scrapera vsakih 10 min
+app.delete('/api/skupina/:skupinaId/zapusti', async (req, res) => {
+    try {
+        const { skupinaId } = req.params;
+        const { uporabnikId } = req.body; 
+
+        const result = await db.query(
+            'DELETE FROM clani_skupine WHERE skupina_id = $1 AND uporabnik_id = $2',
+            [skupinaId, uporabnikId]
+        );
+
+        if (result.rowCount > 0) {
+            res.json({ message: 'Uspešno ste zapustili skupino' });
+        } else {
+            res.status(404).json({ error: 'Članstvo ni bilo najdeno' });
+        }
+    } catch (err) {
+        console.error("Napaka pri zapuščanju skupine:", err);
+        res.status(500).json({ error: 'Napaka na strežniku' });
+    }
+});
+
 cron.schedule('*/10 * * * *', async () => {
     console.log('--- Avtomatski zagon scraperja (vsakih 10 min) ---');
     try {

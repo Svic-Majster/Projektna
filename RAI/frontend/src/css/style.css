@@ -363,3 +363,14 @@ input[type="checkbox"]:focus {
     font-weight: 700;
     cursor: not-allowed;
 }
+
+.btn-danger {
+    background-color: var(--danger);
+    color: white;
+    font-size: 12px;
+    padding: 5px 10px;
+    height: auto;
+}
+.btn-danger:hover {
+    filter: brightness(1.2);
+}

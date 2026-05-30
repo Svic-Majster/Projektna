@@ -1,4 +1,4 @@
-export async function prikaziLeaderboard(skupinaId) {
+export async function prikaziLeaderboard(skupinaId, currentUserId) {
     const container = document.getElementById('leaderboard-container');
     
     try {
@@ -13,9 +13,15 @@ export async function prikaziLeaderboard(skupinaId) {
             return '';
         };
 
+        // Izris strukture z gumbom za izstop, ki je poravnan desno od naslova skupine
         container.innerHTML = `
             <div class="card leaderboard-card">
-                <h3>Skupina: ${data.ime_skupine}</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <h3 style="margin: 0;">Skupina: ${data.ime_skupine}</h3>
+                    <button id="leave-group-btn" class="btn btn-danger" style="padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Zapusti skupino
+                    </button>
+                </div>
                 <table class="leaderboard-table">
                     <tbody>
                         ${data.clani.map((user, index) => `
@@ -34,7 +40,32 @@ export async function prikaziLeaderboard(skupinaId) {
                 </table>
             </div>
         `;
+
+        document.getElementById('leave-group-btn').addEventListener('click', async () => {
+            if (confirm('Ali ste prepričani, da želite zapustiti to skupino?')) {
+                try {
+                    const res = await fetch(`/api/users/skupina/${skupinaId}/zapusti`, { 
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ uporabnikId: currentUserId })
+                    });
+                    
+                    if (res.ok) {
+                        alert('Uspešno ste zapustili skupino.');
+                        location.reload();
+                    } else {
+                        const errData = await res.json();
+                        alert('Napaka pri zapuščanju skupine: ' + errData.error);
+                    }
+                } catch (err) {
+                    console.error("Napaka pri komunikaciji s strežnikom:", err);
+                    alert('Prišlo je do napake na omrežju.');
+                }
+            }
+        });
+
     } catch (err) {
-        console.error(err);
+        console.error("Napaka pri pridobivanju leaderboarda:", err);
+        container.innerHTML = '<p style="padding: 20px; color: red;">Napaka pri nalaganju lestvice.</p>';
     }
 }

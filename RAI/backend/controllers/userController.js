@@ -3,10 +3,8 @@ const db = require('../db');
 // Profil uporabnika
 exports.getProfile = async (req, res) => {
     try {
-
         const { id } = req.params;
 
-        // Pridobi uporabnika
         const result = await db.query(
             `SELECT 
                 id,
@@ -15,7 +13,6 @@ exports.getProfile = async (req, res) => {
                 username,
                 email,
                 skupni_xp,
-                trenutni_nivo,
                 datum_registracije
              FROM uporabniki
              WHERE id = $1`,
@@ -23,50 +20,36 @@ exports.getProfile = async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({
-                error: 'Uporabnik ne obstaja'
-            });
+            return res.status(404).json({ error: 'Uporabnik ne obstaja' });
         }
 
         res.json(result.rows[0]);
-
     } catch (err) {
-
         console.error(err);
-
-        res.status(500).json({
-            error: 'Napaka na strežniku'
-        });
+        res.status(500).json({ error: 'Napaka na strežniku' });
     }
 };
 
 // Lestvica uporabnikov
 exports.getLeaderboard = async (req, res) => {
     try {
-
-        // Pridobi lestvico
         const result = await db.query(
             `SELECT
                 id,
                 username,
-                skupni_xp,
-                trenutni_nivo
+                skupni_xp
              FROM uporabniki
              ORDER BY skupni_xp DESC`
         );
 
         res.json(result.rows);
-
     } catch (err) {
-
         console.error(err);
-
-        res.status(500).json({
-            error: 'Napaka na strežniku'
-        });
+        res.status(500).json({ error: 'Napaka na strežniku' });
     }
 };
 
+// Posodobitev profila
 exports.updateProfile = async (req, res) => {
     try {
         const { id } = req.params;
@@ -83,18 +66,40 @@ exports.updateProfile = async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({
-                error: 'Uporabnik ne obstaja'
-            });
+            return res.status(404).json({ error: 'Uporabnik ne obstaja' });
         }
 
         res.json(result.rows[0]);
-
     } catch (err) {
         console.error(err);
+        res.status(500).json({ error: 'Napaka na strežniku' });
+    }
+};
 
-        res.status(500).json({
-            error: 'Napaka na strežniku'
-        });
+// zapustitev skupine
+exports.leaveGroup = async (req, res) => {
+    try {
+        const { skupinaId } = req.params;
+        const { uporabnikId } = req.body;
+
+        console.log("Brisanje člana iz skupine:", { skupinaId, uporabnikId });
+
+        if (!uporabnikId) {
+            return res.status(400).json({ error: 'Manjka uporabnikId' });
+        }
+
+        const result = await db.query(
+            'DELETE FROM clani_skupine WHERE skupina_id = $1 AND uporabnik_id = $2',
+            [skupinaId, uporabnikId]
+        );
+
+        if (result.rowCount > 0) {
+            res.json({ message: 'Uspešno ste zapustili skupino' });
+        } else {
+            res.status(404).json({ error: 'Članstvo ni bilo najdeno' });
+        }
+    } catch (err) {
+        console.error("SQL Napaka pri zapuščanju skupine:", err);
+        res.status(500).json({ error: 'Napaka na strežniku: ' + err.message });
     }
 };

@@ -33,3 +33,10 @@ export async function updateUserProfile(userId, data) {
         body: JSON.stringify(data),
     });
 }
+
+export async function leaveGroup(skupinaId, uporabnikId) {
+    return apiRequest(`/users/skupina/${skupinaId}/zapusti`, {
+        method: 'DELETE',
+        body: JSON.stringify({ uporabnikId }),
+    });
+}
