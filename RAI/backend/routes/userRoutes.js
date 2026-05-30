@@ -8,4 +8,6 @@ router.get('/profile/:id', userController.getProfile);
 // Lestvica uporabnikov
 router.get('/leaderboard', userController.getLeaderboard);
 
+router.put('/profile/:id', userController.updateProfile);
+
 module.exports = router;
