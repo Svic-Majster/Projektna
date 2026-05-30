@@ -103,3 +103,45 @@ exports.leaveGroup = async (req, res) => {
         res.status(500).json({ error: 'Napaka na strežniku: ' + err.message });
     }
 };
+
+exports.joinGroup = async (req, res) => {
+    try {
+        const { uporabnikId, koda } = req.body;
+
+        if (!uporabnikId || !koda) {
+            return res.status(400).json({ error: 'Manjka ID uporabnika ali koda skupine.' });
+        }
+
+        const groupCheck = await db.query(
+            'SELECT * FROM skupine WHERE UPPER(TRIM(koda_za_pridruzitev)) = UPPER(TRIM($1))',
+            [koda]
+        );
+
+        if (groupCheck.rows.length === 0) {
+            return res.status(404).json({ error: 'Skupina s to kodo ne obstaja.' });
+        }
+
+        const skupina = groupCheck.rows[0];
+
+        try {
+            await db.query(
+                'INSERT INTO clani_skupine (skupina_id, uporabnik_id) VALUES ($1, $2)',
+                [skupina.id, uporabnikId]
+            );
+            
+            res.json({ 
+                message: `Uspešno ste se pridružili skupini ${skupina.ime_skupine}!`, 
+                skupinaId: skupina.id 
+            });
+        } catch (insertErr) {
+            if (insertErr.code === '23505') {
+                return res.status(400).json({ error: 'V tej skupini ste že pridruženi.' });
+            }
+            throw insertErr;
+        }
+
+    } catch (err) {
+        console.error("Napaka pri pridruževanju skupini:", err);
+        res.status(500).json({ error: 'Napaka na strežniku.' });
+    }
+};

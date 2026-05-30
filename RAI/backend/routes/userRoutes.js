@@ -14,4 +14,7 @@ router.put('/profile/:id', userController.updateProfile);
 // zapusti group
 router.delete('/skupina/:skupinaId/zapusti', userController.leaveGroup);
 
+// pridruzi se skupini
+router.post('/skupina/pridruzi-se', userController.joinGroup);
+
 module.exports = router;

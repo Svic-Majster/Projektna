@@ -44,16 +44,11 @@ function showApplication(user) {
         if (target === 'home-view') {
             loadWorkouts();
         } else if (target === 'group-view') {
-            const container = document.getElementById('leaderboard-container');
-            
-            if (currentUser.skupine_ids && currentUser.skupine_ids.length > 0) {
-                const prvaSkupinaId = currentUser.skupine_ids[0];
-                await prikaziLeaderboard(prvaSkupinaId, currentUser.id);
-            } else if (currentUser.skupina_id) {
-                await prikaziLeaderboard(currentUser.skupina_id, currentUser.id);
-            } else {
-                container.innerHTML = '<p style="padding: 20px;">Niste člani nobene skupine.</p>';
-            }
+            const aktivnaSkupinaId = (currentUser.skupine_ids && currentUser.skupine_ids.length > 0) 
+                ? currentUser.skupine_ids[0] 
+                : (currentUser.skupina_id || null);
+
+            await prikaziLeaderboard(aktivnaSkupinaId, currentUser.id);
         }
     });
 
