@@ -19,4 +19,6 @@ router.post('/skupina/pridruzi-se', userController.joinGroup);
 
 router.post('/skupina/ustvari', userController.createGroup);
 
+router.get('/uporabnik/:uporabnikId/skupine', userController.getUserGroups);
+
 module.exports = router;

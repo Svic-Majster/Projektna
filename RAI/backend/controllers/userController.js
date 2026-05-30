@@ -211,3 +211,22 @@ exports.createGroup = async (req, res) => {
         res.status(500).json({ error: 'Napaka na strežniku pri ustvarjanju skupine.' });
     }
 };
+
+exports.getUserGroups = async (req, res) => {
+    try {
+        const { uporabnikId } = req.params;
+        
+        const result = await db.query(
+            `SELECT s.id, s.ime_skupine, s.koda_za_pridruzitev, s.owner_id 
+             FROM skupine s
+             JOIN clani_skupine cs ON s.id = cs.skupina_id
+             WHERE cs.uporabnik_id = $1`,
+            [uporabnikId]
+        );
+        
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Napaka v userController (getUserGroups):", err);
+        res.status(500).json({ error: 'Napaka na strežniku pri pridobivanju skupin.' });
+    }
+};

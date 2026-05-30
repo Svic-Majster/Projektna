@@ -1,4 +1,4 @@
-export async function prikaziLeaderboard(skupinaId, userParam) {
+export async function prikaziLeaderboard(izbranaSkupinaId, userParam) {
     const container = document.getElementById('leaderboard-container');
     
     let currentUserId = null;
@@ -7,10 +7,18 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
     }
     
     try {
+        const skupineResponse = await fetch(`/api/users/uporabnik/${currentUserId}/skupine`);
+        const uporabnikoveSkupine = skupineResponse.ok ? await skupineResponse.json() : [];
+
+        let aktivnaSkupinaId = izbranaSkupinaId;
+        if (!aktivnaSkupinaId && uporabnikoveSkupine.length > 0) {
+            aktivnaSkupinaId = uporabnikoveSkupine[0].id;
+        }
+
         let leaderboardHtml = '';
         
-        if (skupinaId) {
-            const response = await fetch(`/api/skupina/${skupinaId}/leaderboard`);
+        if (aktivnaSkupinaId) {
+            const response = await fetch(`/api/skupina/${aktivnaSkupinaId}/leaderboard`);
             const data = await response.json();
 
             const kodaSkupine = data.koda_za_pridruzitev || 'KODA';
@@ -25,8 +33,19 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
                 return '';
             };
 
+            const dropdownOptions = uporabnikoveSkupine.map(s => 
+                `<option value="${s.id}" ${Number(s.id) === Number(aktivnaSkupinaId) ? 'selected' : ''}>${s.ime_skupine}</option>`
+            ).join('');
+
             leaderboardHtml = `
                 <div class="card leaderboard-card">
+                    <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        <span class="muted" style="font-size: 14px; font-weight: 600;">Izberi skupino:</span>
+                        <select id="group-select-dropdown" class="group-selector">
+                            ${dropdownOptions}
+                        </select>
+                    </div>
+
                     <div class="leaderboard-header-row">
                         <div>
                             <h3 style="margin: 0;">Lestvica: ${data.ime_skupine}</h3>
@@ -105,6 +124,13 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
             <div id="dynamic-leaderboard-area">${leaderboardHtml}</div>
         `;
 
+        const groupDropdown = document.getElementById('group-select-dropdown');
+        if (groupDropdown) {
+            groupDropdown.addEventListener('change', (e) => {
+                prikaziLeaderboard(e.target.value, userParam);
+            });
+        }
+
         const copyBadge = document.getElementById('copy-code-badge');
         if (copyBadge) {
             copyBadge.addEventListener('click', () => {
@@ -153,9 +179,6 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
 
                 if (res.ok) {
                     alert(data.message);
-                    if (userParam && typeof userParam === 'object') {
-                        userParam.skupina_id = data.skupinaId;
-                    }
                     prikaziLeaderboard(data.skupinaId, userParam);
                 } else {
                     alert('Napaka: ' + data.error);
@@ -177,9 +200,6 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
 
                 if (res.ok) {
                     alert(`${data.message}\nKoda skupine je: ${data.koda}`);
-                    if (userParam && typeof userParam === 'object') {
-                        userParam.skupina_id = data.skupinaId;
-                    }
                     prikaziLeaderboard(data.skupinaId, userParam);
                 } else {
                     alert('Napaka: ' + data.error);
@@ -187,7 +207,7 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
             } catch (err) { console.error(err); }
         });
 
-        if (skupinaId) {
+        if (aktivnaSkupinaId) {
             const deleteBtn = document.getElementById('delete-group-btn');
             const leaveBtn = document.getElementById('leave-group-btn');
 
@@ -195,7 +215,7 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
                 deleteBtn.addEventListener('click', async () => {
                     if (confirm('Ali ste prepričani, da želite popolnoma IZBRISATI to skupino? Vsi člani bodo odstranjeni!')) {
                         try {
-                            const res = await fetch(`/api/users/skupina/${skupinaId}/izbrisi`, { 
+                            const res = await fetch(`/api/users/skupina/${aktivnaSkupinaId}/izbrisi`, { 
                                 method: 'DELETE',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ uporabnikId: currentUserId })
@@ -203,9 +223,6 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
                             
                             if (res.ok) {
                                 alert('Skupina je bila uspešno izbrisana.');
-                                if (userParam && typeof userParam === 'object') {
-                                    userParam.skupina_id = null;
-                                }
                                 prikaziLeaderboard(null, userParam);
                             } else {
                                 alert('Napaka: ' + (await res.json()).error);
@@ -219,7 +236,7 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
                 leaveBtn.addEventListener('click', async () => {
                     if (confirm('Ali ste prepričani, da želite zapustiti to skupino?')) {
                         try {
-                            const res = await fetch(`/api/users/skupina/${skupinaId}/zapusti`, { 
+                            const res = await fetch(`/api/users/skupina/${aktivnaSkupinaId}/zapusti`, { 
                                 method: 'DELETE',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ uporabnikId: currentUserId })
@@ -227,9 +244,6 @@ export async function prikaziLeaderboard(skupinaId, userParam) {
                             
                             if (res.ok) {
                                 alert('Uspešno ste zapustili skupino.');
-                                if (userParam && typeof userParam === 'object') {
-                                    userParam.skupina_id = null;
-                                }
                                 prikaziLeaderboard(null, userParam);
                             } else {
                                 alert('Napaka: ' + (await res.json()).error);
