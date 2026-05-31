@@ -20,13 +20,13 @@ export function initNavbar(onNavigate) {
             if (targetPageId === 'home-view') {
                 if (targetView) targetView.hidden = false;
                 if (typeof onNavigate === 'function') onNavigate('home-view');
-            } 
+            }
             else if (targetPageId === 'map-view') {
                 if (targetView) {
                     targetView.hidden = false;
                     pripraviZemljevid();
                 }
-            } 
+            }
             else if (targetPageId === 'group-view') {
                 if (targetView) {
                     targetView.hidden = false;
@@ -36,6 +36,12 @@ export function initNavbar(onNavigate) {
             else if (targetPageId === 'settings-view') {
                 if (targetView) {
                     targetView.hidden = false;
+                }
+            }
+            else if (targetPageId === 'dashboard-stats-view') {
+                if (targetView) {
+                    targetView.hidden = false;
+                    if (typeof onNavigate === 'function') onNavigate('dashboard-stats-view');
                 }
             }
             else {
@@ -51,9 +57,9 @@ export function initNavbar(onNavigate) {
 export function resetNavbar() {
     const navLinks = document.querySelectorAll('.nav-link');
     const allViews = document.querySelectorAll('.app-page');
-    
+
     navLinks.forEach(l => l.classList.remove('active'));
-    
+
     const homeBtn = document.querySelector('[data-target="home-view"]');
     if (homeBtn) homeBtn.classList.add('active');
 
