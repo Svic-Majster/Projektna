@@ -17,24 +17,57 @@
   <main class="shell">
     <section class="card auth-card" id="auth-view">
       <div>
-        <h1>Prijava</h1>
+      <!-- Tab switcher -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-login" type="button">Prijava</button>
+          <button class="auth-tab" id="tab-register" type="button">Registracija</button>
+        </div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-panel">
         <p class="muted">Po prijavi se naložijo treningi</p>
+        <form id="login-form" class="form" method="POST" action="">
+          <label>
+            <span>Email ali username</span>
+            <input id="identifier" name="identifier" type="text" required placeholder="vnesi email ali username" />
+          </label>
+          <label>
+            <span>Geslo</span>
+            <input id="geslo" name="geslo" type="password" required placeholder="vnesi geslo" />
+          </label>
+          <button type="submit" class="btn btn-primary">Prijava</button>
+          <p id="auth-error" class="error" hidden></p>
+        </form>
       </div>
 
-      <form id="login-form" class="form" method="POST" action="#">
-        <label>
-          <span>Email ali username</span>
-          <input id="identifier" name="identifier" type="text" required placeholder="vnesi email ali username" />
-        </label>
-
-        <label>
-          <span>Geslo</span>
-          <input id="geslo" name="geslo" type="password" required placeholder="vnesi geslo" />
-        </label>
-
-        <button type="submit" class="btn btn-primary">Prijava</button>
-        <p id="auth-error" class="error" hidden></p>
-      </form>
+      <!-- REGISTER FORM -->
+      <div id="register-panel" hidden>
+        <p class="muted">Ustvari nov račun</p>
+          <form id="register-form" class="form" method="POST" action="">
+            <label><span>Ime</span>
+              <input name="ime" type="text" required placeholder="vnesi ime" />
+            </label>
+            <label><span>Priimek</span>
+              <input name="priimek" type="text" required placeholder="vnesi priimek" />
+            </label>
+            <label><span>Username</span>
+              <input name="username" type="text" required placeholder="izberi username" />
+            </label>
+            <label><span>Email</span>
+              <input name="email" type="email" required placeholder="vnesi email" />
+            </label>
+            <label><span>Geslo</span>
+              <input name="geslo" type="password" required placeholder="vnesi geslo" />
+            </label>
+            <label><span>Potrdi geslo</span>
+              <input name="geslo2" type="password" required placeholder="ponovi geslo" />
+            </label>
+            <button type="submit" class="btn btn-primary">Registracija</button>
+            <p id="register-error" class="error" hidden></p>
+            <p id="register-success" class="success" hidden></p>
+          </form>
+        </div>
+      </div>
     </section>
 
     <div id="app-view" hidden>

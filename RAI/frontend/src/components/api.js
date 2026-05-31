@@ -23,6 +23,17 @@ export async function login(identifier, geslo) {
     return data.user;
 }
 
+export async function register({ ime, priimek, username, email, geslo }) {
+    const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ime, priimek, username, email, geslo }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Napaka pri registraciji');
+    return data;
+}
+
 export async function getUserWorkouts(userId) {
     return apiRequest(`/workouts/user/${userId}`);
 }

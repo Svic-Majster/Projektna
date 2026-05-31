@@ -1,4 +1,5 @@
 import { login, getUserWorkouts, getUserDashboard } from './components/api.js';
+import { login, register, getUserWorkouts } from './components/api.js';
 import { renderUser } from './components/userProfile.js';
 import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
@@ -13,6 +14,13 @@ const workoutError = document.getElementById('workout-error');
 const loading = document.getElementById('loading');
 const logoutBtn = document.getElementById('logout-btn');
 const refreshBtn = document.getElementById('refresh-btn');
+const registerForm    = document.getElementById('register-form');
+const registerError   = document.getElementById('register-error');
+const registerSuccess = document.getElementById('register-success');
+const tabLogin        = document.getElementById('tab-login');
+const tabRegister     = document.getElementById('tab-register');
+const loginPanel      = document.getElementById('login-panel');
+const registerPanel   = document.getElementById('register-panel');
 
 let currentUser = null;
 
@@ -105,6 +113,49 @@ loginForm.addEventListener('submit', async (event) => {
     } catch (error) {
         authError.textContent = error.message;
         authError.hidden = false;
+    }
+});
+
+tabLogin.addEventListener('click', () => {
+    tabLogin.classList.add('active');
+    tabRegister.classList.remove('active');
+    loginPanel.hidden = false;
+    registerPanel.hidden = true;
+});
+
+tabRegister.addEventListener('click', () => {
+    tabRegister.classList.add('active');
+    tabLogin.classList.remove('active');
+    registerPanel.hidden = false;
+    loginPanel.hidden = true;
+    authError.hidden = true;
+});
+
+registerForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    registerError.hidden = true;
+    registerSuccess.hidden = true;
+
+    const d = new FormData(registerForm);
+    if (d.get('geslo') !== d.get('geslo2')) {
+        registerError.textContent = 'Gesli se ne ujemata.';
+        registerError.hidden = false;
+        return;
+    }
+
+    try {
+        await register({
+            ime: d.get('ime'), priimek: d.get('priimek'),
+                       username: d.get('username'), email: d.get('email'),
+                       geslo: d.get('geslo'),
+        });
+        registerSuccess.textContent = 'Registracija uspešna! Zdaj se lahko prijaviš.';
+        registerSuccess.hidden = false;
+        registerForm.reset();
+        setTimeout(() => tabLogin.click(), 1800); // auto-switch to login
+    } catch (error) {
+        registerError.textContent = error.message;
+        registerError.hidden = false;
     }
 });
 
