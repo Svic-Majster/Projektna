@@ -3,6 +3,7 @@ import { renderUser } from './components/userProfile.js';
 import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
 import { prikaziLeaderboard } from './components/groupLeaderboard.js';
+//import { renderDashboard } from './components/dashboard.js';
 
 const authView = document.getElementById('auth-view');
 const appView = document.getElementById('app-view');
@@ -34,6 +35,23 @@ async function loadWorkouts() {
     }
 }
 
+async function loadDashboard() {
+    if (!currentUser) return;
+    const loading = document.getElementById('dashboard-loading');
+    const error = document.getElementById('dashboard-error');
+    loading.hidden = false;
+    error.hidden = true;
+    try {
+        const stats = await getUserDashboard(currentUser.id);
+        console.log(stats);
+    } catch (err) {
+        error.textContent = err.message;
+        error.hidden = false;
+    } finally {
+        loading.hidden = true;
+    }
+}
+
 function showApplication(user) {
     currentUser = user;
     renderUser(user);
@@ -44,11 +62,13 @@ function showApplication(user) {
         if (target === 'home-view') {
             loadWorkouts();
         } else if (target === 'group-view') {
-            const aktivnaSkupinaId = (currentUser.skupine_ids && currentUser.skupine_ids.length > 0) 
-                ? currentUser.skupine_ids[0] 
+            const aktivnaSkupinaId = (currentUser.skupine_ids && currentUser.skupine_ids.length > 0)
+                ? currentUser.skupine_ids[0]
                 : (currentUser.skupina_id || null);
 
             await prikaziLeaderboard(aktivnaSkupinaId, currentUser.id);
+        } else if (target === 'dashboard-stats-view') {
+            loadDashboard();
         }
     });
 
@@ -60,7 +80,7 @@ function logout() {
     loginForm.reset();
     clearWorkouts();
     resetNavbar();
-    
+
     authError.hidden = true;
     workoutError.hidden = true;
     appView.hidden = true;

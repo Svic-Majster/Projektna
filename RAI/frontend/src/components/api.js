@@ -61,3 +61,7 @@ export async function deleteGroup(skupinaId, uporabnikId) {
         body: JSON.stringify({ uporabnikId }),
     });
 }
+
+export async function getUserDashboard(userId) {
+    return apiRequest(`/users/dashboard/${userId}`);
+}
