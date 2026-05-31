@@ -1,5 +1,4 @@
-import { login, getUserWorkouts, getUserDashboard } from './components/api.js';
-import { login, register, getUserWorkouts } from './components/api.js';
+import { login, register, getUserWorkouts, getUserDashboard } from './components/api.js';
 import { renderUser } from './components/userProfile.js';
 import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
