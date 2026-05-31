@@ -230,3 +230,29 @@ exports.getUserGroups = async (req, res) => {
         res.status(500).json({ error: 'Napaka na strežniku pri pridobivanju skupin.' });
     }
 };
+
+exports.getDashboardStats = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await db.query(`
+            SELECT
+                COUNT(*)::int AS skupaj_treningov,
+                COALESCE(SUM(razdalja_km), 0) AS skupaj_km,
+                COALESCE(AVG(razdalja_km), 0) AS povprecna_razdalja,
+                COALESCE(SUM(skupne_tocke), 0) AS skupaj_xp,
+                COALESCE(AVG(skupne_tocke), 0) AS povprecen_xp,
+                COALESCE(AVG(EXTRACT(EPOCH FROM (konec_vadbe - zacetek_vadbe)) / 60), 0) AS povprecna_dolzina_min,
+                COUNT(*) FILTER (WHERE vrsta_workouta = 'tek')::int AS treningi_tek,
+                COUNT(*) FILTER (WHERE vrsta_workouta = 'kolesarjenje')::int AS treningi_kolesarjenje,
+                COUNT(*) FILTER (WHERE vrsta_workouta = 'hoja')::int AS treningi_hoja
+            FROM treningi
+            WHERE uporabnik_id = $1
+        `, [id]);
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Napaka na strežniku' });
+    }
+};

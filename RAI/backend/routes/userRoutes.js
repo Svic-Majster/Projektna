@@ -21,4 +21,6 @@ router.post('/skupina/ustvari', userController.createGroup);
 
 router.get('/uporabnik/:uporabnikId/skupine', userController.getUserGroups);
 
+router.get('/dashboard/:id', userController.getDashboardStats);
+
 module.exports = router;
