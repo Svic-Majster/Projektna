@@ -1,9 +1,9 @@
-import { login, getUserWorkouts } from './components/api.js';
+import { login, getUserWorkouts, getUserDashboard } from './components/api.js';
 import { renderUser } from './components/userProfile.js';
 import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
 import { prikaziLeaderboard } from './components/groupLeaderboard.js';
-//import { renderDashboard } from './components/dashboard.js';
+import { renderDashboard } from './components/dashboard.js';
 
 const authView = document.getElementById('auth-view');
 const appView = document.getElementById('app-view');
@@ -37,14 +37,17 @@ async function loadWorkouts() {
 
 async function loadDashboard() {
     if (!currentUser) return;
+    console.log('loadDashboard called, user:', currentUser.id);
     const loading = document.getElementById('dashboard-loading');
     const error = document.getElementById('dashboard-error');
     loading.hidden = false;
     error.hidden = true;
     try {
         const stats = await getUserDashboard(currentUser.id);
-        console.log(stats);
+        console.log('stats:', stats);
+        renderDashboard(stats);
     } catch (err) {
+        console.error('dashboard error:', err);
         error.textContent = err.message;
         error.hidden = false;
     } finally {
