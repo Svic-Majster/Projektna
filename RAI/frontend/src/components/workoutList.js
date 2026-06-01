@@ -15,7 +15,7 @@ export function renderWorkouts(items) {
             <h4>${workout.vrsta_workouta || 'trening'}</h4>
             <div class="workout-grid">
                 <p><strong>ID:</strong> ${workout.id ?? '—'}</p>
-                <p><strong>Točke:</strong> ${workout.skupne_tocke ?? 0}</p>
+                <p><strong>Točke (XP):</strong> ${workout.skupne_tocke ?? 0}</p>
                 <p><strong>Razdalja:</strong> ${workout.razdalja_km ?? 0} km</p>
                 <p><strong>Vremenski bonus:</strong> ${workout.vremenski_bonus ?? 1}x</p>
                 <p><strong>Začetek:</strong> ${formatDate(workout.zacetek_vadbe)}</p>
