@@ -21,11 +21,11 @@ export function renderDashboard(stats) {
     container.innerHTML = `
         <div class="dashboard-grid">
             <div class="dashboard-card">
-                <p class="dashboard-label">Skupaj treningov</p>
+                <p class="dashboard-label">Skupno število treningov</p>
                 <p class="dashboard-value">${stats.skupaj_treningov}</p>
             </div>
             <div class="dashboard-card">
-                <p class="dashboard-label">Skupaj kilometrov</p>
+                <p class="dashboard-label">Skupna kilometrina</p>
                 <p class="dashboard-value">${parseFloat(stats.skupaj_km).toFixed(1)} km</p>
             </div>
             <div class="dashboard-card">
@@ -33,7 +33,7 @@ export function renderDashboard(stats) {
                 <p class="dashboard-value">${parseFloat(stats.povprecna_razdalja).toFixed(1)} km</p>
             </div>
             <div class="dashboard-card">
-                <p class="dashboard-label">Skupaj XP</p>
+                <p class="dashboard-label">Skupen XP</p>
                 <p class="dashboard-value">${stats.skupaj_xp} XP</p>
             </div>
             <div class="dashboard-card">
@@ -41,7 +41,7 @@ export function renderDashboard(stats) {
                 <p class="dashboard-value">${parseFloat(stats.povprecen_xp).toFixed(0)} XP</p>
             </div>
             <div class="dashboard-card">
-                <p class="dashboard-label">Povprečna dolžina</p>
+                <p class="dashboard-label">Povprečno trajanje treninga</p>
                 <p class="dashboard-value">${parseFloat(stats.povprecna_dolzina_min).toFixed(0)} min</p>
             </div>
         </div>
