@@ -129,6 +129,8 @@ app.get('/api/health', async (req, res) => {
 startMqttClient();
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server deluje na http://localhost:${PORT}`);
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server deluje na vseh vmesnikih na portu: ${PORT}`);
+    console.log(`Lokalno dostopen na: http://localhost:${PORT}`);
 });
