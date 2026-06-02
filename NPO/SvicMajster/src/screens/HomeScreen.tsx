@@ -1,4 +1,6 @@
+import React, { useState } from 'react';
 import {
+    Modal,
     Pressable,
     StyleSheet,
     Text,
@@ -13,12 +15,25 @@ type HomeScreenProps = {
         username: string;
     };
     onGoToProfile: () => void;
+    onStartWorkout?: (type: 'tek' | 'kolesarjenje' | 'hoja') => void;
 };
 
 export default function HomeScreen({
     user,
     onGoToProfile,
+    onStartWorkout,
 }: HomeScreenProps) {
+    const [menuVisible, setMenuVisible] = useState(false);
+
+    const handleSelectSport = (sport: 'tek' | 'kolesarjenje' | 'hoja') => {
+        setMenuVisible(false);
+        console.log(`Izbran šport: ${sport}`);
+        
+        if (onStartWorkout) {
+            onStartWorkout(sport);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -46,13 +61,56 @@ export default function HomeScreen({
                         Tvoja lestvica bo prikazana tukaj.
                     </Text>
                 </View>
-
-                <Pressable style={styles.startButton}>
+                <Pressable 
+                    style={styles.startButton}
+                    onPress={() => setMenuVisible(true)}
+                >
                     <Text style={styles.startButtonText}>
                         Začni trening
                     </Text>
                 </Pressable>
             </View>
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={menuVisible}
+                onRequestClose={() => setMenuVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Izberi vrsto aktivnosti</Text>
+                        
+                        <Pressable 
+                            style={[styles.sportButton]} 
+                            onPress={() => handleSelectSport('tek')}
+                        >
+                            <Text style={styles.sportButtonText}>Tek</Text>
+                        </Pressable>
+
+                        <Pressable 
+                            style={[styles.sportButton]} 
+                            onPress={() => handleSelectSport('kolesarjenje')}
+                        >
+                            <Text style={styles.sportButtonText}>Kolesarjenje</Text>
+                        </Pressable>
+
+                        <Pressable 
+                            style={[styles.sportButton]} 
+                            onPress={() => handleSelectSport('hoja')}
+                        >
+                            <Text style={styles.sportButtonText}>Hoja</Text>
+                        </Pressable>
+
+                        <Pressable 
+                            style={styles.closeButton} 
+                            onPress={() => setMenuVisible(false)}
+                        >
+                            <Text style={styles.closeButtonText}>Prekliči</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+
         </View>
     );
 }
@@ -95,23 +153,20 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: 24,
     },
-
     startButton: {
         marginTop: 12,
         marginBottom: 16,
-        width: '80%',
+        width: '100%',
         backgroundColor: '#2563EB',
         paddingVertical: 16,
         borderRadius: 16,
         alignItems: 'center',
     },
-
     startButtonText: {
         color: 'white',
         fontSize: 18,
         fontWeight: '700',
     },
-
     card: {
         backgroundColor: '#1F2937',
         padding: 18,
@@ -119,16 +174,59 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         width: '100%',
     },
-
     cardTitle: {
         color: 'white',
         fontSize: 18,
         fontWeight: '700',
         marginBottom: 6,
     },
-
     cardText: {
         color: '#D1D5DB',
         fontSize: 14,
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    modalContent: {
+        backgroundColor: '#1F2937',
+        borderRadius: 24,
+        padding: 24,
+        width: '100%',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#374151',
+    },
+    modalTitle: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: '700',
+        marginBottom: 20,
+    },
+    sportButton: {
+        width: '100%',
+        paddingVertical: 16,
+        borderRadius: 14,
+        backgroundColor: '#2563EB',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    sportButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: '600',
+    },
+    closeButton: {
+        marginTop: 8,
+        paddingVertical: 12,
+    },
+    closeButtonText: {
+        color: '#9CA3AF',
+        fontSize: 16,
+        fontWeight: '500',
     },
 });
