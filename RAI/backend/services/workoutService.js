@@ -1,17 +1,17 @@
 const db = require('../db');
 
-async function startWorkout({ uporabnik_id, vrsta_workouta }) {
-    if (!uporabnik_id || !vrsta_workouta) {
-        const error = new Error('Manjkata uporabnik_id ali vrsta_workouta');
+async function startWorkout({ trening_id, uporabnik_id, vrsta_workouta }) {
+    if (!trening_id || !uporabnik_id || !vrsta_workouta) {
+        const error = new Error('Manjkajo trening_id, uporabnik_id ali vrsta_workouta');
         error.statusCode = 400;
         throw error;
     }
 
     const result = await db.query(
-        `INSERT INTO treningi (uporabnik_id, vrsta_workouta, zacetek_vadbe)
-        VALUES ($1, $2, NOW())
+        `INSERT INTO treningi (id, uporabnik_id, vrsta_workouta, zacetek_vadbe)
+        VALUES ($1, $2, $3, NOW())
         RETURNING *`,
-        [uporabnik_id, vrsta_workouta]
+        [trening_id, uporabnik_id, vrsta_workouta]
     );
 
     return result.rows[0];
@@ -26,7 +26,7 @@ async function stopWorkout({ trening_id }) {
 
     const result = await db.query(
         `UPDATE treningi
-        SET konec_vadbe = NOW()
+        SET konec_vadbe = NOW(), status_treninga = 'zakljuceno'
         WHERE id = $1
         RETURNING *`,
         [trening_id]
