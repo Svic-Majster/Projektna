@@ -17,7 +17,7 @@ async function handleWorkoutTopic(topic, payload) {
 
         case 'app/workouts/stop': {
             try {
-                const { uporabnik_id } = payload;
+                const { uporabnik_id, razdalja_km } = payload;
 
                 if (!uporabnik_id) {
                     console.warn('[MQTT] Stop signal nima polja uporabnik_id:', payload);
@@ -35,8 +35,9 @@ async function handleWorkoutTopic(topic, payload) {
                 }
 
                 const trening_id = aktivniTrening.rows[0].id;
-                const workout = await workoutService.stopWorkout({ trening_id });
-                console.log(`[MQTT] Trening uspešno zaključen v bazi. ID: ${workout.id}`);
+                
+                const workout = await workoutService.stopWorkout({ trening_id, razdalja_km });
+                console.log(`[MQTT] Trening uspešno zaključen v bazi. ID: ${workout.id}, Razdalja: ${workout.razdalja_km} km`);
             } catch (err) {
                 console.error('[MQTT] Napaka pri zaključevanju treninga:', err.message);
             }

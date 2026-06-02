@@ -17,7 +17,7 @@ async function startWorkout({ uporabnik_id, vrsta_workouta }) {
     return result.rows[0];
 }
 
-async function stopWorkout({ trening_id }) {
+async function stopWorkout({ trening_id, razdalja_km }) {
     if (!trening_id) {
         const error = new Error('Manjka trening_id');
         error.statusCode = 400;
@@ -26,10 +26,12 @@ async function stopWorkout({ trening_id }) {
 
     const result = await db.query(
         `UPDATE treningi
-        SET konec_vadbe = NOW(), status_treninga = 'zakljuceno'
+        SET konec_vadbe = NOW(), 
+            status_treninga = 'zakljuceno',
+            razdalja_km = $2
         WHERE id = $1
         RETURNING *`,
-        [trening_id]
+        [trening_id, razdalja_km || 0]
     );
 
     if (result.rows.length === 0) {

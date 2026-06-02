@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import * as Location from 'expo-location';
 // @ts-ignore
@@ -8,13 +8,29 @@ type WorkoutScreenProps = {
     sport: 'tek' | 'kolesarjenje' | 'hoja';
     uporabnikId: number;
     mqttClient: Paho.Client | null;
-    onFinishWorkout: (trajanjeSekunde: number) => void;
+    onFinishWorkout: (trajanjeSekunde: number, razdaljaKm: number) => void;
+};
+
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 };
 
 export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinishWorkout }: WorkoutScreenProps) {
     const [seconds, setSeconds] = useState(0);
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [gpsError, setGpsError] = useState<string | null>(null);
+    const [skupnaRazdaljaKm, setSkupnaRazdaljaKm] = useState<number>(0);
+    const zadnjaKoord = useRef<{ latitude: number; longitude: number } | null>(null);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -41,19 +57,31 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
                 },
                 (newLocation) => {
                     setLocation(newLocation);
+                    const { latitude, longitude, speed } = newLocation.coords;
+
+                    if (zadnjaKoord.current) {
+                        const premik = calculateDistance(
+                            zadnjaKoord.current.latitude,
+                            zadnjaKoord.current.longitude,
+                            latitude,
+                            longitude
+                        );
+                        setSkupnaRazdaljaKm((prev) => prev + premik);
+                    }
+
+                    zadnjaKoord.current = { latitude, longitude };
                     
                     if (mqttClient && mqttClient.isConnected()) {
                         const payload = JSON.stringify({
                             uporabnik_id: uporabnikId,
-                            latitude: newLocation.coords.latitude,
-                            longitude: newLocation.coords.longitude,
-                            hitrost: newLocation.coords.speed || 0
+                            latitude: latitude,
+                            longitude: longitude,
+                            hitrost: speed || 0
                         });
 
                         const message = new Paho.Message(payload);
                         message.destinationName = 'app/workouts/location';
                         mqttClient.send(message);
-                        console.log('MQTT lokacija poslana:', payload);
                     }
                 }
             );
@@ -75,6 +103,14 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
         return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
+    const formatRazdalja = (km: number) => {
+        const metri = km * 1000;
+        if (metri < 1000) {
+            return `${Math.round(metri)} m`;
+        }
+        return `${km.toFixed(2)} km`;
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -85,6 +121,11 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
             <View style={styles.timerContainer}>
                 <Text style={styles.timerLabel}>ČAS VADBE</Text>
                 <Text style={styles.timerText}>{formatTime(seconds)}</Text>
+            </View>
+
+            <View style={styles.distanceContainer}>
+                <Text style={styles.distanceLabel}>OPRAVLJENA RAZDALJA</Text>
+                <Text style={styles.distanceText}>{formatRazdalja(skupnaRazdaljaKm)}</Text>
             </View>
 
             <View style={styles.statsContainer}>
@@ -102,7 +143,10 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
                 </View>
             </View>
 
-            <Pressable style={styles.finishButton} onPress={() => onFinishWorkout(seconds)}>
+            <Pressable 
+                style={styles.finishButton} 
+                onPress={() => onFinishWorkout(seconds, parseFloat(skupnaRazdaljaKm.toFixed(4)))}
+            >
                 <Text style={styles.finishButtonText}>Zaključi trening</Text>
             </Pressable>
         </View>
@@ -114,13 +158,16 @@ const styles = StyleSheet.create({
     header: { marginTop: 40, alignItems: 'center' },
     sportTitle: { color: 'white', fontSize: 28, fontWeight: '800' },
     dbInfo: { color: '#6B7280', fontSize: 14, marginTop: 4 },
-    timerContainer: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#1F2937', paddingVertical: 40, borderRadius: 32 },
+    timerContainer: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#1F2937', paddingVertical: 30, borderRadius: 32 },
     timerLabel: { color: '#9CA3AF', fontSize: 14, fontWeight: '600', letterSpacing: 2, marginBottom: 8 },
     timerText: { color: 'white', fontSize: 54, fontWeight: 'bold', fontVariant: ['tabular-nums'] },
-    statsContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: 20 },
+    distanceContainer: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#1F2937', paddingVertical: 24, borderRadius: 32, marginTop: -10 },
+    distanceLabel: { color: '#9CA3AF', fontSize: 14, fontWeight: '600', letterSpacing: 2, marginBottom: 4 },
+    distanceText: { color: '#10B981', fontSize: 42, fontWeight: 'bold' },
+    statsContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: 10 },
     statBox: { alignItems: 'center' },
-    statLabel: { color: '#9CA3AF', fontSize: 16 },
-    statValue: { color: '#10B981', fontSize: 16, fontWeight: '700', marginTop: 4 },
+    statLabel: { color: '#9CA3AF', fontSize: 14 },
+    statValue: { color: '#6B7280', fontSize: 14, fontWeight: '600', marginTop: 4 },
     statValueLoading: { color: '#9CA3AF', fontSize: 14, marginTop: 4 },
     finishButton: { backgroundColor: '#EF4444', paddingVertical: 18, borderRadius: 16, alignItems: 'center', marginBottom: 20 },
     finishButtonText: { color: 'white', fontSize: 18, fontWeight: '700' },

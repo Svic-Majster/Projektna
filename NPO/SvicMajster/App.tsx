@@ -89,19 +89,24 @@ export default function App() {
         sport={selectedSport}
         uporabnikId={trenutniUporabnikId}
         mqttClient={mqttClientRef.current}
-        onFinishWorkout={(trajanjeSekunde) => {
+        onFinishWorkout={(trajanjeSekunde, razdaljaKm) => {
           if (mqttClientRef.current && mqttClientRef.current.isConnected()) {
-            const payload = JSON.stringify({ uporabnik_id: trenutniUporabnikId });
+            
+            const payload = JSON.stringify({ 
+              uporabnik_id: trenutniUporabnikId,
+              razdalja_km: razdaljaKm 
+            });
+            
             const message = new Paho.Message(payload);
             message.destinationName = 'app/workouts/stop';
             mqttClientRef.current.send(message);
 
-            console.log('MQTT stop signal poslan za uporabnika:', payload);
+            console.log('MQTT stop signal poslan s kilometri:', payload);
           } else {
             Alert.alert("Opozorilo", "Trening se bo zaključil lokalno, ker MQTT strežnik ni dosegljiv.");
           }
 
-          Alert.alert("Trening uspešno končan!", "Podatki so poslani na obdelavo.");
+          Alert.alert("Trening uspešno končan!", `Opravil si ${razdaljaKm} km. Podatki so poslani na obdelavo.`);
           setScreen('home');
         }}
       />
