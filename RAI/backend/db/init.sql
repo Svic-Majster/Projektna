@@ -56,12 +56,21 @@ CREATE TABLE treningi (
     skupne_tocke INT DEFAULT 0,
     razdalja_km FLOAT DEFAULT 0,
     vremenski_bonus FLOAT DEFAULT 1.0,
-    lat_vadbe FLOAT,
-    lng_vadbe FLOAT,
     zacetek_vadbe TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     konec_vadbe TIMESTAMP NULL,
     
     CONSTRAINT fk_trening_uporabnik FOREIGN KEY (uporabnik_id) REFERENCES uporabniki(id) ON DELETE CASCADE
+);
+
+CREATE TABLE lokacije_treninga (
+    id SERIAL PRIMARY KEY,
+    trening_id INT NOT NULL,
+    latitude FLOAT NOT NULL,
+    longitude FLOAT NOT NULL,
+    hitrost FLOAT DEFAULT 0,
+    cas_zapisa TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_lokacija_trening FOREIGN KEY (trening_id) REFERENCES treningi(id) ON DELETE CASCADE
 );
 
 CREATE TABLE obdelani_podatki_ai (

@@ -68,8 +68,6 @@ const seed = async () => {
                 tocke: 150,
                 razdalja: 5.2,
                 vreme_bonus: 1.0,
-                lat: 46.5546,
-                lng: 15.6459,
                 zacetek: '2026-05-25 08:00:00',
                 konec: '2026-05-25 08:35:00'
             },
@@ -79,8 +77,6 @@ const seed = async () => {
                 tocke: 320,
                 razdalja: 22.4,
                 vreme_bonus: 1.0,
-                lat: 46.5624,
-                lng: 15.6280,
                 zacetek: '2026-05-26 17:15:00',
                 konec: '2026-05-26 18:30:00'
             },
@@ -90,8 +86,6 @@ const seed = async () => {
                 tocke: 50,
                 razdalja: 3.1,
                 vreme_bonus: 1.5,
-                lat: 46.5781,
-                lng: 15.6521,
                 zacetek: '2026-05-27 10:00:00',
                 konec: '2026-05-27 11:00:00'
             },
@@ -101,8 +95,6 @@ const seed = async () => {
                 tocke: 210,
                 razdalja: 7.5,
                 vreme_bonus: 1.0,
-                lat: 46.5410,
-                lng: 15.6312,
                 zacetek: '2026-05-28 19:00:00',
                 konec: '2026-05-28 19:45:00'
             }
