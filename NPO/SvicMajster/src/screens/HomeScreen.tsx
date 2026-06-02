@@ -34,13 +34,21 @@ export default function HomeScreen({
         }
     };
 
+    const prvaCrka = user.ime ? user.ime.charAt(0).toUpperCase() : 'U';
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.logo}>SvicMajster</Text>
 
-                <Pressable onPress={onGoToProfile}>
-                    <Text style={styles.profile}>Profil</Text>
+                <Pressable 
+                    style={({ pressed }) => [
+                        styles.profileAvatar, 
+                        pressed && styles.profileAvatarPressed
+                    ]} 
+                    onPress={onGoToProfile}
+                >
+                    <Text style={styles.profileAvatarText}>{prvaCrka}</Text>
                 </Pressable>
             </View>
 
@@ -49,18 +57,12 @@ export default function HomeScreen({
                 <Text style={styles.subtitle}>Pripravljen na nov trening?</Text>
 
                 <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Današnji cilj</Text>
-                    <Text style={styles.cardText}>
-                        Začni trening in spremljaj svojo aktivnost.
-                    </Text>
-                </View>
-
-                <View style={styles.card}>
                     <Text style={styles.cardTitle}>Leaderboard</Text>
                     <Text style={styles.cardText}>
                         Tvoja lestvica bo prikazana tukaj.
                     </Text>
                 </View>
+                
                 <Pressable 
                     style={styles.startButton}
                     onPress={() => setMenuVisible(true)}
@@ -70,6 +72,7 @@ export default function HomeScreen({
                     </Text>
                 </Pressable>
             </View>
+
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -81,21 +84,21 @@ export default function HomeScreen({
                         <Text style={styles.modalTitle}>Izberi vrsto aktivnosti</Text>
                         
                         <Pressable 
-                            style={[styles.sportButton]} 
+                            style={styles.sportButton} 
                             onPress={() => handleSelectSport('tek')}
                         >
                             <Text style={styles.sportButtonText}>Tek</Text>
                         </Pressable>
 
                         <Pressable 
-                            style={[styles.sportButton]} 
+                            style={styles.sportButton} 
                             onPress={() => handleSelectSport('kolesarjenje')}
                         >
                             <Text style={styles.sportButtonText}>Kolesarjenje</Text>
                         </Pressable>
 
                         <Pressable 
-                            style={[styles.sportButton]} 
+                            style={styles.sportButton} 
                             onPress={() => handleSelectSport('hoja')}
                         >
                             <Text style={styles.sportButtonText}>Hoja</Text>
@@ -110,7 +113,6 @@ export default function HomeScreen({
                     </View>
                 </View>
             </Modal>
-
         </View>
     );
 }
@@ -122,7 +124,7 @@ const styles = StyleSheet.create({
         padding: 24,
     },
     header: {
-        marginTop: 32,
+        marginTop: 40,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -130,12 +132,32 @@ const styles = StyleSheet.create({
     logo: {
         color: 'white',
         fontSize: 24,
-        fontWeight: '700',
+        fontWeight: '800',
+        letterSpacing: 0.5,
     },
-    profile: {
+    profileAvatar: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: '#2563EB',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: '#3b82f6',
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    profileAvatarPressed: {
+        opacity: 0.85,
+        backgroundColor: '#1d4ed8',
+    },
+    profileAvatarText: {
         color: 'white',
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
     },
     content: {
         flex: 1,
@@ -184,7 +206,6 @@ const styles = StyleSheet.create({
         color: '#D1D5DB',
         fontSize: 14,
     },
-
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.75)',

@@ -36,8 +36,8 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
             locationSubscription = await Location.watchPositionAsync(
                 {
                     accuracy: Location.Accuracy.High,
-                    timeInterval: 5000, 
-                    distanceInterval: 5,  
+                    timeInterval: 3000, 
+                    distanceInterval: 1,  
                 },
                 (newLocation) => {
                     setLocation(newLocation);
