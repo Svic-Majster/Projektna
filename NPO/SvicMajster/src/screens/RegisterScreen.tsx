@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import {
     Alert,
-    Button,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     View,
+    ActivityIndicator
 } from 'react-native';
 import type { AuthResult } from '../types/auth';
 
@@ -45,10 +46,10 @@ export default function RegisterScreen({ onSubmit, onGoToLogin }: Props) {
 
         const result = await onSubmit({
             ime: ime.trim(),
-                                      priimek: priimek.trim(),
-                                      username: username.trim(),
-                                      email: email.trim().toLowerCase(),
-                                      geslo,
+            priimek: priimek.trim(),
+            username: username.trim(),
+            email: email.trim().toLowerCase(),
+            geslo,
         });
 
         setSubmitting(false);
@@ -63,71 +64,88 @@ export default function RegisterScreen({ onSubmit, onGoToLogin }: Props) {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Registracija</Text>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+            <View style={styles.headerContainer}>
+                <Text style={styles.title}>Ustvari račun</Text>
+                <Text style={styles.subtitle}>Registriraj se za začetek sledenja vadbam</Text>
+            </View>
 
-        <TextInput
-        style={styles.input}
-        placeholder="Ime"
-        value={ime}
-        onChangeText={setIme}
-        />
+            <View style={styles.formContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Ime"
+                    placeholderTextColor="#9CA3AF"
+                    value={ime}
+                    onChangeText={setIme}
+                />
 
-        <TextInput
-        style={styles.input}
-        placeholder="Priimek"
-        value={priimek}
-        onChangeText={setPriimek}
-        />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Priimek"
+                    placeholderTextColor="#9CA3AF"
+                    value={priimek}
+                    onChangeText={setPriimek}
+                />
 
-        <TextInput
-        style={styles.input}
-        placeholder="Username"
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={username}
-        onChangeText={setUsername}
-        />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Uporabniško ime"
+                    placeholderTextColor="#9CA3AF"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={username}
+                    onChangeText={setUsername}
+                />
 
-        <TextInput
-        style={styles.input}
-        placeholder="Email"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={email}
-        onChangeText={setEmail}
-        />
+                <TextInput
+                    style={styles.input}
+                    placeholder="E-poštni naslov"
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={email}
+                    onChangeText={setEmail}
+                />
 
-        <TextInput
-        style={styles.input}
-        placeholder="Geslo"
-        secureTextEntry
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={geslo}
-        onChangeText={setGeslo}
-        />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Geslo"
+                    placeholderTextColor="#9CA3AF"
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={geslo}
+                    onChangeText={setGeslo}
+                />
 
-        <TextInput
-        style={styles.input}
-        placeholder="Potrdi geslo"
-        secureTextEntry
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={potrdiGeslo}
-        onChangeText={setPotrdiGeslo}
-        />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Potrdi geslo"
+                    placeholderTextColor="#9CA3AF"
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={potrdiGeslo}
+                    onChangeText={setPotrdiGeslo}
+                />
 
-        <Button
-        title={submitting ? 'Registracija...' : 'Registracija'}
-        onPress={handleRegister}
-        disabled={submitting}
-        />
+                <Pressable 
+                    style={({ pressed }) => [styles.primaryButton, pressed && styles.buttonPressed, submitting && styles.buttonDisabled]} 
+                    onPress={handleRegister}
+                    disabled={submitting}
+                >
+                    {submitting ? (
+                        <ActivityIndicator size="small" color="white" />
+                    ) : (
+                        <Text style={styles.primaryButtonText}>Registracija</Text>
+                    )}
+                </Pressable>
 
-        <View style={styles.spacer} />
-
-        <Button title="Nazaj na prijavo" onPress={onGoToLogin} />
+                <Pressable style={styles.secondaryButton} onPress={onGoToLogin}>
+                    <Text style={styles.secondaryButtonText}>Že imaš račun? Prijavi se</Text>
+                </Pressable>
+            </View>
         </ScrollView>
     );
 }
@@ -135,24 +153,72 @@ export default function RegisterScreen({ onSubmit, onGoToLogin }: Props) {
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
-        justifyContent: 'center',
+        backgroundColor: '#111827',
         padding: 24,
-        gap: 12,
+        justifyContent: 'center',
+    },
+    headerContainer: {
+        marginBottom: 32,
+        alignItems: 'center',
     },
     title: {
-        fontSize: 28,
-        fontWeight: '700',
-        marginBottom: 12,
+        fontSize: 32,
+        fontWeight: '800',
+        color: 'white',
+        letterSpacing: 0.5,
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#9CA3AF',
+        marginTop: 8,
+        textAlign: 'center',
+    },
+    formContainer: {
+        gap: 16,
     },
     input: {
+        backgroundColor: '#1F2937',
         borderWidth: 1,
-        borderColor: '#D0D5DD',
-        borderRadius: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        backgroundColor: '#FFFFFF',
+        borderColor: '#374151',
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 16,
+        color: 'white',
     },
-    spacer: {
-        height: 8,
+    primaryButton: {
+        backgroundColor: '#2563EB',
+        paddingVertical: 16,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 8,
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    buttonPressed: {
+        opacity: 0.8,
+    },
+    buttonDisabled: {
+        backgroundColor: '#1D4ED8',
+        opacity: 0.6,
+    },
+    primaryButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    secondaryButton: {
+        alignItems: 'center',
+        paddingVertical: 12,
+        marginTop: 8,
+    },
+    secondaryButtonText: {
+        color: '#9CA3AF',
+        fontSize: 15,
+        fontWeight: '500',
     },
 });
