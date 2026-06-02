@@ -8,7 +8,7 @@ async function handleWorkoutTopic(topic, payload) {
         case 'app/workouts/start': {
             try {
                 const workout = await workoutService.startWorkout(payload);
-                console.log(`[MQTT] Trening uspešno začet v bazi. ID: ${workout.id}`);
+                console.log(`[MQTT] Trening uspešno začet v bazi. Avtomatski ID: ${workout.id}`);
             } catch (err) {
                 console.error('[MQTT] Napaka pri zagonu treninga:', err.message);
             }
@@ -17,7 +17,25 @@ async function handleWorkoutTopic(topic, payload) {
 
         case 'app/workouts/stop': {
             try {
-                const workout = await workoutService.stopWorkout(payload);
+                const { uporabnik_id } = payload;
+
+                if (!uporabnik_id) {
+                    console.warn('[MQTT] Stop signal nima polja uporabnik_id:', payload);
+                    return;
+                }
+
+                const aktivniTrening = await db.query(
+                    `SELECT id FROM treningi WHERE uporabnik_id = $1 AND status_treninga = 'v_teku' LIMIT 1`,
+                    [uporabnik_id]
+                );
+
+                if (aktivniTrening.rows.length === 0) {
+                    console.warn(`[MQTT] Ni aktivnega treninga (v_teku) za uporabnika #${uporabnik_id}`);
+                    return;
+                }
+
+                const trening_id = aktivniTrening.rows[0].id;
+                const workout = await workoutService.stopWorkout({ trening_id });
                 console.log(`[MQTT] Trening uspešno zaključen v bazi. ID: ${workout.id}`);
             } catch (err) {
                 console.error('[MQTT] Napaka pri zaključevanju treninga:', err.message);
@@ -26,20 +44,32 @@ async function handleWorkoutTopic(topic, payload) {
         }
 
         case 'app/workouts/location': {
-            const { trening_id, latitude, longitude, hitrost } = payload;
+            const { uporabnik_id, latitude, longitude, hitrost } = payload;
 
-            if (!trening_id || !latitude || !longitude) {
-                console.warn('[MQTT] Prejeta nepopolna lokacija (manjkajo id, lat ali lng):', payload);
+            if (!uporabnik_id || !latitude || !longitude) {
+                console.warn('[MQTT] Prejeta nepopolna lokacija (manjkajo uporabnik_id, lat ali lng):', payload);
                 return;
             }
 
             try {
+                const aktivniTrening = await db.query(
+                    `SELECT id FROM treningi WHERE uporabnik_id = $1 AND status_treninga = 'v_teku' LIMIT 1`,
+                    [uporabnik_id]
+                );
+
+                if (aktivniTrening.rows.length === 0) {
+                    console.warn(`[MQTT] Lokacija zavrnjena. Uporabnik #${uporabnik_id} nima aktivnega treninga.`);
+                    return;
+                }
+
+                const trening_id = aktivniTrening.rows[0].id;
+
                 await db.query(
                     `INSERT INTO lokacije_treninga (trening_id, latitude, longitude, hitrost)
                      VALUES ($1, $2, $3, $4)`,
                     [trening_id, latitude, longitude, hitrost || 0]
                 );
-                console.log(`[MQTT] Shranjena lokacija za #${trening_id} (Lat: ${latitude}, Lng: ${longitude})`);
+                console.log(`[MQTT] Shranjena lokacija za aktiven trening #${trening_id} (Lat: ${latitude}, Lng: ${longitude})`);
             } catch (err) {
                 console.error('[MQTT] Napaka pri zapisu GPS lokacije v bazo:', err.message);
             }

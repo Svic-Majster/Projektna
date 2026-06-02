@@ -103,9 +103,9 @@ const seed = async () => {
         for (const t of treningi) {
             await db.query(
                 `INSERT INTO treningi 
-                 (uporabnik_id, vrsta_workouta, status_treninga, skupne_tocke, razdalja_km, vremenski_bonus, lat_vadbe, lng_vadbe, zacetek_vadbe, konec_vadbe) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-                [svicMojsterId, t.vrsta, t.status, t.tocke, t.razdalja, t.vreme_bonus, t.lat, t.lng, t.zacetek, t.konec]
+                 (uporabnik_id, vrsta_workouta, status_treninga, skupne_tocke, razdalja_km, vremenski_bonus, zacetek_vadbe, konec_vadbe) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                [svicMojsterId, t.vrsta, t.status, t.tocke, t.razdalja, t.vreme_bonus,t.zacetek, t.konec]
             );
         }
 
