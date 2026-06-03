@@ -4,6 +4,9 @@ import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
 import { prikaziLeaderboard } from './components/groupLeaderboard.js';
 import { renderDashboard } from './components/dashboard.js';
+import { initTheme } from './components/theme.js';
+
+initTheme();
 
 const authView = document.getElementById('auth-view');
 const appView = document.getElementById('app-view');
