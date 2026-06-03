@@ -429,6 +429,10 @@ input:focus {
 .dashboard-type-value { font-size: 36px; font-weight: 800; }
 .dashboard-type-label { font-size: 15px; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em;}
 
+.dashboard-charts { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start; }
+.chart-card { min-width: 0; }
+.chart-card canvas { width: 100% !important; margin-top: 8px; }
+
 .auth-tabs { display: flex; margin-bottom: 32px; background: var(--surface-2); border-radius: var(--radius-sm); padding: 6px; }
 .auth-tab {
     flex: 1; padding: 12px; background: transparent; border: none; border-radius: 8px;
@@ -442,7 +446,7 @@ input:focus {
     .nav-left, .nav-right { width: 100%; justify-content: center; flex-wrap: wrap; }
     .navbar .nav-link { flex: 1; text-align: center; font-size: 13px; }
     .topbar, .section-head { flex-direction: column; align-items: flex-start; }
-    .dashboard-grid, .dashboard-types { grid-template-columns: 1fr; }
+    .dashboard-grid, .dashboard-types, .dashboard-charts { grid-template-columns: 1fr; }
     .group-action-row { flex-direction: column; }
     .btn-group-action { width: 100%; }
 }
