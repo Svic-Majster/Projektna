@@ -4,6 +4,9 @@ import { renderWorkouts, clearWorkouts } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
 import { prikaziLeaderboard } from './components/groupLeaderboard.js';
 import { renderDashboard } from './components/dashboard.js';
+import { initTheme } from './components/theme.js';
+
+initTheme();
 
 const authView = document.getElementById('auth-view');
 const appView = document.getElementById('app-view');
@@ -50,9 +53,12 @@ async function loadDashboard() {
     loading.hidden = false;
     error.hidden = true;
     try {
-        const stats = await getUserDashboard(currentUser.id);
+        const [stats, workouts] = await Promise.all([
+            getUserDashboard(currentUser.id),
+            getUserWorkouts(currentUser.id),
+        ]);
         console.log('stats:', stats);
-        renderDashboard(stats);
+        renderDashboard(stats, workouts);
     } catch (err) {
         console.error('dashboard error:', err);
         error.textContent = err.message;

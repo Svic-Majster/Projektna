@@ -10,6 +10,18 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- apply saved theme early to avoid a flash -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+
   <script type="module" src="/src/app.js" defer></script>
 </head>
 
@@ -158,6 +170,20 @@
               <p class="muted">
                 Podatki uporabnika bodo prikazani tukaj.
               </p>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <h3>Videz</h3>
+            <div class="setting-row">
+              <div>
+                <p class="setting-title">Temni način</p>
+                <p class="muted" style="margin: 4px 0 0;">Preklopi med svetlo in temno temo.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="theme-toggle" autocomplete="off" />
+                <span class="slider"></span>
+              </label>
             </div>
           </div>
         </section>
