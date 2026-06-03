@@ -30,6 +30,7 @@ ENACBA:
 xp = ((trajanje_sekunde/60) * 10) + ((razdalja_km * 10) * Faktor)
 zaokrozeno na celo st
 */
+
 async function stopWorkout({ trening_id, razdalja_km }) {
     if (!trening_id) {
         const error = new Error('Manjka trening_id');
@@ -60,23 +61,74 @@ async function stopWorkout({ trening_id, razdalja_km }) {
     if (vrsta_workouta === 'hoja') faktorNa100m = 6;
 
     const xpZaCas = trajanjeMinute * 10;
-    
     const stokratMetriEnote = (razdalja_km || 0) * 10;
     const xpZaRazdaljo = stokratMetriEnote * faktorNa100m;
     
-    const pridobljeniXp = Math.round(xpZaCas + xpZaRazdaljo);
+    let osnovniXp = xpZaCas + xpZaRazdaljo;
 
-    console.log(`[XP IZRAČUN] Čas: ${trajanjeMinute.toFixed(1)} min (${Math.round(xpZaCas)} XP), Razdalja: ${razdalja_km} km (${Math.round(xpZaRazdaljo)} XP). Skupaj: ${pridobljeniXp} XP`);
+    let jeEkstremnoVreme = false;
+    let multiplier = 1.0;
 
-    const result = await db.query(
+    try {
+        // zadna kordinata za trening
+        const zadnjaLokacija = await db.query(
+            `SELECT latitude, longitude FROM lokacije_treninga 
+             WHERE trening_id = $1 
+             ORDER BY id DESC LIMIT 1`,
+            [trening_id]
+        );
+
+        if (zadnjaLokacija.rows.length > 0) {
+            const { latitude, longitude } = zadnjaLokacija.rows[0];
+
+            const najblizjeVreme = await db.query(
+                `SELECT ekstremno_vreme, 
+                    SQRT(
+                        POWER((lat - $1) * 111.1, 2) + 
+                        POWER((lng - $2) * 111.1 * COS(RADIANS($1)), 2)
+                    ) AS razdalja_do_postaje_km
+                 FROM zunanji_viri
+                 ORDER BY razdalja_do_postaje_km ASC
+                 LIMIT 1`,
+                [latitude, longitude]
+            );
+
+            if (najblizjeVreme.rows.length > 0) {
+                const postaja = najblizjeVreme.rows[0];
+                console.log(`[GPS] Najbližja postaja je oddaljena: ${postaja.razdalja_do_postaje_km.toFixed(2)} km`);
+
+                if (postaja.razdalja_do_postaje_km <= 10.0 && postaja.ekstremno_vreme === true) {
+                    jeEkstremnoVreme = true;
+                    multiplier = 1.5;
+                    console.log(`[BONUS] Aktiviran 1.5x multiplier! Trening je bil zaključen znotraj 10km radiusa (${postaja.razdalja_do_postaje_km.toFixed(2)} km) od postaje z ekstremnimi razmerami.`);
+                } else if (postaja.razdalja_do_postaje_km > 10.0 && postaja.ekstremno_vreme === true) {
+                    console.log(`[INFO] Vreme je ekstremno, vendar je postaja preveč oddaljena (${postaja.razdalja_do_postaje_km.toFixed(2)} km). Bonus ni aktiviran.`);
+                }
+            }
+        }
+    } catch (vremeErr) {
+        console.error('[XP BONUS ERROR] Napaka pri računanju razdalje do postaje:', vremeErr.message);
+    }
+
+    const pridobljeniXp = Math.round(osnovniXp * multiplier);
+
+    console.log(`[XP IZRAČUN] Čas: ${trajanjeMinute.toFixed(1)} min, Razdalja: ${razdalja_km} km. Multiplier: ${multiplier}x. Skupaj: ${pridobljeniXp} XP`);
+
+const result = await db.query(
         `UPDATE treningi
         SET konec_vadbe = NOW() AT TIME ZONE 'Europe/Ljubljana', 
             status_treninga = 'zakljuceno',
             razdalja_km = $2,
-            skupne_tocke = $3
+            skupne_tocke = $3,
+            vremenski_bonus = $4  -- <-- Tukaj mora priti čist true/false
         WHERE id = $1
         RETURNING *`,
-        [trening_id, razdalja_km || 0, pridobljeniXp]
+        [
+            trening_id, 
+            razdalja_km || 0, 
+            pridobljeniXp, 
+            jeEkstremnoVreme ? true : false
+        ]
     );
 
     await db.query(

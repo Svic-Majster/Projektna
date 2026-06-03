@@ -55,7 +55,7 @@ CREATE TABLE treningi (
     status_treninga VARCHAR(20) DEFAULT 'v_teku',    
     skupne_tocke INT DEFAULT 0,
     razdalja_km FLOAT DEFAULT 0,
-    vremenski_bonus FLOAT DEFAULT 1.0,
+    vremenski_bonus BOOLEAN DEFAULT FALSE,
     zacetek_vadbe TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     konec_vadbe TIMESTAMP NULL,
     

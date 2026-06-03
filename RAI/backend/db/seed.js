@@ -67,7 +67,7 @@ const seed = async () => {
                 status: 'zakljuceno',
                 tocke: 150,
                 razdalja: 5.2,
-                vreme_bonus: 1.0,
+                vreme_bonus: false, 
                 zacetek: '2026-05-25 08:00:00',
                 konec: '2026-05-25 08:35:00'
             },
@@ -76,7 +76,7 @@ const seed = async () => {
                 status: 'zakljuceno',
                 tocke: 320,
                 razdalja: 22.4,
-                vreme_bonus: 1.0,
+                vreme_bonus: false,
                 zacetek: '2026-05-26 17:15:00',
                 konec: '2026-05-26 18:30:00'
             },
@@ -85,7 +85,7 @@ const seed = async () => {
                 status: 'zakljuceno',
                 tocke: 50,
                 razdalja: 3.1,
-                vreme_bonus: 1.5,
+                vreme_bonus: true,
                 zacetek: '2026-05-27 10:00:00',
                 konec: '2026-05-27 11:00:00'
             },
@@ -94,7 +94,7 @@ const seed = async () => {
                 status: 'zakljuceno',
                 tocke: 210,
                 razdalja: 7.5,
-                vreme_bonus: 1.0,
+                vreme_bonus: false,
                 zacetek: '2026-05-28 19:00:00',
                 konec: '2026-05-28 19:45:00'
             }
@@ -105,7 +105,7 @@ const seed = async () => {
                 `INSERT INTO treningi 
                  (uporabnik_id, vrsta_workouta, status_treninga, skupne_tocke, razdalja_km, vremenski_bonus, zacetek_vadbe, konec_vadbe) 
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-                [svicMojsterId, t.vrsta, t.status, t.tocke, t.razdalja, t.vreme_bonus,t.zacetek, t.konec]
+                [svicMojsterId, t.vrsta, t.status, t.tocke, t.razdalja, t.vreme_bonus, t.zacetek, t.konec]
             );
         }
 
