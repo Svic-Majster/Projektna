@@ -117,6 +117,7 @@ CREATE TABLE zunanji_viri (
     lat DECIMAL(10, 8),
     lng DECIMAL(11, 8),
     kraj VARCHAR(100),
+    ekstremno_vreme BOOLEAN DEFAULT FALSE,
     datum_zajema TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
