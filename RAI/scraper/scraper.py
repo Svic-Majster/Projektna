@@ -25,18 +25,26 @@ def scrape_arso_basics():
             if not kraj_ime:
                 continue
                 
-            temp = met_data.find('t')
+            temp_node = met_data.find('t')
             vlaga = met_data.find('rh')
             vreme_opis = met_data.find('nn_icon-id')
             veter = met_data.find('ff_val')
             lat_node = met_data.find('domain_lat')
             lon_node = met_data.find('domain_lon')
             
+            temperatura = float(temp_node.text) if temp_node is not None and temp_node.text else None
+            
+            ekstremno = False
+            if temperatura is not None:
+                if temperatura < 5 or temperatura > 25:
+                    ekstremno = True
+            
             payload = {
                 "viri_ime": "ARSO",
                 "tip_vira": "vreme",
+                "ekstremno_vreme": ekstremno,
                 "podatki_json": {
-                    "temperatura": float(temp.text) if temp is not None and temp.text else None,
+                    "temperatura": temperatura,
                     "vlaga": float(vlaga.text) if vlaga is not None and vlaga.text else None,
                     "vreme_opis": vreme_opis.text if vreme_opis is not None else "Neznano",
                     "veter_hitrost": float(veter.text) if veter is not None and veter.text else None

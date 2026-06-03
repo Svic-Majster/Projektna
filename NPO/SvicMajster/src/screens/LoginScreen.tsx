@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import {
     Alert,
-    Button,
+    Pressable,
     StyleSheet,
     Text,
     TextInput,
     View,
+    ActivityIndicator
 } from 'react-native';
 import type { AuthResult } from '../types/auth';
 
@@ -29,7 +30,7 @@ export default function LoginScreen({ onSubmit, onGoToRegister }: Props) {
 
         const result = await onSubmit({
             identifier: identifier.trim(),
-                                      geslo,
+            geslo,
         });
 
         setSubmitting(false);
@@ -41,36 +42,49 @@ export default function LoginScreen({ onSubmit, onGoToRegister }: Props) {
 
     return (
         <View style={styles.container}>
-        <Text style={styles.title}>Prijava</Text>
+            <View style={styles.headerContainer}>
+                <Text style={styles.title}>Pozdravljen nazaj</Text>
+                <Text style={styles.subtitle}>Vpiši se v svoj račun ŠvicMajster</Text>
+            </View>
 
-        <TextInput
-        style={styles.input}
-        placeholder="Email ali username"
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={identifier}
-        onChangeText={setIdentifier}
-        />
+            <View style={styles.formContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email ali uporabniško ime"
+                    placeholderTextColor="#9CA3AF"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={identifier}
+                    onChangeText={setIdentifier}
+                />
 
-        <TextInput
-        style={styles.input}
-        placeholder="Geslo"
-        secureTextEntry
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={geslo}
-        onChangeText={setGeslo}
-        />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Geslo"
+                    placeholderTextColor="#9CA3AF"
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={geslo}
+                    onChangeText={setGeslo}
+                />
 
-        <Button
-        title={submitting ? 'Prijava...' : 'Prijava'}
-        onPress={handleLogin}
-        disabled={submitting}
-        />
+                <Pressable 
+                    style={({ pressed }) => [styles.primaryButton, pressed && styles.buttonPressed, submitting && styles.buttonDisabled]} 
+                    onPress={handleLogin}
+                    disabled={submitting}
+                >
+                    {submitting ? (
+                        <ActivityIndicator size="small" color="white" />
+                    ) : (
+                        <Text style={styles.primaryButtonText}>Prijava</Text>
+                    )}
+                </Pressable>
 
-        <View style={styles.spacer} />
-
-        <Button title="Ustvari račun" onPress={onGoToRegister} />
+                <Pressable style={styles.secondaryButton} onPress={onGoToRegister}>
+                    <Text style={styles.secondaryButtonText}>Še nimaš računa? Ustvari ga tukaj</Text>
+                </Pressable>
+            </View>
         </View>
     );
 }
@@ -78,24 +92,72 @@ export default function LoginScreen({ onSubmit, onGoToRegister }: Props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        backgroundColor: '#111827',
         padding: 24,
-        gap: 12,
+        justifyContent: 'center',
+    },
+    headerContainer: {
+        marginBottom: 32,
+        alignItems: 'center',
     },
     title: {
-        fontSize: 28,
-        fontWeight: '700',
-        marginBottom: 12,
+        fontSize: 32,
+        fontWeight: '800',
+        color: 'white',
+        letterSpacing: 0.5,
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#9CA3AF',
+        marginTop: 8,
+        textAlign: 'center',
+    },
+    formContainer: {
+        gap: 16,
     },
     input: {
+        backgroundColor: '#1F2937',
         borderWidth: 1,
-        borderColor: '#D0D5DD',
-        borderRadius: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        backgroundColor: '#FFFFFF',
+        borderColor: '#374151',
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 16,
+        color: 'white',
     },
-    spacer: {
-        height: 8,
+    primaryButton: {
+        backgroundColor: '#2563EB',
+        paddingVertical: 16,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 8,
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    buttonPressed: {
+        opacity: 0.8,
+    },
+    buttonDisabled: {
+        backgroundColor: '#1D4ED8',
+        opacity: 0.6,
+    },
+    primaryButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    secondaryButton: {
+        alignItems: 'center',
+        paddingVertical: 12,
+        marginTop: 8,
+    },
+    secondaryButtonText: {
+        color: '#9CA3AF',
+        fontSize: 15,
+        fontWeight: '500',
     },
 });

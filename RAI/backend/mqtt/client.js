@@ -15,11 +15,11 @@ function startMqttClient() {
     client.on('connect', () => {
         console.log('MQTT povezan');
 
-        client.subscribe(['app/workouts/start', 'app/workouts/stop'], (err) => {
+        client.subscribe(['app/workouts/start', 'app/workouts/stop', 'app/workouts/location'], (err) => {
             if (err) {
                 console.error('Napaka pri subscribe:', err.message);
             } else {
-                console.log('MQTT topici prijavljeni');
+                console.log('MQTT topici prijavljeni (start, stop, location)');
             }
         });
     });

@@ -13,7 +13,7 @@ function pokliciScraper() {
 }
 
 async function getZunanjiViri() {
-    const result = await db.query(`SELECT id, viri_ime, tip_vira, lat, lng, kraj, podatki_json FROM zunanji_viri`);
+    const result = await db.query(`SELECT id, viri_ime, tip_vira, lat, lng, kraj, ekstremno_vreme, podatki_json FROM zunanji_viri`);
     return result.rows;
 }
 
@@ -25,13 +25,21 @@ async function posodobiVseVire(podatki) {
         
         for (const p of podatki) {
             await db.query(
-                'INSERT INTO zunanji_viri (viri_ime, tip_vira, podatki_json, lat, lng, kraj) VALUES ($1, $2, $3, $4, $5, $6)',
-                [p.viri_ime, p.tip_vira, JSON.stringify(p.podatki_json), p.lat, p.lng, p.kraj]
+                'INSERT INTO zunanji_viri (viri_ime, tip_vira, podatki_json, lat, lng, kraj, ekstremno_vreme) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                [
+                    p.viri_ime, 
+                    p.tip_vira, 
+                    JSON.stringify(p.podatki_json), 
+                    p.lat, 
+                    p.lng, 
+                    p.kraj,
+                    p.ekstremno_vreme !== undefined ? p.ekstremno_vreme : false
+                ]
             );
         }
         
         await db.query('COMMIT');
-        console.log(`Baza posodobljena: vstavljenih ${podatki.length} lokacij.`);
+        console.log(`Baza posodobljena: vstavljenih ${podatki.length} lokacij z vremenskimi bonusi.`);
     } catch (e) {
         await db.query('ROLLBACK');
         console.error("Napaka pri vstavljanju v bazo:", e);
