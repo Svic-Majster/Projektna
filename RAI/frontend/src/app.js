@@ -1,12 +1,13 @@
 import { login, register, getUserWorkouts, getUserDashboard } from './components/api.js';
 import { renderUser } from './components/userProfile.js';
-import { renderWorkouts, clearWorkouts, setCurrentPage } from './components/workoutList.js';
+import { renderWorkouts, clearWorkouts, setCurrentPage, initWorkoutFilters } from './components/workoutList.js';
 import { initNavbar, resetNavbar } from './components/navbar.js';
 import { prikaziLeaderboard } from './components/groupLeaderboard.js';
 import { renderDashboard } from './components/dashboard.js';
 import { initTheme } from './components/theme.js';
 
 initTheme();
+initWorkoutFilters();
 
 const authView = document.getElementById('auth-view');
 const appView = document.getElementById('app-view');

@@ -8,8 +8,43 @@ export let currentPage = 1;
 export function setCurrentPage(page) { currentPage = page; }
 const itemsPerPage = 5;
 
-export function renderWorkouts(items) {
-    window.allWorkouts = items;
+export function initWorkoutFilters() {
+    document.getElementById('filter-type').addEventListener('change', applyFilters);
+    document.getElementById('sort-type').addEventListener('change', applyFilters);
+}
+
+function applyFilters() {
+    let filtered = [...window.allWorkouts];
+    
+    const type = document.getElementById('filter-type').value;
+    if (type !== 'all') {
+        filtered = filtered.filter(w => w.vrsta_workouta?.toLowerCase() === type);
+    }
+
+    const sort = document.getElementById('sort-type').value;
+    if (sort !== 'none') {
+        filtered.sort((a, b) => {
+            if (sort === 'xp-desc') return b.skupne_tocke - a.skupne_tocke;
+            if (sort === 'xp-asc') return a.skupne_tocke - b.skupne_tocke;
+            if (sort === 'km-desc') return b.razdalja_km - a.razdalja_km;
+            if (sort === 'km-asc') return a.razdalja_km - b.razdalja_km;
+            if (sort === 'time-desc') return calculateDuration(b) - calculateDuration(a);
+            if (sort === 'time-asc') return calculateDuration(a) - calculateDuration(b);
+            return 0;
+        });
+    }
+
+    setCurrentPage(1);
+    renderWorkouts(filtered, true);
+}
+
+function calculateDuration(w) {
+    return new Date(w.konec_vadbe) - new Date(w.zacetek_vadbe);
+}
+
+export function renderWorkouts(items, isFiltered = false) {
+    if (!isFiltered) window.allWorkouts = items;
+    
     const totalPages = Math.ceil(items.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedItems = items.slice(startIndex, startIndex + itemsPerPage);
@@ -32,12 +67,14 @@ export function renderWorkouts(items) {
         `;
         workoutsList.appendChild(article);
     });
+
     renderPagination(totalPages);
 }
 
 function renderPagination(totalPages) {
     paginationContainer.innerHTML = '';
     if (totalPages <= 1) return;
+
     for (let i = 1; i <= totalPages; i++) {
         const btn = document.createElement('button');
         btn.innerText = i;
@@ -46,7 +83,7 @@ function renderPagination(totalPages) {
         btn.style.cursor = 'pointer';
         btn.onclick = () => {
             currentPage = i;
-            renderWorkouts(window.allWorkouts);
+            renderWorkouts(window.allWorkouts, true);
         };
         paginationContainer.appendChild(btn);
     }

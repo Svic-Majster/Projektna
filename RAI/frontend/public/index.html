@@ -107,6 +107,24 @@
         </header>
 
         <section class="card workouts-card" style="margin-top: 18px;">
+          <div class="filters" style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <select id="filter-type" class="btn btn-secondary">
+              <option value="all">Vse vrste</option>
+              <option value="tek">Tek</option>
+              <option value="hoja">Hoja</option>
+              <option value="kolesarjenje">Kolesarjenje</option>
+            </select>
+
+            <select id="sort-type" class="btn btn-secondary">
+              <option value="none">Brez sortiranja</option>
+              <option value="xp-desc">XP (padajoče)</option>
+              <option value="xp-asc">XP (naraščajoče)</option>
+              <option value="km-desc">Razdalja (padajoče)</option>
+              <option value="km-asc">Razdalja (naraščajoče)</option>
+              <option value="time-desc">Čas (najdaljši)</option>
+              <option value="time-asc">Čas (najkrajši)</option>
+            </select>
+          </div>
           <div class="section-head">
             <div>
               <p class="eyebrow">Zgodovina</p>
