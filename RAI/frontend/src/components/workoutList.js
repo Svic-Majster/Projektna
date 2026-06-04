@@ -101,18 +101,42 @@ function renderPagination(totalPages) {
     paginationContainer.innerHTML = '';
     if (totalPages <= 1) return;
 
-    for (let i = 1; i <= totalPages; i++) {
+    const createBtn = (page, text = page, active = false, disabled = false) => {
         const btn = document.createElement('button');
-        btn.innerText = i;
-        btn.className = i === currentPage ? 'btn btn-primary' : 'btn btn-secondary';
-        btn.style.margin = '0 5px';
-        btn.style.cursor = 'pointer';
-        btn.onclick = () => {
-            currentPage = i;
-            renderWorkouts(window.allWorkouts, true);
-        };
+        btn.innerText = text;
+        btn.className = active ? 'btn btn-primary' : 'btn btn-secondary';
+        btn.disabled = disabled;
+        btn.style.margin = '0 3px';
+        btn.style.cursor = disabled ? 'default' : 'pointer';
+        
+        if (!disabled) {
+            btn.onclick = () => {
+                currentPage = page;
+                renderWorkouts(window.allWorkouts, true);
+            };
+        }
         paginationContainer.appendChild(btn);
+    };
+
+    createBtn(currentPage - 1, '« Prejšnja', false, currentPage === 1);
+
+    for (let i = 1; i <= totalPages; i++) {
+        if (
+            i === 1 || 
+            i === totalPages || 
+            (i >= currentPage - 2 && i <= currentPage + 2)
+        ) {
+            createBtn(i, i, i === currentPage);
+        } 
+        else if (i === currentPage - 3 || i === currentPage + 3) {
+            const span = document.createElement('span');
+            span.innerText = '...';
+            span.style.margin = '0 5px';
+            paginationContainer.appendChild(span);
+        }
     }
+
+    createBtn(currentPage + 1, 'Naslednja »', false, currentPage === totalPages);
 }
 
 function formatDuration(startTimeStr, endTimeStr) {
