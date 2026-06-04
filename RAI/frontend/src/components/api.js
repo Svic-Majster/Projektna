@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = '/api';
 
 async function apiRequest(path, options = {}) {
     const response = await fetch(`${API_BASE}${path}`, {
@@ -23,11 +23,10 @@ export async function login(identifier, geslo) {
     return data.user;
 }
 
-export async function register({ ime, priimek, username, email, geslo }) {
-    const res = await fetch('/api/auth/register', {
+export async function register(userData) {
+    return apiRequest('/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ime, priimek, username, email, geslo }),
+        body: JSON.stringify(userData),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Napaka pri registraciji');

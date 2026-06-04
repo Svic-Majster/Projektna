@@ -26,8 +26,39 @@ function startMqttClient() {
 
     client.on('message', async (topic, message) => {
         try {
-            const payload = JSON.parse(message.toString());
+            const rawString = message.toString();
+            let payload;
+            try {
+                payload = JSON.parse(rawString);
+            } catch {
+                payload = { sporocilo: rawString };
+            }
+
             await handleWorkoutTopic(topic, payload);
+
+            try {
+                const { io } = require('../index'); 
+                
+                if (io) {
+                    const mqttUserId = payload.uporabnik_id || payload.user_id;
+
+                    if (mqttUserId) {
+                        const roomName = `user_${mqttUserId}`;
+                        console.log(`[Websocket] Pošiljam topik ${topic} v sobo: ${roomName}`);
+                        
+                        io.to(roomName).emit('mqtt-device-update', {
+                            topic: topic,
+                            data: payload,
+                            timestamp: new Date().toISOString()
+                        });
+                    } else {
+                        console.warn(`[Webosocket] Sporočilo na ${topic} nima uporabnik_id. Ne bo posredovano.`);
+                    }
+                }
+            } catch (wsErr) {
+                console.error("Napaka pri WS oddajanju znotraj MQTT clienta:", wsErr);
+            }
+
         } catch (err) {
             console.error('MQTT napaka pri obdelavi:', err.message);
         }
