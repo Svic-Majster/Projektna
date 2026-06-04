@@ -120,7 +120,7 @@ const result = await db.query(
             status_treninga = 'zakljuceno',
             razdalja_km = $2,
             skupne_tocke = $3,
-            vremenski_bonus = $4  -- <-- Tukaj mora priti čist true/false
+            vremenski_bonus = $4
         WHERE id = $1
         RETURNING *`,
         [
