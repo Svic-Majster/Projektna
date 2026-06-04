@@ -33,8 +33,11 @@ async function loadWorkouts() {
     loading.hidden = false;
     try {
         const workouts = await getUserWorkouts(currentUser.id);
+        
+        window.allWorkouts = workouts; 
+        
         setCurrentPage(1);
-        renderWorkouts(workouts);
+        renderWorkouts(workouts, false);
     } catch (error) {
         clearWorkouts();
         workoutError.textContent = error.message;

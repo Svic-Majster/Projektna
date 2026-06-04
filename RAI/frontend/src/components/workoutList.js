@@ -11,6 +11,19 @@ const itemsPerPage = 5;
 export function initWorkoutFilters() {
     document.getElementById('filter-type').addEventListener('change', applyFilters);
     document.getElementById('sort-type').addEventListener('change', applyFilters);
+    document.getElementById('date-from').addEventListener('input', applyFilters);
+    document.getElementById('date-to').addEventListener('input', applyFilters);
+    
+    const resetBtn = document.getElementById('reset-filters');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            document.getElementById('filter-type').value = 'all';
+            document.getElementById('sort-type').value = 'none';
+            document.getElementById('date-from').value = '';
+            document.getElementById('date-to').value = '';
+            applyFilters();
+        });
+    }
 }
 
 function applyFilters() {
@@ -19,6 +32,19 @@ function applyFilters() {
     const type = document.getElementById('filter-type').value;
     if (type !== 'all') {
         filtered = filtered.filter(w => w.vrsta_workouta?.toLowerCase() === type);
+    }
+
+    const dateFrom = document.getElementById('date-from').value;
+    const dateTo = document.getElementById('date-to').value;
+
+    if (dateFrom) {
+        const from = new Date(dateFrom);
+        filtered = filtered.filter(w => new Date(w.zacetek_vadbe) >= from);
+    }
+    if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        filtered = filtered.filter(w => new Date(w.zacetek_vadbe) <= to);
     }
 
     const sort = document.getElementById('sort-type').value;
