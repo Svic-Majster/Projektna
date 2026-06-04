@@ -3,6 +3,8 @@ const cors = require('cors');
 const db = require('./db');
 const path = require('path');
 const cron = require('node-cron');
+const http = require('http');
+const { Server } = require('socket.io');
 const { startMqttClient } = require('./mqtt/client');
 const zunanjiViriService = require('./services/zunanjiViriService');
 const groupLeaderboardService = require('./services/groupLeaderboardService');
@@ -10,6 +12,16 @@ const groupLeaderboardService = require('./services/groupLeaderboardService');
 require('dotenv').config();
 
 const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+module.exports = { io };
 
 app.use(cors());
 app.use(express.json());
@@ -30,7 +42,7 @@ app.use('/api/zunanji-viri', zunanjiViriRoutes);
 app.get('/api/skupina/:id/leaderboard', async (req, res) => {
     try {
         const skupinaId = req.params.id;
-                const skupinaMeta = await db.query(
+        const skupinaMeta = await db.query(
             'SELECT koda_za_pridruzitev, owner_id FROM skupine WHERE id = $1',
             [skupinaId]
         );
@@ -92,7 +104,6 @@ app.delete('/api/users/skupina/:skupinaId/izbrisi', async (req, res) => {
         }
 
         await db.query('DELETE FROM clani_skupine WHERE skupina_id = $1', [skupinaId]);
-        
         await db.query('DELETE FROM skupine WHERE id = $1', [skupinaId]);
 
         res.json({ message: 'Skupina je bila uspešno izbrisana.' });
@@ -126,11 +137,15 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
+io.on('connection', (socket) => {
+    console.log(`WebSocket odjemalec povezan: ${socket.id}`);
+});
+
 startMqttClient();
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server deluje na vseh vmesnikih na portu: ${PORT}`);
     console.log(`Lokalno dostopen na: http://localhost:${PORT}`);
 });

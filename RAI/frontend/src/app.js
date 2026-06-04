@@ -5,6 +5,7 @@ import { initNavbar, resetNavbar } from './components/navbar.js';
 import { prikaziLeaderboard } from './components/groupLeaderboard.js';
 import { renderDashboard } from './components/dashboard.js';
 import { initTheme } from './components/theme.js';
+import { initActiveDevicesRealtime } from './components/activeDevices.js';
 
 initTheme();
 initWorkoutFilters();
@@ -72,6 +73,9 @@ function showApplication(user) {
     renderUser(user);
     authView.hidden = true;
     appView.hidden = false;
+
+    // Zaženemo real-time WebSocket poslušanje naprav
+    initActiveDevicesRealtime();
 
     initNavbar(async (target) => {
         if (target === 'home-view') {

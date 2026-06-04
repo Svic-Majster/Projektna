@@ -11,8 +11,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <script src="/socket.io/socket.io.js"></script>
 
-  <!-- apply saved theme early to avoid a flash -->
   <script>
     (function () {
       try {
@@ -29,16 +30,14 @@
   <main class="shell">
     <section class="card auth-card" id="auth-view">
       <div>
-      <!-- Tab switcher -->
-        <div class="auth-tabs">
+      <div class="auth-tabs">
           <button class="auth-tab active" id="tab-login" type="button">Prijava</button>
           <button class="auth-tab" id="tab-register" type="button">Registracija</button>
         </div>
 
-      <!-- LOGIN FORM -->
       <div id="login-panel">
         <p class="muted">Po prijavi se naložijo treningi</p>
-        <form id="login-form" class="form" method="POST" action="">
+        <form id="login-form" class="form" onsubmit="return false;">
           <label>
             <span>Email ali username</span>
             <input id="identifier" name="identifier" type="text" required placeholder="vnesi email ali username" />
@@ -52,10 +51,9 @@
         </form>
       </div>
 
-      <!-- REGISTER FORM -->
       <div id="register-panel" hidden>
         <p class="muted">Ustvari nov račun</p>
-          <form id="register-form" class="form" method="POST" action="">
+          <form id="register-form" class="form" onsubmit="return false;">
             <label><span>Ime</span>
               <input name="ime" type="text" required placeholder="vnesi ime" />
             </label>
@@ -163,11 +161,11 @@
 
           <div id="map-legend" style="display: none; gap: 10px; align-items: center; font-size: 0.9em;">
             <span style="display: flex; align-items: center; gap: 4px;">
-              <span style="width: 12px; height: 12px; background: red; border-radius: 50%;"></span> Vročina (> 25°C)
+              <span style="width: 12px; height: 12px; background: red; border-radius: 50%;"></span> Vročina (&gt; 25°C)
             </span>
             <span style="display: flex; align-items: center; gap: 4px;">
-              <span style="width: 12px; height: 12px; background: blue; border-radius: 50%;"></span> Mraz (< 5°C)
-                </span>
+              <span style="width: 12px; height: 12px; background: blue; border-radius: 50%;"></span> Mraz (&lt; 5°C)
+            </span>
           </div>
         </div>
 
@@ -177,6 +175,7 @@
 
         <div id="map" style="height: 500px; width: 100%; border-radius: 12px; border: 1px solid var(--border);"></div>
       </div>
+      
       <div id="settings-view" class="app-page" hidden>
         <section class="card profile-card">
           <div class="profile-header">
@@ -211,8 +210,33 @@
               </label>
             </div>
           </div>
+
+          <div class="profile-section" style="margin-top: 24px;">
+            <h3>Aktivna naprava v živo (MQTT)</h3>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95em;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 8px 12px;">Naprava</th>
+                    <th style="padding: 8px 12px;">Trening</th>
+                    <th style="padding: 8px 12px;">Zadnja lokacija</th>
+                    <th style="padding: 8px 12px;">Čas osvežitve</th>
+                  </tr>
+                </thead>
+                <tbody id="mqtt-devices-table-body">
+                  <tr id="mqtt-empty-row">
+                    <td colspan="4" class="muted" style="padding: 16px; text-align: center;">
+                      Čakam na aktivacijo naprave.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </section>
       </div>
+      
       <div id="dashboard-stats-view" class="app-page" hidden>
         <section class="card" style="padding: 24px;">
           <h3>Nadzorna plošča</h3>
