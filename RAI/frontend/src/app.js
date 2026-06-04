@@ -74,8 +74,7 @@ function showApplication(user) {
     authView.hidden = true;
     appView.hidden = false;
 
-    // Zaženemo real-time WebSocket poslušanje naprav
-    initActiveDevicesRealtime();
+    initActiveDevicesRealtime(currentUser.id);
 
     initNavbar(async (target) => {
         if (target === 'home-view') {

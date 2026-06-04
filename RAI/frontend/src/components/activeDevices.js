@@ -1,8 +1,7 @@
 let socket = null;
 const cachedDevices = {};
 
-// Izvozimo funkcijo, ki jo app.js uvozi na vrhu
-export function initActiveDevicesRealtime() {
+export function initActiveDevicesRealtime(trenutniUporabnikId) {
     if (socket) return;
 
     if (typeof io === 'undefined') {
@@ -14,13 +13,15 @@ export function initActiveDevicesRealtime() {
 
     socket.on('connect', () => {
         console.log("Uspešno povezan na real-time strežnik naprav.");
+        
+        if (trenutniUporabnikId) {
+            socket.emit('pridruzitev-uporabniku', trenutniUporabnikId);
+        }
     });
 
     socket.on('mqtt-device-update', (payload) => {
         const { topic, data, timestamp } = payload;
 
-        // Vse podatke shranimo pod ključ 'trenutni_trening', 
-        // saj vsi topiki (start, stop, location) pripadajo isti napravi
         if (!cachedDevices['trenutni_trening']) {
             cachedDevices['trenutni_trening'] = {
                 naprava: 'Neznana naprava',
@@ -33,18 +34,14 @@ export function initActiveDevicesRealtime() {
         const device = cachedDevices['trenutni_trening'];
         device.time = new Date(timestamp).toLocaleTimeString();
 
-        // Izluščimo ID naprave/uporabnika, če obstaja
         if (data.uporabnik_id || data.user_id) {
             device.naprava = `Uporabnik #${data.uporabnik_id || data.user_id}`;
         }
 
-        // Prilagoditev izpisa glede na prejeti topik
         if (topic.endsWith('start')) {
             device.workout = data.vrsta_workouta || data.type || 'Aktiven';
         } else if (topic.endsWith('location')) {
-            if (device.workout === 'Ni aktiven') {
-                device.workout = 'Aktiven';
-            }
+            if (device.workout === 'Ni aktiven') device.workout = 'Aktiven';
             if (data.latitude !== undefined && data.longitude !== undefined) {
                 device.lokacija = `Lat: ${data.latitude.toFixed(4)}, Lng: ${data.longitude.toFixed(4)}`;
             } else if (data.lat !== undefined && data.lng !== undefined) {

@@ -40,13 +40,20 @@ function startMqttClient() {
                 const { io } = require('../index'); 
                 
                 if (io) {
-                    console.log(`[Websocket] Pošiljam posodobitev za topik: ${topic}`);
-                    
-                    io.emit('mqtt-device-update', {
-                        topic: topic,
-                        data: payload,
-                        timestamp: new Date().toISOString()
-                    });
+                    const mqttUserId = payload.uporabnik_id || payload.user_id;
+
+                    if (mqttUserId) {
+                        const roomName = `user_${mqttUserId}`;
+                        console.log(`[Websocket] Pošiljam topik ${topic} v sobo: ${roomName}`);
+                        
+                        io.to(roomName).emit('mqtt-device-update', {
+                            topic: topic,
+                            data: payload,
+                            timestamp: new Date().toISOString()
+                        });
+                    } else {
+                        console.warn(`[Webosocket] Sporočilo na ${topic} nima uporabnik_id. Ne bo posredovano.`);
+                    }
                 }
             } catch (wsErr) {
                 console.error("Napaka pri WS oddajanju znotraj MQTT clienta:", wsErr);

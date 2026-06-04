@@ -139,6 +139,12 @@ app.get('/api/health', async (req, res) => {
 
 io.on('connection', (socket) => {
     console.log(`WebSocket odjemalec povezan: ${socket.id}`);
+    
+    socket.on('pridruzitev-uporabniku', (uporabnikId) => {
+        const roomName = `user_${uporabnikId}`;
+        socket.join(roomName);
+        console.log(`WebSocket odjemalec ${socket.id} se je pridružil zasebni sobi: ${roomName}`);
+    });
 });
 
 startMqttClient();
