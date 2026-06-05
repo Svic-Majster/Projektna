@@ -83,3 +83,49 @@ export async function getUserProfile(userId: number) {
         method: 'GET',
     });
 }
+
+export async function getUserGroups(userId: number) {
+    return apiRequest<any[]>({
+        path: `/users/${userId}/skupine`,
+        method: 'GET',
+    });
+}
+
+export async function getGroupLeaderboard(groupId: number) {
+    return apiRequest<any>({
+        path: `/skupina/${groupId}/leaderboard`,
+        method: 'GET',
+    });
+}
+
+export async function joinGroup(userId: number, koda: string) {
+    return apiRequest<any>({
+        path: `/users/skupina/pridruzi-se`,
+        method: 'POST',
+        body: JSON.stringify({ uporabnikId: userId, koda }),
+    });
+}
+
+export async function createGroup(userId: number, imeSkupine: string) {
+    return apiRequest<any>({
+        path: `/users/skupina/ustvari`,
+        method: 'POST',
+        body: JSON.stringify({ uporabnikId: userId, imeSkupine }),
+    });
+}
+
+export async function leaveGroup(groupId: number, userId: number) {
+    return apiRequest<any>({
+        path: `/users/skupina/${groupId}/zapusti`,
+        method: 'DELETE',
+        body: JSON.stringify({ uporabnikId: userId }),
+    });
+}
+
+export async function deleteGroup(groupId: number, userId: number) {
+    return apiRequest<any>({
+        path: `/users/skupina/${groupId}/izbrisi`,
+        method: 'DELETE',
+        body: JSON.stringify({ uporabnikId: userId }),
+    });
+}
