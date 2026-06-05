@@ -44,3 +44,33 @@ exports.getUserWorkouts = async (req, res) => {
         });
     }
 };
+
+exports.deleteWorkout = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await workoutService.deleteWorkout(id);
+
+        res.json({
+            success: true,
+            message: 'Trening uspešno odstranjen'
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(err.statusCode || 500).json({
+            error: err.message || 'Napaka na strežniku',
+        });
+    }
+};
+
+exports.getWorkoutCoordinates = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const coordinates = await workoutService.getWorkoutCoordinates(id);
+        res.json(coordinates);
+    } catch (err) {
+        console.error(err);
+        res.status(err.statusCode || 500).json({
+            error: err.message || 'Napaka na strežniku',
+        });
+    }
+};
