@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Pressable,
     StyleSheet,
@@ -7,7 +7,13 @@ import {
     TextInput,
     View,
 } from 'react-native';
-import { updateUserProfile } from '../lib/api';
+import {
+    updateUserProfile,
+    uploadProfilePicture,
+    getUserProfile
+} from '../lib/api';import { Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { env } from '../config/env';
 
 type ProfileScreenProps = {
     user: {
@@ -24,6 +30,7 @@ type ProfileScreenProps = {
     onUpdateUser: (updated: any) => Promise<void>;
 };
 
+
 export default function ProfileScreen({
     user,
     onGoBack,
@@ -37,6 +44,23 @@ export default function ProfileScreen({
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
     const [original] = useState({ ime: user.ime, priimek: user.priimek, username: user.username });
+    const [profileImage, setProfileImage] = useState<string | null>((user as any).profilna_slika ? `${env.apiBaseUrl.replace('/api', '')}${(user as any).profilna_slika}` : null);
+
+    useEffect(() => {
+    const refreshUser = async () => {
+        try {
+            const freshUser = await getUserProfile(user.id);
+            await onUpdateUser({
+                ...user,
+                ...freshUser,
+            });
+        } catch (err) {
+            console.log('Napaka pri osveževanju uporabnika:', err);
+        }
+    };
+
+    refreshUser();
+}, []);
 
     const handleSave = async () => {
         if (isSaving) return;
@@ -76,6 +100,39 @@ export default function ProfileScreen({
         }
     };
 
+    const handlePickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (!result.canceled) {
+            const imageUri = result.assets[0].uri;
+
+            setProfileImage(imageUri);
+
+            try {
+                const updatedUser = await uploadProfilePicture(
+                    user.id,
+                    imageUri
+                );
+
+                await onUpdateUser({
+                    ...user,
+                    ...updatedUser,
+                });
+
+                setMessage('Profilna slika uspešno shranjena.');
+                setMessageType('success');
+            } catch (err: any) {
+                setMessage(err.message || 'Napaka pri nalaganju slike.');
+                setMessageType('error');
+            }
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -93,11 +150,20 @@ export default function ProfileScreen({
                 contentContainerStyle={styles.contentContainer}
                 showsVerticalScrollIndicator={false}
             >
-                <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>
-                        {ime.charAt(0).toUpperCase()}
-                    </Text>
-                </View>
+                <Pressable onPress={handlePickImage}>
+                    <View style={styles.avatar}>
+                        {profileImage ? (
+                            <Image
+                                source={{ uri: profileImage }}
+                                style={styles.avatarImage}
+                            />
+                        ) : (
+                            <Text style={styles.avatarText}>
+                                {ime.charAt(0).toUpperCase()}
+                            </Text>
+                        )}
+                    </View>
+                </Pressable>
 
                 <Text style={styles.name}>
                     {ime} {priimek}
@@ -344,5 +410,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 12,
         textAlign: 'center',
+    },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 56,
     },
 });

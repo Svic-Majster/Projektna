@@ -6,7 +6,8 @@ import {
     Text,
     View,
 } from 'react-native';
-
+import { Image } from 'react-native';
+import { env } from '../config/env';
 type HomeScreenProps = {
     user: {
         ime: string;
@@ -28,27 +29,26 @@ export default function HomeScreen({
     const handleSelectSport = (sport: 'tek' | 'kolesarjenje' | 'hoja') => {
         setMenuVisible(false);
         console.log(`Izbran šport: ${sport}`);
-        
+
         if (onStartWorkout) {
             onStartWorkout(sport);
         }
     };
 
     const prvaCrka = user.ime ? user.ime.charAt(0).toUpperCase() : 'U';
+    const avatarUri = (user as any).profilna_slika ? `${env.apiBaseUrl.replace('/api', '')}${(user as any).profilna_slika}` : null;
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.logo}>SvicMajster</Text>
 
-                <Pressable 
-                    style={({ pressed }) => [
-                        styles.profileAvatar, 
-                        pressed && styles.profileAvatarPressed
-                    ]} 
-                    onPress={onGoToProfile}
-                >
-                    <Text style={styles.profileAvatarText}>{prvaCrka}</Text>
+                <Pressable style={styles.profileAvatar} onPress={onGoToProfile}>
+                    {avatarUri ? (
+                        <Image source={{ uri: avatarUri }} style={styles.profileAvatarImage} />
+                    ) : (
+                        <Text style={styles.profileAvatarText}>{prvaCrka}</Text>
+                    )}
                 </Pressable>
             </View>
 
@@ -62,8 +62,8 @@ export default function HomeScreen({
                         Tvoja lestvica bo prikazana tukaj.
                     </Text>
                 </View>
-                
-                <Pressable 
+
+                <Pressable
                     style={styles.startButton}
                     onPress={() => setMenuVisible(true)}
                 >
@@ -82,30 +82,30 @@ export default function HomeScreen({
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Izberi vrsto aktivnosti</Text>
-                        
-                        <Pressable 
-                            style={styles.sportButton} 
+
+                        <Pressable
+                            style={styles.sportButton}
                             onPress={() => handleSelectSport('tek')}
                         >
                             <Text style={styles.sportButtonText}>Tek</Text>
                         </Pressable>
 
-                        <Pressable 
-                            style={styles.sportButton} 
+                        <Pressable
+                            style={styles.sportButton}
                             onPress={() => handleSelectSport('kolesarjenje')}
                         >
                             <Text style={styles.sportButtonText}>Kolesarjenje</Text>
                         </Pressable>
 
-                        <Pressable 
-                            style={styles.sportButton} 
+                        <Pressable
+                            style={styles.sportButton}
                             onPress={() => handleSelectSport('hoja')}
                         >
                             <Text style={styles.sportButtonText}>Hoja</Text>
                         </Pressable>
 
-                        <Pressable 
-                            style={styles.closeButton} 
+                        <Pressable
+                            style={styles.closeButton}
                             onPress={() => setMenuVisible(false)}
                         >
                             <Text style={styles.closeButtonText}>Prekliči</Text>
@@ -250,4 +250,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '500',
     },
+    profileAvatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 21,
+},
 });

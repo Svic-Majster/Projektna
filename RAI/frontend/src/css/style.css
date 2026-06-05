@@ -514,6 +514,25 @@ input:focus {
     .btn-group-action { width: 100%; }
 }
 
+#profile-avatar-letter {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
 .workout-item.expanded {
     transform: scale(1.01);
     box-shadow: var(--shadow);

@@ -5,6 +5,11 @@ const userController = require('../controllers/userController');
 // Profil uporabnika
 router.get('/profile/:id', userController.getProfile);
 
+router.post(
+    '/profile/:id/avatar',
+    userController.uploadProfilePictureMiddleware.single('profilePicture'),
+    userController.uploadProfilePicture
+);
 // Lestvica uporabnikov
 router.get('/skupina/:skupinaId/leaderboard', userController.getGroupLeaderboard);
 
