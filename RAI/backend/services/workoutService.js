@@ -205,9 +205,28 @@ async function deleteWorkout(id) {
     return { success: true };
 }
 
+async function getWorkoutCoordinates(treningId) {
+    if (!treningId) {
+        const error = new Error('Manjka ID treninga');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const result = await db.query(
+        `SELECT latitude, longitude, cas_zapisa 
+         FROM lokacije_treninga 
+         WHERE trening_id = $1 
+         ORDER BY id ASC`,
+        [treningId]
+    );
+
+    return result.rows;
+}
+
 module.exports = {
     startWorkout,
     stopWorkout,
     getUserWorkouts,
     deleteWorkout,
+    getWorkoutCoordinates
 };

@@ -8,6 +8,9 @@ export let currentPage = 1;
 export function setCurrentPage(page) { currentPage = page; }
 const itemsPerPage = 5;
 
+// Globalni objekt za shranjevanje aktivnih Leaflet instanc, da jih lahko pravilno uničimo ob zapiranju/ponovnem risanju
+const activeMaps = {};
+
 export function initWorkoutFilters() {
     document.getElementById('filter-type').addEventListener('change', applyFilters);
     document.getElementById('sort-type').addEventListener('change', applyFilters);
@@ -91,29 +94,147 @@ export function renderWorkouts(items, isFiltered = false) {
                 <p><strong>Začetek:</strong> ${formatDate(workout.zacetek_vadbe)}</p>
                 <p><strong>Trajanje:</strong> ${trajanje}</p>
             </div>
+            
+            <div id="map-container-${workout.id}" class="map-wrapper" style="display: none; margin-top: 16px;">
+                <div id="map-${workout.id}" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid var(--border);"></div>
+            </div>
+
             <div class="workout-actions" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); text-align: right;">
                 <button class="btn btn-danger delete-workout-btn" type="button">Izbriši trening</button>
             </div>
         `;
 
-        article.addEventListener('click', (e) => {
+        const mapContainer = article.querySelector(`#map-container-${workout.id}`);
+        mapContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        article.addEventListener('click', async (e) => {
             if (e.target.classList.contains('delete-workout-btn')) return;
 
             document.querySelectorAll('.workout-item.expanded').forEach(openItem => {
                 if (openItem !== article) {
                     openItem.classList.remove('expanded');
                     openItem.querySelector('.workout-actions').style.display = 'none';
+                    
+                    const openMapContainer = openItem.querySelector('[id^="map-container-"]');
+                    if (openMapContainer) {
+                        openMapContainer.style.display = 'none';
+                        const openWorkoutId = openMapContainer.id.replace('map-container-', '');
+                        if (activeMaps[openWorkoutId]) {
+                            activeMaps[openWorkoutId].remove();
+                            delete activeMaps[openWorkoutId];
+                        }
+                    }
                 }
             });
 
             const actionsDiv = article.querySelector('.workout-actions');
+            
             article.classList.toggle('expanded');
-            actionsDiv.style.display = article.classList.contains('expanded') ? 'block' : 'none';
+            const isExpanded = article.classList.contains('expanded');
+            
+            actionsDiv.style.display = isExpanded ? 'block' : 'none';
+            mapContainer.style.display = isExpanded ? 'block' : 'none';
+
+            if (isExpanded) {
+                try {
+                    if (activeMaps[workout.id]) {
+                        activeMaps[workout.id].remove();
+                    }
+
+                    const response = await fetch(`/api/workouts/${workout.id}/coordinates`);
+                    if (!response.ok) throw new Error('Ni bilo mogoče pridobiti GPS podatkov');
+                    
+                    const koordinate = await response.json();
+
+                    if (!koordinate || koordinate.length === 0) {
+                        document.getElementById(`map-${workout.id}`).innerHTML = `
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
+                                Za ta trening ni shranjenih GPS lokacij.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const filtriraneKoordinate = [];
+                    for (let i = 0; i < koordinate.length; i++) {
+                        const trenutna = koordinate[i];
+                        const lat = parseFloat(trenutna.latitude);
+                        const lng = parseFloat(trenutna.longitude);
+
+                        if (i > 0) {
+                            const prejsnja = filtriraneKoordinate[filtriraneKoordinate.length - 1];
+                            if (prejsnja) {
+                                const dLat = lat - prejsnja[0];
+                                const dLng = lng - prejsnja[1];
+                                const razdaljaStopinje = Math.sqrt(dLat * dLat + dLng * dLng);
+
+                                if (razdaljaStopinje > 0.02) {
+                                    console.warn(`[GPS FILTER] Ignorirana napačna koordinata: ${lat}, ${lng}`);
+                                    continue;
+                                }
+                            }
+                        }
+                        filtriraneKoordinate.push([lat, lng]);
+                    }
+
+                    if (filtriraneKoordinate.length === 0) {
+                        document.getElementById(`map-${workout.id}`).innerHTML = `
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
+                                Vse GPS koordinate so bile označene kot napačne.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const map = L.map(`map-${workout.id}`);
+                    activeMaps[workout.id] = map;
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap'
+                    }).addTo(map);
+
+                    const polyline = L.polyline(filtriraneKoordinate, {
+                        color: '#ff4757',
+                        weight: 4,
+                        opacity: 0.8,
+                        smoothFactor: 1
+                    }).addTo(map);
+
+                    L.marker(filtriraneKoordinate[0]).addTo(map).bindPopup('Začetek treninga');
+                    L.marker(filtriraneKoordinate[filtriraneKoordinate.length - 1]).addTo(map).bindPopup('Konec treninga');
+
+                    map.fitBounds(polyline.getBounds(), { padding: [20, 20] });
+
+                    setTimeout(() => {
+                        map.invalidateSize();
+                    }, 100);
+
+                } catch (mapErr) {
+                    console.error('Napaka pri nalaganju Leaflet zemljevida:', mapErr);
+                    document.getElementById(`map-${workout.id}`).innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: red;">
+                            Napaka pri nalaganju zemljevida.
+                        </div>
+                    `;
+                }
+            } else {
+                if (activeMaps[workout.id]) {
+                    activeMaps[workout.id].remove();
+                    delete activeMaps[workout.id];
+                }
+            }
         });
 
         const deleteBtn = article.querySelector('.delete-workout-btn');
-        deleteBtn.addEventListener('click', async () => {
+        deleteBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
             if (confirm('Ali res želiš izbrisati ta trening?')) {
+                if (activeMaps[workout.id]) {
+                    activeMaps[workout.id].remove();
+                    delete activeMaps[workout.id];
+                }
                 await deleteWorkout(workout.id);
             }
         });
@@ -162,6 +283,11 @@ function renderPagination(totalPages) {
         
         if (!disabled) {
             btn.onclick = () => {
+                // Pred menjavo strani počistimo vse morebitne odprte mape iz spomina
+                Object.keys(activeMaps).forEach(id => {
+                    activeMaps[id].remove();
+                    delete activeMaps[id];
+                });
                 currentPage = page;
                 renderWorkouts(window.allWorkouts, true);
             };
@@ -206,6 +332,10 @@ function formatDuration(startTimeStr, endTimeStr) {
 }
 
 export function clearWorkouts() {
+    Object.keys(activeMaps).forEach(id => {
+        activeMaps[id].remove();
+        delete activeMaps[id];
+    });
     workoutsList.innerHTML = '';
     paginationContainer.innerHTML = '';
 }
