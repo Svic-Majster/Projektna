@@ -77,3 +77,9 @@ export async function uploadProfilePicture(
 
     return data;
 }
+export async function getUserProfile(userId: number) {
+    return apiRequest<any>({
+        path: `/users/profile/${userId}`,
+        method: 'GET',
+    });
+}

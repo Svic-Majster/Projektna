@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Pressable,
     StyleSheet,
@@ -7,8 +7,11 @@ import {
     TextInput,
     View,
 } from 'react-native';
-import { updateUserProfile, uploadProfilePicture } from '../lib/api';
-import { Image } from 'react-native';
+import {
+    updateUserProfile,
+    uploadProfilePicture,
+    getUserProfile
+} from '../lib/api';import { Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { env } from '../config/env';
 
@@ -27,6 +30,7 @@ type ProfileScreenProps = {
     onUpdateUser: (updated: any) => Promise<void>;
 };
 
+
 export default function ProfileScreen({
     user,
     onGoBack,
@@ -41,6 +45,22 @@ export default function ProfileScreen({
     const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
     const [original] = useState({ ime: user.ime, priimek: user.priimek, username: user.username });
     const [profileImage, setProfileImage] = useState<string | null>((user as any).profilna_slika ? `${env.apiBaseUrl.replace('/api', '')}${(user as any).profilna_slika}` : null);
+
+    useEffect(() => {
+    const refreshUser = async () => {
+        try {
+            const freshUser = await getUserProfile(user.id);
+            await onUpdateUser({
+                ...user,
+                ...freshUser,
+            });
+        } catch (err) {
+            console.log('Napaka pri osveževanju uporabnika:', err);
+        }
+    };
+
+    refreshUser();
+}, []);
 
     const handleSave = async () => {
         if (isSaving) return;

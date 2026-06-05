@@ -71,7 +71,8 @@ exports.login = async (req, res) => {
                 email: user.email,
                 skupni_xp: user.skupni_xp,
                 skupina_id: user.skupina_id,
-                datum_registracije: user.datum_registracije
+                datum_registracije: user.datum_registracije,
+                profilna_slika: user.profilna_slika
             }
         });
 

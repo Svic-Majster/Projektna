@@ -1,5 +1,4 @@
-import { updateUserProfile } from './api.js';
-
+import { updateUserProfile, uploadProfilePicture } from './api.js';
 const userName = document.getElementById('user-name');
 const userMeta = document.getElementById('user-meta');
 
@@ -7,6 +6,7 @@ const profileName = document.getElementById('profile-name');
 const profileUsername = document.getElementById('profile-username');
 const profileAvatarLetter = document.getElementById('profile-avatar-letter');
 const profileInfo = document.getElementById('profile-info');
+
 
 function showToast(message, type = 'success') {
     // odstrani obstoječ toast če obstaja
@@ -41,6 +41,23 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
+function renderProfileAvatar(user) {
+    profileAvatarLetter.innerHTML = '';
+
+    if (user.profilna_slika) {
+        const img = document.createElement('img');
+        img.src = user.profilna_slika;
+        img.alt = 'Profilna slika';
+        img.className = 'profile-avatar-img';
+        profileAvatarLetter.appendChild(img);
+    } else {
+        profileAvatarLetter.textContent =
+            user.ime?.charAt(0)?.toUpperCase() ?? 'U';
+    }
+}
+
+
+
 export function renderUser(user) {
     userName.textContent = `${user.ime} ${user.priimek}`;
     userMeta.textContent = `${user.username} · XP: ${user.skupni_xp ?? 0}`;
@@ -48,8 +65,7 @@ export function renderUser(user) {
     profileName.textContent = `${user.ime} ${user.priimek}`;
     profileUsername.textContent = `@${user.username}`;
 
-    profileAvatarLetter.textContent =
-        user.ime?.charAt(0)?.toUpperCase() ?? 'U';
+    renderProfileAvatar(user);
 
     profileInfo.innerHTML = `
     <label class="profile-field">
@@ -77,6 +93,7 @@ export function renderUser(user) {
         <input type="text" value="${user.skupni_xp ?? 0}" disabled />
     </label>
 
+
     <div class="profile-actions">
         <button id="save-profile-btn" class="btn btn-primary">
             Shrani spremembe
@@ -91,6 +108,32 @@ export function renderUser(user) {
         username: user.username
     };
     let isSaving = false;
+
+    profileAvatarLetter.onclick = async () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+
+    fileInput.onchange = async (event) => {
+        const file = event.target.files?.[0];
+
+        if (!file) return;
+
+        try {
+            const updated = await uploadProfilePicture(user.id, file);
+
+            user.profilna_slika = updated.profilna_slika;
+
+            renderProfileAvatar(user);
+
+            showToast('Profilna slika posodobljena!', 'success');
+        } catch (err) {
+            showToast(`Napaka: ${err.message}`, 'error');
+        }
+    };
+
+    fileInput.click();
+};
 
     const saveButton = document.getElementById('save-profile-btn');
     const saveMsg = document.getElementById('save-profile-msg');
@@ -133,7 +176,7 @@ export function renderUser(user) {
             userMeta.textContent = `${updated.username} · XP: ${updated.skupni_xp ?? 0}`;
             profileName.textContent = `${updated.ime} ${updated.priimek}`;
             profileUsername.textContent = `@${updated.username}`;
-            profileAvatarLetter.textContent = updated.ime?.charAt(0)?.toUpperCase() ?? 'U';
+            renderProfileAvatar(user);
 
             showToast('Profil posodobljen!', 'success');
         } catch (err) {

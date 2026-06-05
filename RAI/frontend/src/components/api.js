@@ -75,3 +75,21 @@ export async function deleteGroup(skupinaId, uporabnikId) {
 export async function getUserDashboard(userId) {
     return apiRequest(`/users/dashboard/${userId}`);
 }
+
+export async function uploadProfilePicture(userId, file) {
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+
+    const response = await fetch(`/api/users/profile/${userId}/avatar`, {
+        method: 'POST',
+        body: formData,
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Napaka pri nalaganju profilne slike.');
+    }
+
+    return data;
+}
