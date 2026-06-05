@@ -8,6 +8,8 @@ import {
     View,
 } from 'react-native';
 import { updateUserProfile } from '../lib/api';
+import { Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 type ProfileScreenProps = {
     user: {
@@ -37,6 +39,7 @@ export default function ProfileScreen({
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
     const [original] = useState({ ime: user.ime, priimek: user.priimek, username: user.username });
+    const [profileImage, setProfileImage] = useState<string | null>(null);
 
     const handleSave = async () => {
         if (isSaving) return;
@@ -76,6 +79,19 @@ export default function ProfileScreen({
         }
     };
 
+    const handlePickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (!result.canceled) {
+            setProfileImage(result.assets[0].uri);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -93,11 +109,20 @@ export default function ProfileScreen({
                 contentContainerStyle={styles.contentContainer}
                 showsVerticalScrollIndicator={false}
             >
-                <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>
-                        {ime.charAt(0).toUpperCase()}
-                    </Text>
-                </View>
+                <Pressable onPress={handlePickImage}>
+                    <View style={styles.avatar}>
+                        {profileImage ? (
+                            <Image
+                                source={{ uri: profileImage }}
+                                style={styles.avatarImage}
+                            />
+                        ) : (
+                            <Text style={styles.avatarText}>
+                                {ime.charAt(0).toUpperCase()}
+                            </Text>
+                        )}
+                    </View>
+                </Pressable>
 
                 <Text style={styles.name}>
                     {ime} {priimek}
@@ -345,4 +370,9 @@ const styles = StyleSheet.create({
         marginTop: 12,
         textAlign: 'center',
     },
+    avatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 56,
+},
 });
