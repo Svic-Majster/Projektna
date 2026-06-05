@@ -8,7 +8,10 @@ router.post('/start', workoutController.startWorkout);
 // Zaključek treninga
 router.post('/stop', workoutController.stopWorkout);
 
-
+// Pridobivanje treningov uporabnika
 router.get('/user/:uporabnikId', workoutController.getUserWorkouts);
+
+// Izbris treninga preko controllerja
+router.delete('/:id', workoutController.deleteWorkout);
 
 module.exports = router;

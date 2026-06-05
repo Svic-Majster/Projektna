@@ -171,8 +171,43 @@ async function getUserWorkouts(uporabnikId) {
     return result.rows;
 }
 
+async function deleteWorkout(id) {
+    if (!id) {
+        const error = new Error('Manjka ID treninga');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const treningInfo = await db.query(
+        `SELECT uporabnik_id, skupne_tocke FROM treningi WHERE id = $1`,
+        [id]
+    );
+
+    if (treningInfo.rows.length === 0) {
+        const error = new Error('Trening ne obstaja');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    const { uporabnik_id, skupne_tocke } = treningInfo.rows[0];
+
+    if (skupne_tocke && skupne_tocke > 0) {
+        await db.query(
+            `UPDATE uporabniki 
+             SET skupni_xp = GREATEST(0, skupni_xp - $1) 
+             WHERE id = $2`,
+            [skupne_tocke, uporabnik_id]
+        );
+    }
+
+    await db.query(`DELETE FROM treningi WHERE id = $1`, [id]);
+
+    return { success: true };
+}
+
 module.exports = {
     startWorkout,
     stopWorkout,
     getUserWorkouts,
+    deleteWorkout,
 };

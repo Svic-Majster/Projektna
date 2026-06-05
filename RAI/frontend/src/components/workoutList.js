@@ -82,6 +82,7 @@ export function renderWorkouts(items, isFiltered = false) {
         const article = document.createElement('article');
         const trajanje = formatDuration(workout.zacetek_vadbe, workout.konec_vadbe);
         article.className = 'workout-item';
+        
         article.innerHTML = `
             <h4>${workout.vrsta_workouta || 'trening'}</h4>
             <div class="workout-grid">
@@ -90,11 +91,61 @@ export function renderWorkouts(items, isFiltered = false) {
                 <p><strong>Začetek:</strong> ${formatDate(workout.zacetek_vadbe)}</p>
                 <p><strong>Trajanje:</strong> ${trajanje}</p>
             </div>
+            <div class="workout-actions" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); text-align: right;">
+                <button class="btn btn-danger delete-workout-btn" type="button">Izbriši trening</button>
+            </div>
         `;
+
+        article.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-workout-btn')) return;
+
+            document.querySelectorAll('.workout-item.expanded').forEach(openItem => {
+                if (openItem !== article) {
+                    openItem.classList.remove('expanded');
+                    openItem.querySelector('.workout-actions').style.display = 'none';
+                }
+            });
+
+            const actionsDiv = article.querySelector('.workout-actions');
+            article.classList.toggle('expanded');
+            actionsDiv.style.display = article.classList.contains('expanded') ? 'block' : 'none';
+        });
+
+        const deleteBtn = article.querySelector('.delete-workout-btn');
+        deleteBtn.addEventListener('click', async () => {
+            if (confirm('Ali res želiš izbrisati ta trening?')) {
+                await deleteWorkout(workout.id);
+            }
+        });
+
         workoutsList.appendChild(article);
     });
 
     renderPagination(totalPages);
+}
+
+async function deleteWorkout(workoutId) {
+    try {
+        const response = await fetch(`/api/workouts/${workoutId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) throw new Error('Napaka pri brisanju treninga.');
+
+        window.allWorkouts = window.allWorkouts.filter(w => w.id !== workoutId);
+        const noviTotalPages = Math.ceil(window.allWorkouts.length / itemsPerPage);
+        if (currentPage > noviTotalPages && currentPage > 1) {
+            currentPage = noviTotalPages;
+        }
+        renderWorkouts(window.allWorkouts, true);
+    } catch (err) {
+        const errEl = document.getElementById('workout-error');
+        if (errEl) {
+            errEl.innerText = err.message;
+            errEl.hidden = false;
+        }
+    }
 }
 
 function renderPagination(totalPages) {
