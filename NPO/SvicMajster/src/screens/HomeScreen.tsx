@@ -14,15 +14,18 @@ type HomeScreenProps = {
         priimek: string;
         email: string;
         username: string;
+
     };
     onGoToProfile: () => void;
     onStartWorkout?: (type: 'tek' | 'kolesarjenje' | 'hoja') => void;
+    onGoToGroups: () => void;
 };
 
 export default function HomeScreen({
     user,
     onGoToProfile,
     onStartWorkout,
+    onGoToGroups
 }: HomeScreenProps) {
     const [menuVisible, setMenuVisible] = useState(false);
 
@@ -62,6 +65,11 @@ export default function HomeScreen({
                         Tvoja lestvica bo prikazana tukaj.
                     </Text>
                 </View>
+
+                <Pressable style={styles.card} onPress={onGoToGroups}>
+                    <Text style={styles.cardTitle}>Skupine</Text>
+                    <Text style={styles.cardText}>Poglej lestvico svoje skupine.</Text>
+                </Pressable>
 
                 <Pressable
                     style={styles.startButton}
@@ -251,8 +259,8 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     profileAvatarImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 21,
-},
+        width: '100%',
+        height: '100%',
+        borderRadius: 21,
+    },
 });
