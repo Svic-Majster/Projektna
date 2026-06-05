@@ -1,5 +1,35 @@
 const db = require('../db');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 
+const uploadDir = path.join(__dirname, '../uploads/profile-pictures');
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `${req.params.id}-${Date.now()}${ext}`);
+    },
+});
+
+exports.uploadProfilePictureMiddleware = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('Dovoljene so samo slikovne datoteke.'));
+        }
+
+        cb(null, true);
+    },
+});
 // Profil uporabnika
 exports.getProfile = async (req, res) => {
     try {
@@ -94,6 +124,35 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+// Nalaganje profilne slike
+exports.uploadProfilePicture = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'Profilna slika ni bila poslana.' });
+        }
+
+        const profilnaSlika = `/uploads/profile-pictures/${req.file.filename}`;
+
+        const result = await db.query(
+            `UPDATE uporabniki
+             SET profilna_slika = $1
+             WHERE id = $2
+             RETURNING id, ime, priimek, username, email, skupni_xp, profilna_slika`,
+            [profilnaSlika, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Uporabnik ne obstaja' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('Napaka pri nalaganju profilne slike:', err);
+        res.status(500).json({ error: 'Napaka na strežniku pri nalaganju profilne slike.' });
+    }
+};
 // zapustitev skupine
 exports.leaveGroup = async (req, res) => {
     try {

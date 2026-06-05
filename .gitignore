@@ -48,3 +48,5 @@ lbph_model.yml
 
 # test / coverage
 **/coverage/
+
+RAI/backend/uploads/
