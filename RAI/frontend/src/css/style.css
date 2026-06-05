@@ -263,6 +263,7 @@ input:focus {
     border: 1px solid var(--border);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border-left: 6px solid var(--primary);
+    cursor: pointer;
 }
 
 .workout-item:hover {
@@ -530,4 +531,29 @@ input:focus {
     border-radius: 50%;
     object-fit: cover;
     display: block;
+}
+
+.workout-item.expanded {
+    transform: scale(1.01);
+    box-shadow: var(--shadow);
+    border-color: var(--primary);
+}
+
+.btn-danger {
+    background-color: #fef2f2;
+    color: var(--danger);
+    border: 1px solid #fee2e2;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+    background-color: var(--danger);
+    color: white;
+    border-color: var(--danger);
 }
