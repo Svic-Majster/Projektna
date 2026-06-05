@@ -7,9 +7,10 @@ import {
     TextInput,
     View,
 } from 'react-native';
-import { updateUserProfile } from '../lib/api';
+import { updateUserProfile, uploadProfilePicture } from '../lib/api';
 import { Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { env } from '../config/env';
 
 type ProfileScreenProps = {
     user: {
@@ -39,7 +40,7 @@ export default function ProfileScreen({
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
     const [original] = useState({ ime: user.ime, priimek: user.priimek, username: user.username });
-    const [profileImage, setProfileImage] = useState<string | null>(null);
+    const [profileImage, setProfileImage] = useState<string | null>((user as any).profilna_slika ? `${env.apiBaseUrl.replace('/api', '')}${(user as any).profilna_slika}` : null);
 
     const handleSave = async () => {
         if (isSaving) return;
@@ -88,7 +89,27 @@ export default function ProfileScreen({
         });
 
         if (!result.canceled) {
-            setProfileImage(result.assets[0].uri);
+            const imageUri = result.assets[0].uri;
+
+            setProfileImage(imageUri);
+
+            try {
+                const updatedUser = await uploadProfilePicture(
+                    user.id,
+                    imageUri
+                );
+
+                await onUpdateUser({
+                    ...user,
+                    ...updatedUser,
+                });
+
+                setMessage('Profilna slika uspešno shranjena.');
+                setMessageType('success');
+            } catch (err: any) {
+                setMessage(err.message || 'Napaka pri nalaganju slike.');
+                setMessageType('error');
+            }
         }
     };
 
@@ -371,8 +392,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     avatarImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 56,
-},
+        width: '100%',
+        height: '100%',
+        borderRadius: 56,
+    },
 });

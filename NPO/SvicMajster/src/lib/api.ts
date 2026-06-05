@@ -48,3 +48,32 @@ export async function updateUserProfile(userId: number, data: { ime: string; pri
         body: JSON.stringify(data),
     });
 }
+
+export async function uploadProfilePicture(
+    userId: number,
+    imageUri: string
+) {
+    const formData = new FormData();
+
+    formData.append('profilePicture', {
+        uri: imageUri,
+        name: 'profile.jpg',
+        type: 'image/jpeg',
+    } as any);
+
+    const response = await fetch(
+        `${env.apiBaseUrl}/users/profile/${userId}/avatar`,
+        {
+            method: 'POST',
+            body: formData,
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data?.error || 'Napaka pri nalaganju slike.');
+    }
+
+    return data;
+}
