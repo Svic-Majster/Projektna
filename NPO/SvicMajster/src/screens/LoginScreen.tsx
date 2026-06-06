@@ -13,9 +13,10 @@ import type { AuthResult } from '../types/auth';
 type Props = {
     onSubmit: (payload: { identifier: string; geslo: string }) => Promise<AuthResult>;
     onGoToRegister: () => void;
+    onGoToFace: () => void;
 };
 
-export default function LoginScreen({ onSubmit, onGoToRegister }: Props) {
+export default function LoginScreen({ onSubmit, onGoToRegister, onGoToFace }: Props) {
     const [identifier, setIdentifier] = useState('');
     const [geslo, setGeslo] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -79,6 +80,13 @@ export default function LoginScreen({ onSubmit, onGoToRegister }: Props) {
                     ) : (
                         <Text style={styles.primaryButtonText}>Prijava</Text>
                     )}
+                </Pressable>
+
+                <Pressable
+                    style={({ pressed }) => [styles.faceButton, pressed && styles.buttonPressed]}
+                    onPress={onGoToFace}
+                >
+                    <Text style={styles.faceButtonText}>Prijava z obrazom</Text>
                 </Pressable>
 
                 <Pressable style={styles.secondaryButton} onPress={onGoToRegister}>
@@ -146,6 +154,20 @@ const styles = StyleSheet.create({
         opacity: 0.6,
     },
     primaryButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    faceButton: {
+        backgroundColor: '#1F2937',
+        paddingVertical: 16,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#374151',
+    },
+    faceButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: '700',
