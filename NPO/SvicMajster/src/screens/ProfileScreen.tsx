@@ -28,6 +28,7 @@ type ProfileScreenProps = {
     onGoBack: () => void;
     onLogout: () => void;
     onUpdateUser: (updated: any) => Promise<void>;
+    onAddFace: () => void;
 };
 
 
@@ -35,7 +36,8 @@ export default function ProfileScreen({
     user,
     onGoBack,
     onLogout,
-    onUpdateUser
+    onUpdateUser,
+    onAddFace
 }: ProfileScreenProps) {
     const [ime, setIme] = useState(user.ime);
     const [priimek, setPriimek] = useState(user.priimek);
@@ -236,7 +238,7 @@ export default function ProfileScreen({
                     </Text>
                 </Pressable>
 
-                <Pressable style={styles.faceButton} onPress={() => { }}>
+                <Pressable style={styles.faceButton} onPress={onAddFace}>
                     <Text style={styles.secondaryButtonText}>Dodaj Face ID</Text>
                 </Pressable>
 
