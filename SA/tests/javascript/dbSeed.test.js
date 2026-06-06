@@ -60,7 +60,7 @@ describe('Testiranje baze - Seed.js skripta', () => {
         // Preverimo, če se počisti skupina
         expect(mockQuery).toHaveBeenNthCalledWith(2, 
             expect.stringContaining('DELETE FROM skupine'), 
-            ['TESTKODA1']
+            ['TEST12']
         );
 
         // Preverimo, če se na koncu posodobi skupni_xp za admina

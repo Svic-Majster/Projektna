@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Modal } from 'react-native';
 import * as Location from 'expo-location';
 // @ts-ignore
 import Paho from 'paho-mqtt';
@@ -32,14 +32,38 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
     const [skupnaRazdaljaKm, setSkupnaRazdaljaKm] = useState<number>(0);
     const zadnjaKoord = useRef<{ latitude: number; longitude: number } | null>(null);
 
+    const [isCountingDown, setIsCountingDown] = useState(true);
+    const [countdownText, setCountdownText] = useState('3');
+
     useEffect(() => {
+        if (!isCountingDown) return;
+
+        const timer = setTimeout(() => {
+            if (countdownText === '3') {
+                setCountdownText('2');
+            } else if (countdownText === '2') {
+                setCountdownText('1');
+            } else if (countdownText === '1') {
+                setCountdownText('GO!');
+            } else if (countdownText === 'GO!') {
+                setIsCountingDown(false);
+            }
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [isCountingDown, countdownText]);
+
+    useEffect(() => {
+        if (isCountingDown) return;
+
         const interval = setInterval(() => {
             setSeconds((prev) => prev + 1);
         }, 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [isCountingDown]);
 
     useEffect(() => {
+        if (isCountingDown) return;
         let locationSubscription: Location.LocationSubscription | null = null;
 
         async function startLocationTracking() {
@@ -94,7 +118,7 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
                 locationSubscription.remove();
             }
         };
-    }, [uporabnikId, mqttClient]);
+    }, [uporabnikId, mqttClient, isCountingDown]);
 
     const formatTime = (totalSeconds: number) => {
         const hrs = Math.floor(totalSeconds / 3600);
@@ -149,6 +173,17 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
             >
                 <Text style={styles.finishButtonText}>Zaključi trening</Text>
             </Pressable>
+
+            <Modal visible={isCountingDown} transparent={true} animationType="fade">
+                <View style={styles.countdownOverlay}>
+                    <Text style={[
+                        styles.countdownText,
+                        countdownText === 'GO!' && styles.countdownGoText
+                    ]}>
+                        {countdownText}
+                    </Text>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -171,4 +206,7 @@ const styles = StyleSheet.create({
     statValueLoading: { color: '#9CA3AF', fontSize: 14, marginTop: 4 },
     finishButton: { backgroundColor: '#EF4444', paddingVertical: 18, borderRadius: 16, alignItems: 'center', marginBottom: 20 },
     finishButtonText: { color: 'white', fontSize: 18, fontWeight: '700' },
+    countdownOverlay: { flex: 1, backgroundColor: 'rgba(17, 24, 39, 0.95)', justifyContent: 'center', alignItems: 'center' },
+    countdownText: { color: 'white', fontSize: 90, fontWeight: '900' },
+    countdownGoText: { color: '#10B981' }
 });

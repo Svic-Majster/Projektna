@@ -66,7 +66,7 @@ const seed = async () => {
              WHERE uporabnik_id IN (SELECT id FROM uporabniki WHERE email LIKE $1)`, 
             ['%@test.si']
         );
-        await db.query('DELETE FROM skupine WHERE koda_za_pridruzitev = $1', ['TESTKODA1']);
+        await db.query('DELETE FROM skupine WHERE koda_za_pridruzitev = $1', ['TEST12']);
         await db.query('DELETE FROM uporabniki WHERE email LIKE $1', ['%@test.si']);
 
         const saltRounds = 10;
