@@ -6,6 +6,7 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import WorkoutScreen from './src/screens/WorkoutScreen';
+import GroupsScreen from './src/screens/GroupsScreen';
 // @ts-ignore
 import Paho from 'paho-mqtt';
 
@@ -17,8 +18,7 @@ const MQTT_PASSWORD = process.env.EXPO_PUBLIC_MQTT_PASSWORD || '';
 export default function App() {
   const auth = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [screen, setScreen] = useState<'home' | 'profile' | 'workout'>('home');
-  
+  const [screen, setScreen] = useState<'home' | 'profile' | 'workout' | 'groups'>('home');  
   const [selectedSport, setSelectedSport] = useState<'tek' | 'kolesarjenje' | 'hoja'>('tek');
   
   const mqttClientRef = useRef<Paho.Client | null>(null);
@@ -113,10 +113,20 @@ export default function App() {
     );
   }
 
+  if (screen === 'groups') {
+    return (
+        <GroupsScreen
+            user={auth.user}
+            onGoBack={() => setScreen('home')}
+        />
+    );
+}
   return (
+    
     <HomeScreen
       user={auth.user}
       onGoToProfile={() => setScreen('profile')}
+      onGoToGroups={() => setScreen('groups')}
       onStartWorkout={(sport) => {
         if (!mqttConnected || !mqttClientRef.current?.isConnected()) {
           Alert.alert("Napaka", "MQTT strežnik trenutno ni dosegljiv. Preveri povezavo.");
