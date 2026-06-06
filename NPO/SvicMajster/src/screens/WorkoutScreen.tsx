@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Pressable, Modal } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Modal, Alert } from 'react-native'; // DODANO: Alert
 import * as Location from 'expo-location';
 // @ts-ignore
 import Paho from 'paho-mqtt';
@@ -135,6 +135,21 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
         return `${km.toFixed(2)} km`;
     };
 
+    const handleFinishPress = () => {
+        Alert.alert(
+            "Zaključek treninga",
+            "Ali si prepričan, da želiš zaključiti trening?",
+            [
+                { text: "Prekliči", style: "cancel" },
+                { 
+                    text: "Da", 
+                    style: "destructive",
+                    onPress: () => onFinishWorkout(seconds, parseFloat(skupnaRazdaljaKm.toFixed(4))) 
+                }
+            ]
+        );
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -169,7 +184,7 @@ export default function WorkoutScreen({ sport, uporabnikId, mqttClient, onFinish
 
             <Pressable 
                 style={styles.finishButton} 
-                onPress={() => onFinishWorkout(seconds, parseFloat(skupnaRazdaljaKm.toFixed(4)))}
+                onPress={handleFinishPress}
             >
                 <Text style={styles.finishButtonText}>Zaključi trening</Text>
             </Pressable>
