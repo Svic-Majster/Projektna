@@ -86,7 +86,7 @@ export async function getUserProfile(userId: number) {
 
 export async function getUserGroups(userId: number) {
     return apiRequest<any[]>({
-        path: `/users/${userId}/skupine`,
+        path: `/users/uporabnik/${userId}/skupine`,
         method: 'GET',
     });
 }

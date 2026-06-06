@@ -59,12 +59,7 @@ export default function HomeScreen({
                 <Text style={styles.welcome}>Pozdravljen, {user.ime}!</Text>
                 <Text style={styles.subtitle}>Pripravljen na nov trening?</Text>
 
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Leaderboard</Text>
-                    <Text style={styles.cardText}>
-                        Tvoja lestvica bo prikazana tukaj.
-                    </Text>
-                </View>
+             
 
                 <Pressable style={styles.card} onPress={onGoToGroups}>
                     <Text style={styles.cardTitle}>Skupine</Text>
