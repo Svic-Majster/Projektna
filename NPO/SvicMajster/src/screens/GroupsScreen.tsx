@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, Pressable,
-    ScrollView, ActivityIndicator
+    ScrollView, ActivityIndicator, Alert, TextInput
 } from 'react-native';
-import { getUserGroups, getGroupLeaderboard } from '../lib/api';
+import { getUserGroups, getGroupLeaderboard, joinGroup, createGroup, leaveGroup, deleteGroup } from '../lib/api';
 
 type GroupsScreenProps = {
     user: {
@@ -22,6 +22,9 @@ export default function GroupsScreen({ user, onGoBack }: GroupsScreenProps) {
     const [leaderboard, setLeaderboard] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [joinCode, setJoinCode] = useState('');
+    const [newGroupName, setNewGroupName] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         loadGroups();
@@ -55,12 +58,84 @@ export default function GroupsScreen({ user, onGoBack }: GroupsScreenProps) {
         }
     }
 
+    async function handleJoin() {
+        if (!joinCode.trim()) return;
+        setIsSaving(true);
+        try {
+            await joinGroup(user.id, joinCode.trim().toUpperCase());
+            setJoinCode('');
+            setMessage('Uspešno si se pridružil skupini!');
+            await loadGroups();
+            setTab('leaderboard');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (err: any) {
+            setMessage(err.message);
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function handleCreate() {
+        if (!newGroupName.trim()) return;
+        setIsSaving(true);
+        try {
+            await createGroup(user.id, newGroupName.trim());
+            setNewGroupName('');
+            setMessage('Skupina uspešno ustvarjena!');
+            await loadGroups();
+            setTab('leaderboard');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (err: any) {
+            setMessage(err.message);
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function handleLeave(groupId: number) {
+        Alert.alert('Zapusti skupino', 'Si prepričan?', [
+            { text: 'Prekliči', style: 'cancel' },
+            {
+                text: 'Zapusti', style: 'destructive',
+                onPress: async () => {
+                    try {
+                        await leaveGroup(groupId, user.id);
+                        setMessage('Zapustil si skupino.');
+                        await loadGroups();
+                        setTimeout(() => setMessage(''), 3000);
+                    } catch (err: any) {
+                        setMessage(err.message);
+                    }
+                }
+            }
+        ]);
+    }
+
+    async function handleDelete(groupId: number) {
+        Alert.alert('Izbriši skupino', 'Si prepričan?', [
+            { text: 'Prekliči', style: 'cancel' },
+            {
+                text: 'Izbriši', style: 'destructive',
+                onPress: async () => {
+                    try {
+                        await deleteGroup(groupId, user.id);
+                        setMessage('Skupina je bila izbrisana.');
+                        await loadGroups();
+                        setTimeout(() => setMessage(''), 3000);
+                    } catch (err: any) {
+                        setMessage(err.message);
+                    }
+                }
+            }
+        ]);
+    }
+
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Pressable onPress={onGoBack} style={styles.backBtn}>
-                    <Text style={styles.backBtnText}>← Nazaj</Text>
+                <Pressable onPress={onGoBack}>
+                    <Text style={styles.backButton}>←</Text>
                 </Pressable>
                 <Text style={styles.title}>Skupine</Text>
                 <View style={{ width: 70 }} />
@@ -161,6 +236,17 @@ export default function GroupsScreen({ user, onGoBack }: GroupsScreenProps) {
                                                 </Text>
                                             </View>
                                         ))}
+                                        <View style={{ marginTop: 16 }}>
+                                            {leaderboard.owner_id === user.id ? (
+                                                <Pressable style={styles.deleteButton} onPress={() => handleDelete(selectedGroup.id)}>
+                                                    <Text style={styles.deleteButtonText}>Izbriši skupino</Text>
+                                                </Pressable>
+                                            ) : (
+                                                <Pressable style={styles.leaveButton} onPress={() => handleLeave(selectedGroup.id)}>
+                                                    <Text style={styles.leaveButtonText}>Zapusti skupino</Text>
+                                                </Pressable>
+                                            )}
+                                        </View>
                                     </View>
                                 )}
                             </>
@@ -171,7 +257,19 @@ export default function GroupsScreen({ user, onGoBack }: GroupsScreenProps) {
                     {tab === 'join' && (
                         <View style={styles.card}>
                             <Text style={styles.cardTitle}>Pridruži se skupini</Text>
-                            <Text style={styles.cardSubtitle}>Kmalu bo prikazano tukaj.</Text>
+                            <Text style={styles.cardSubtitle}>Vnesi 6-mestno kodo skupine</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="NPR. ABC123"
+                                placeholderTextColor="#6B7280"
+                                value={joinCode}
+                                onChangeText={setJoinCode}
+                                autoCapitalize="characters"
+                                maxLength={6}
+                            />
+                            <Pressable style={[styles.primaryButton, isSaving && { opacity: 0.6 }]} onPress={handleJoin} disabled={isSaving}>
+                                <Text style={styles.primaryButtonText}>{isSaving ? 'Pridružujem...' : 'Pridruži se'}</Text>
+                            </Pressable>
                         </View>
                     )}
 
@@ -179,7 +277,17 @@ export default function GroupsScreen({ user, onGoBack }: GroupsScreenProps) {
                     {tab === 'create' && (
                         <View style={styles.card}>
                             <Text style={styles.cardTitle}>Ustvari skupino</Text>
-                            <Text style={styles.cardSubtitle}>Kmalu bo prikazano tukaj.</Text>
+                            <Text style={styles.cardSubtitle}>Postaneš avtomatsko lastnik</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Ime skupine"
+                                placeholderTextColor="#6B7280"
+                                value={newGroupName}
+                                onChangeText={setNewGroupName}
+                            />
+                            <Pressable style={[styles.primaryButton, isSaving && { opacity: 0.6 }]} onPress={handleCreate} disabled={isSaving}>
+                                <Text style={styles.primaryButtonText}>{isSaving ? 'Ustvarjam...' : 'Ustvari skupino'}</Text>
+                            </Pressable>
                         </View>
                     )}
 
@@ -203,13 +311,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 20,
     },
-    backBtn: {
-        paddingVertical: 6,
-        paddingRight: 12,
-    },
-    backBtnText: {
-        color: '#9CA3AF',
-        fontSize: 16,
+    backButton: {
+        color: 'white',
+        fontSize: 36,
+        fontWeight: '700',
     },
     title: {
         color: 'white',
@@ -319,10 +424,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     cardSubtitle: {
-        color: '#6B7280',
-        fontSize: 14,
-        marginTop: 6,
-    },
+    color: '#6B7280',
+    fontSize: 14,
+    marginTop: 6,
+    marginBottom: 12,  // ← dodaj
+},
     codeBox: {
         backgroundColor: '#0f1e3a',
         borderRadius: 10,
@@ -426,4 +532,37 @@ const styles = StyleSheet.create({
     xpFirst: {
         color: '#F59E0B',
     },
+
+    input: {
+        backgroundColor: '#111827',
+        borderWidth: 1,
+        borderColor: '#374151',
+        borderRadius: 12,
+        padding: 14,
+        color: 'white',
+        fontSize: 16,
+        marginBottom: 16,
+    },
+    primaryButton: {
+        backgroundColor: '#2563EB',
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    primaryButtonText: { color: 'white', fontSize: 16, fontWeight: '700' },
+    leaveButton: {
+        paddingVertical: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#EF4444',
+        alignItems: 'center',
+    },
+    leaveButtonText: { color: '#EF4444', fontSize: 15, fontWeight: '600' },
+    deleteButton: {
+        paddingVertical: 12,
+        borderRadius: 12,
+        backgroundColor: '#EF4444',
+        alignItems: 'center',
+    },
+    deleteButtonText: { color: 'white', fontSize: 15, fontWeight: '600' },
 });
