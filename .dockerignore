@@ -1,0 +1,26 @@
+# koren repozitorija je build kontekst za face-service;
+# izkljucimo vse, kar ni potrebno za gradnjo
+
+.git/
+**/node_modules/
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/venv/
+**/.pytest_cache/
+
+# expo / mobilno
+**/.expo/
+**/android/
+**/ios/
+**/dist/
+**/web-build/
+
+# podatki in modeli
+**/data/
+**/face-service/models/*.yml
+
+# editorji / ostalo
+**/.vscode/
+**/.idea/
+**/coverage/
