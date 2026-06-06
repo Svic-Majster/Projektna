@@ -25,5 +25,23 @@ services:
     - ./mosquitto/data:/mosquitto/data
     - ./mosquitto/log:/mosquitto/log
 
+  faceid:
+    build:
+      # kontekst je koren repozitorija, da dosezemo skupni requirements.txt
+      context: ..
+      dockerfile: RAI/face-service/Dockerfile
+    container_name: svicmajster_face
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - FACE_THRESHOLD=50
+      - ORV_PATH=/app/orv
+    volumes:
+      - face_models:/app/models
+      # deljene ORV skripte (samo za branje)
+      - ../ORV:/app/orv:ro
+
 volumes:
   postgres_data:
+  face_models:
