@@ -27,20 +27,38 @@ services:
 
   faceid:
     build:
-      # kontekst je koren repozitorija, da dosezemo skupni requirements.txt
+      # kontekst je koren repozitorija, da dosezemo skupni requirements.txt + ORV
       context: ..
       dockerfile: RAI/face-service/Dockerfile
+    image: ${DOCKERHUB_USER:-svicmajster}/svicmajster-faceid:latest
     container_name: svicmajster_face
     restart: always
     ports:
       - "8000:8000"
     environment:
       - FACE_THRESHOLD=50
-      - ORV_PATH=/app/orv
     volumes:
+      # samo nauceni modeli (nastajajo ob enroll); ORV je zdaj zapecen v sliki
       - face_models:/app/models
-      # deljene ORV skripte (samo za branje)
-      - ../ORV:/app/orv:ro
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: ${DOCKERHUB_USER:-svicmajster}/svicmajster-backend:latest
+    container_name: svicmajster_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    # POZOR: v .env nastavi hostname-e na imena servisov, ne localhost:
+    #   DB_HOST=db
+    #   MQTT_URL=mqtt://mosquitto:1883
+    #   FACE_SERVICE_URL=http://faceid:8000
+    env_file: ./backend/.env
+    depends_on:
+      - db
+      - mosquitto
+      - faceid
 
 volumes:
   postgres_data:
