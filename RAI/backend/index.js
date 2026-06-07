@@ -148,7 +148,7 @@ io.on('connection', (socket) => {
     });
 });
 
-startMqttClient();
+startMqttClient(io);
 
 const PORT = process.env.PORT || 3000;
 
