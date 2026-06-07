@@ -47,6 +47,57 @@
     background: radial-gradient(circle at top left, #1e293b 0%, var(--bg) 100%);
 }
 
+[data-theme="dark"] .workout-grid p:nth-child(1) {
+    background: rgba(144, 227, 154, 0.18);
+    color: #bbf7d0;
+}
+
+[data-theme="dark"] .workout-grid p:nth-child(2) {
+    background: rgba(221, 240, 147, 0.18);
+    color: #ecfccb;
+}
+
+[data-theme="dark"] .workout-grid p:nth-child(3) {
+    background: rgba(246, 208, 177, 0.18);
+    color: #fed7aa;
+}
+
+[data-theme="dark"] .workout-grid p:nth-child(4) {
+    background: rgba(99, 132, 117, 0.28);
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .profile-field span,
+[data-theme="dark"] .profile-readonly span,
+[data-theme="dark"] label,
+[data-theme="dark"] .groups-tab-btn,
+[data-theme="dark"] .muted {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] input {
+    color: #f8fafc;
+}
+
+[data-theme="dark"] input::placeholder {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] input:disabled {
+    color: #cbd5e1;
+}
+
+
+[data-theme="dark"] .group-code-badge {
+    background: rgba(221, 240, 147, 0.15);
+    color: #ecfccb;
+    border-color: #bbf7d0;
+}
+
+[data-theme="dark"] .group-code-badge:hover {
+    background: rgba(221, 240, 147, 0.25);
+}
+
 /* medal rows have light backgrounds, darken them in dark mode */
 [data-theme="dark"] .gold td { background-color: #3a3320; }
 [data-theme="dark"] .silver td { background-color: #2a3340; }
@@ -418,8 +469,8 @@ input:focus {
 }
 .group-selector:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--teal-light); }
 .group-code-badge {
-    background: var(--lime-light); padding: 4px 10px; border-radius: 6px;
-    font-family: monospace; font-size: 15px; color: #3f6212; font-weight: 800;
+    background: var(--lime-light); padding: 3px 8px; border-radius: 6px;
+    font-family: monospace; font-size: 14px; color: #3f6212; font-weight: 800;
     border: 1px dashed var(--lime-cream); cursor: pointer; user-select: all; transition: all 0.2s ease;
 }
 .group-code-badge:hover { background: var(--lime-cream); }
