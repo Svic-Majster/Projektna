@@ -5,7 +5,9 @@ const MQTT_URL = process.env.MQTT_URL || 'mqtt://localhost:1883';
 const MQTT_USER = process.env.MQTT_USER;
 const MQTT_PASSWORD = process.env.MQTT_PASSWORD;
 
-function startMqttClient() {
+const globalniAktivniTreningi = {};
+
+function startMqttClient(io) {
     const client = mqtt.connect(MQTT_URL, {
         username: MQTT_USER,
         password: MQTT_PASSWORD,
@@ -34,29 +36,40 @@ function startMqttClient() {
                 payload = { sporocilo: rawString };
             }
 
+            if (topic === 'app/workouts/stop' && payload.status === 'izpad_povezave') {
+                console.log(`[MQTT LWT] Zaznan nepričakovan izpad naprave za uporabnika #${payload.uporabnik_id}!`);
+            }
+
             await handleWorkoutTopic(topic, payload);
 
-            try {
-                const { io } = require('../index'); 
-                
-                if (io) {
-                    const mqttUserId = payload.uporabnik_id || payload.user_id;
+            if (io) {
+                const mqttUserId = payload.uporabnik_id || payload.user_id;
 
-                    if (mqttUserId) {
-                        const roomName = `user_${mqttUserId}`;
-                        console.log(`[Websocket] Pošiljam topik ${topic} v sobo: ${roomName}`);
-                        
-                        io.to(roomName).emit('mqtt-device-update', {
-                            topic: topic,
-                            data: payload,
-                            timestamp: new Date().toISOString()
-                        });
-                    } else {
-                        console.warn(`[Webosocket] Sporočilo na ${topic} nima uporabnik_id. Ne bo posredovano.`);
+                if (mqttUserId) {
+                    if (topic.endsWith('start')) {
+                        globalniAktivniTreningi[mqttUserId] = true;
+                    } else if (topic.endsWith('stop')) {
+                        globalniAktivniTreningi[mqttUserId] = false;
+                    } else if (topic.endsWith('location')) {
+                        globalniAktivniTreningi[mqttUserId] = true;
                     }
+
+                    const skupnoAktivnih = Object.values(globalniAktivniTreningi).filter(v => v === true).length;
+                    console.log(`[Socket.io] Oddajam globalno število aktivnih: ${skupnoAktivnih}`);
+
+                    io.emit('global-active-count', { count: skupnoAktivnih });
+
+                    const roomName = `user_${mqttUserId}`;
+                    io.to(roomName).emit('mqtt-device-update', {
+                        topic: topic,
+                        data: payload,
+                        timestamp: new Date().toISOString()
+                    });
+                } else {
+                    console.warn(`[Websocket] Sporočilo nima uporabnik_id. Ne bo posredovano.`);
                 }
-            } catch (wsErr) {
-                console.error("Napaka pri WS oddajanju znotraj MQTT clienta:", wsErr);
+            } else {
+                console.error("[Websocket] Objekt 'io' ni na voljo v MQTT odjemalcu!");
             }
 
         } catch (err) {

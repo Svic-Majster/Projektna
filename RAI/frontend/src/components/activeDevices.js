@@ -19,6 +19,19 @@ export function initActiveDevicesRealtime(trenutniUporabnikId) {
         }
     });
 
+    socket.on('global-active-count', (payload) => {
+        console.log("Frontend PREJEL global-active-count:", payload);
+
+        const countElement = document.getElementById('global-active-count');
+        if (countElement) {
+            console.log("Element najden, vpisujem številko:", payload.count);
+            countElement.textContent = payload.count;
+            countElement.style.color = payload.count > 0 ? '#10B981' : '#6B7280';
+        } else {
+            console.error("NAPAKA: Element z ID-jem 'global-active-count' ne obstaja na tej strani!");
+        }
+    });
+
     socket.on('mqtt-device-update', (payload) => {
         const { topic, data, timestamp } = payload;
 

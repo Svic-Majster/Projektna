@@ -31,11 +31,26 @@ export default function App() {
     const client = new Paho.Client(MQTT_HOST, MQTT_PORT, clientId);
     mqttClientRef.current = client;
 
+    const trenutniUporabnikId = auth.user?.id || (auth.user as any)?.uporabnik_id;
+
+    const lwtPayload = JSON.stringify({
+      uporabnik_id: trenutniUporabnikId,
+      status: 'izpad_povezave',
+      opomba: 'Aplikacija je nepričakovano izgubila povezavo s strežnikom'
+    });
+
+    const lastWillMessage = new Paho.Message(lwtPayload);
+    lastWillMessage.destinationName = 'app/workouts/stop';
+    lastWillMessage.qos = 1;
+    lastWillMessage.retained = false;
+
     client.connect({
       userName: MQTT_USER,
       password: MQTT_PASSWORD,
+      willMessage: lastWillMessage,
+      keepAliveInterval: 10,
       onSuccess: () => {
-        console.log('App.tsx: Telefon uspešno povezan na Mosquitto!');
+        console.log('App.tsx: Telefon uspešno povezan na Mosquitto z LWT varovalko!');
         setMqttConnected(true);
       },
       onFailure: (err: any) => {
@@ -120,9 +135,9 @@ export default function App() {
             onGoBack={() => setScreen('home')}
         />
     );
-}
+  }
+
   return (
-    
     <HomeScreen
       user={auth.user}
       onGoToProfile={() => setScreen('profile')}
