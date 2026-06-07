@@ -1,0 +1,9 @@
+# build kontekst za backend image
+**/node_modules/
+**/.env
+backend/uploads/*
+mosquitto/data/
+mosquitto/log/
+face-service/models/
+**/__pycache__/
+**/*.pyc

@@ -4,15 +4,14 @@
 
 Točke se računajo iz:
 
-- **intenzivnosti vadbe** (pospeškometer – večji šum pomeni večjo intenzivnost),
 - **razdalje in višinske razlike** (GPS),
-- **bonusov iz zunanjih podatkov** (vreme in promet – ekstremne razmere prinesejo množitelj točk).
+- **bonusov iz zunanjih podatkov** (vreme – ekstremne razmere prinesejo množitelj točk).
 
 ---
 
 ## 🗂️ Struktura repozitorija
 
-Repozitorij je razdeljen na module, vsak pokriva svoj del projekta (poimenovani po predmetih):
+Repozitorij je razdeljen na module, vsak pokriva svoj del projekta:
 
 | Mapa           | Predmet / namen                                  | Tehnologije                                 |
 | -------------- | ------------------------------------------------ | ------------------------------------------- |
@@ -69,7 +68,7 @@ Projektna/
 
 ### Na windowsu:
 
-zaženi run.bat 
+Zaženi run.bat 
 ### Na linuxu:
 
 ```bash
@@ -115,6 +114,37 @@ npx expo start
 ```
 
 Skeniraj QR kodo z aplikacijo **Expo Go** na telefonu.
+
+---
+
+## 🐳 Docker in objava na Docker Hub
+
+V zabojnike gre **strežniški del** iz `RAI/`. Mobilna aplikacija (NPO) in ORV skripte niso servisi (ORV se kot deljena koda doda v face-service sliko).
+
+| Servis | Slika | Vir |
+| ------ | ----- | --- |
+| `backend` | `<DOCKERHUB_USER>/svicmajster-backend` | lastni Dockerfile (`RAI/backend/Dockerfile`) |
+| `faceid` | `<DOCKERHUB_USER>/svicmajster-faceid` | lastni Dockerfile (`RAI/face-service/Dockerfile`, ORV zapečen) |
+| `db` | `postgres:15` | uradna slika (se ne objavlja) |
+| `mosquitto` | `eclipse-mosquitto:2` | uradna slika (se ne objavlja) |
+
+### Zagon iz objavljenih slik (pull & run)
+
+Uporabnik potrebuje repo (zaradi compose + bind-mountanih `init.sql` in `mosquitto/config`) ter svoj `.env`:
+
+```bash
+git clone https://github.com/Svic-Majster/Projektna.git
+cd Projektna/RAI
+cp .env.example .env && cp backend/.env.example backend/.env   # vpiši gesla
+
+docker compose pull                   # potegne slike z Docker Huba
+docker compose up -d
+```
+
+> **Pozor:** v `RAI/backend/.env` morajo za Docker hostname-i kazati na imena servisov, ne na `localhost`:
+> `DB_HOST=db`, `MQTT_URL=mqtt://mosquitto:1883`, `FACE_SERVICE_URL=http://faceid:8000` (glej `RAI/backend/.env.example`).
+
+Posamezno sliko lahko naložimo ročno: `docker pull <DOCKERHUB_USER>/svicmajster-backend:latest`.
 
 ---
 
