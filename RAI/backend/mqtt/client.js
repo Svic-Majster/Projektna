@@ -34,6 +34,10 @@ function startMqttClient() {
                 payload = { sporocilo: rawString };
             }
 
+            if (topic === 'app/workouts/stop' && payload.status === 'izpad_povezave') {
+                console.log(`[MQTT LWT] Zaznan nepričakovan izpad naprave za uporabnika #${payload.uporabnik_id}! Sprožam Last Will.`);
+            }
+
             await handleWorkoutTopic(topic, payload);
 
             try {
