@@ -1,0 +1,39 @@
+name: React Native Testi (NPO)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - 'NPO/**'
+  pull_request:
+    branches: [ "main", "master" ]
+    paths:
+      - 'NPO/**'
+
+jobs:
+  npo-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kode
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: |
+          cd NPO/SvicMajster
+          npm ci
+
+      - name: TypeScript preverjanje (ali se prevede)
+        run: |
+          cd NPO/SvicMajster
+          npm run typecheck
+
+      - name: Run unit testi
+        run: |
+          cd NPO/SvicMajster
+          npm test
