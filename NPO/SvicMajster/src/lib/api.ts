@@ -1,4 +1,5 @@
 import { env } from '../config/env';
+import type { AuthResponse } from '../types/auth';
 
 type RequestOptions = RequestInit & {
   path: string;
@@ -77,6 +78,58 @@ export async function uploadProfilePicture(
 
     return data;
 }
+
+// prijava z obrazom: poslje identifier + eno sliko
+export async function faceLogin(identifier: string, imageUri: string) {
+    const formData = new FormData();
+    formData.append('identifier', identifier);
+    formData.append('image', {
+        uri: imageUri,
+        name: 'login.jpg',
+        type: 'image/jpeg',
+    } as any);
+
+    const response = await fetch(`${env.apiBaseUrl}/auth/face-login`, {
+        method: 'POST',
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data?.error || 'Prijava z obrazom ni uspela.');
+    }
+
+    return data as AuthResponse;
+}
+
+// registracija obraza: poslje uporabnikId + vec slik
+export async function faceEnroll(userId: number, imageUris: string[]) {
+    const formData = new FormData();
+    formData.append('uporabnikId', String(userId));
+
+    imageUris.forEach((uri, i) => {
+        formData.append('images', {
+            uri,
+            name: `enroll_${i}.jpg`,
+            type: 'image/jpeg',
+        } as any);
+    });
+
+    const response = await fetch(`${env.apiBaseUrl}/auth/face-enroll`, {
+        method: 'POST',
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data?.error || 'Registracija obraza ni uspela.');
+    }
+
+    return data as { message: string; uporabljenih_slik: number; preskocenih_slik: number };
+}
+
 export async function getUserProfile(userId: number) {
     return apiRequest<any>({
         path: `/users/profile/${userId}`,

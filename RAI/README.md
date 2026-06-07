@@ -6,7 +6,7 @@ Senzorske podatke pridobimo s pomočjo pospeškometra, GPS-a, in kamere.
 Te podatke uporabimo za izračun točk, na primer:
 - **Pospeškometer** -> večji šum v pridobljenih podatkih pomeni večjo intenzivnost, kar prinese več točk
 - **GPS** -> Večja pretečena razdalja, premagana višinska razlika -> več točk
-- **Kamera** -> Uporabnik slika svojo Švic majico, goro katero je preplezal... AI ali glas publike potrdi prisotnost aktivnosti
+- **Kamera** -> FaceID prepoznava obraza za prijavo
 
 ### Zunanji podatki:
 
@@ -45,6 +45,8 @@ DB_PORT=5432
 MQTT_URL=mqtt://localhost:1883
 MQTT_USER=SvicMajsterAdmin
 MQTT_PASSWORD=tvoje_geslo
+
+FACE_SERVICE_URL=https://localhost:8000
 ```
 
 Ustvari `/mosquitto/config/passwordfile` za MQTT prijavo

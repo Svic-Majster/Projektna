@@ -7,6 +7,8 @@ import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import WorkoutScreen from './src/screens/WorkoutScreen';
 import GroupsScreen from './src/screens/GroupsScreen';
+import FaceLoginScreen from './src/screens/FaceLoginScreen';
+import FaceEnrollScreen from './src/screens/FaceEnrollScreen';
 // @ts-ignore
 import Paho from 'paho-mqtt';
 
@@ -17,8 +19,8 @@ const MQTT_PASSWORD = process.env.EXPO_PUBLIC_MQTT_PASSWORD || '';
 
 export default function App() {
   const auth = useAuth();
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [screen, setScreen] = useState<'home' | 'profile' | 'workout' | 'groups'>('home');  
+  const [mode, setMode] = useState<'login' | 'register' | 'face'>('login');
+  const [screen, setScreen] = useState<'home' | 'profile' | 'workout' | 'groups' | 'faceEnroll'>('home');
   const [selectedSport, setSelectedSport] = useState<'tek' | 'kolesarjenje' | 'hoja'>('tek');
   
   const mqttClientRef = useRef<Paho.Client | null>(null);
@@ -78,8 +80,21 @@ export default function App() {
   }
 
   if (!auth.user) {
+    if (mode === 'face') {
+      return (
+        <FaceLoginScreen
+          onSuccess={auth.updateUser}
+          onCancel={() => setMode('login')}
+        />
+      );
+    }
+
     return mode === 'login' ? (
-      <LoginScreen onSubmit={auth.login} onGoToRegister={() => setMode('register')} />
+      <LoginScreen
+        onSubmit={auth.login}
+        onGoToRegister={() => setMode('register')}
+        onGoToFace={() => setMode('face')}
+      />
     ) : (
       <RegisterScreen onSubmit={auth.register} onGoToLogin={() => setMode('login')} />
     );
@@ -87,11 +102,24 @@ export default function App() {
 
   if (screen === 'profile') {
     return (
-      <ProfileScreen 
-        user={auth.user} 
-        onGoBack={() => setScreen('home')} 
-        onLogout={auth.logout} 
-        onUpdateUser={auth.updateUser} 
+      <ProfileScreen
+        user={auth.user}
+        onGoBack={() => setScreen('home')}
+        onLogout={auth.logout}
+        onUpdateUser={auth.updateUser}
+        onAddFace={() => setScreen('faceEnroll')}
+      />
+    );
+  }
+
+  if (screen === 'faceEnroll') {
+    const trenutniUporabnikId = auth.user?.id || (auth.user as any)?.uporabnik_id;
+
+    return (
+      <FaceEnrollScreen
+        userId={trenutniUporabnikId}
+        onDone={() => setScreen('profile')}
+        onCancel={() => setScreen('profile')}
       />
     );
   }
