@@ -19,6 +19,9 @@
 # podatki in modeli
 **/data/
 **/face-service/models/*.yml
+# ORV: skripte zapecemo, izkljucimo pa podatke, naucene modele in teste
+ORV/*.yml
+ORV/testing/
 
 # editorji / ostalo
 **/.vscode/
